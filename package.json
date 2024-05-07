@@ -21,7 +21,7 @@
         "server:dev": "yarn workspace server dev ",
         "lint": "yarn workspaces foreach -Rpt --from '{b2c-admin,b2c-client,common,server}' run lint --config ../../.eslintrc.json",
         "dev": "yarn workspaces foreach -Rpt --from '{b2c-admin,b2c-client,server}' run dev",
-        "prepare": "husky"
+        "prepare": "husky install"
     },
     "workspaces": [
         "packages/*"
