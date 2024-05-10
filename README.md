@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Summer2024-SWP391.SE1830-G1
+=======
+# SWP-391-SU2024
+>>>>>>> b2286a8 (Fix: Change README name)
 
 ## Getting Started
 
