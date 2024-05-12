@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Summer2024-SWP391.SE1830-G1
-=======
-# SWP-391-SU2024
->>>>>>> b2286a8 (Fix: Change README name)
 
 ## Getting Started
 
@@ -15,12 +11,32 @@ yarn
 Run the development server:
 
 ```bash
-yarn dev # run both client and admin site
+yarn dev # run both client, admin site and server
+
+```
+
+```bash
+yarn client:dev # run only client site
+
+```
+
+```bash
+yarn admin:dev # run only admin site
+
+```
+
+```bash
+yarn server:dev # run only server site
+
+```
+
+```bash
+yarn workspace server dlx prisma db push  # push prisma schema to database
 
 ```
 
 The b2c-client site should be running on [http://localhost:3000](http://localhost:3000).
-The b2c-admin site should be running on [http://localhost:3001](http://localhost:3001)
+The b2c-admin site should be running on [http://localhost:3001](http://localhost:3001).
 The express-server site should be running on [http://localhost:8080](http://localhost:3001)
 
 ## Getting started
