@@ -45,5 +45,6 @@ model Account{
 enum Role {
   USER
   ADMIN
-  MANAGER
+  SELLER
+  MARKETER
 }

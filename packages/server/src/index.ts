@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import router from './app/routers';
 
 dotenv.config();
@@ -22,6 +23,8 @@ app.use(
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(express.static(path.resolve('./public')));
+app.use('/public', express.static(path.resolve('./public')));
 
 const server = http.createServer(app);
 
