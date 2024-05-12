@@ -23,15 +23,20 @@ export default async function middleware(req: NextRequest) {
     const nextUrl = req?.nextUrl;
     // Extract user information from JWT (replace with your logic)
     // Add JWT secret
-    // const user: User = {
-    //     role: Role.ADMIN,
-    // };
+    const user: User = {
+        role: Role.SELLER,
+    };
 
-    const user = null;
+    const isPublicPath = nextUrl.pathname === '/login';
 
     // If user is not authenticated, redirect to login
-    if (!user) {
-        return NextResponse.redirect(new URL('/login', nextUrl.origin));
+
+    if (isPublicPath && user) {
+        return NextResponse.redirect(new URL('/', req.nextUrl));
+    }
+
+    if (!isPublicPath && !user) {
+        return NextResponse.redirect(new URL('/login', req.nextUrl));
     }
 
     // Define route access rules based on roles (replace with your specific rules)
@@ -56,5 +61,11 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/', '/seller/:path*', '/admin/:path*', '/marketer/:path*'],
+    matcher: [
+        '/',
+        '/seller/:path*',
+        '/admin/:path*',
+        '/marketer/:path*',
+        '/login',
+    ],
 };
