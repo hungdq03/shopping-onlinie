@@ -24,7 +24,7 @@ export default async function middleware(req: NextRequest) {
     // Extract user information from JWT (replace with your logic)
     // Add JWT secret
     const user: User = {
-        role: Role.SELLER,
+        role: Role.MARKETER,
     };
 
     const isPublicPath = nextUrl.pathname === '/login';

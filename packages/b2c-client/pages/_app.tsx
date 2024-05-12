@@ -22,63 +22,6 @@ type AppPropsWithLayout = AppProps & {
     Component: NextPageWithLayout;
 };
 
-interface EventListener {
-    type: unknown;
-    opt?: unknown;
-    fn: any;
-    shouldRemoveBeforeNavigation?: boolean;
-}
-
-declare global {
-    interface Window {
-        originalAddEventListener: any;
-        allHandlers: EventListener[];
-        removeEventListeners: (type: string) => void;
-        android: any;
-        webkit: any;
-        AppBridge: any;
-        loginFunction: any; // 👈️ turn off type checking
-    }
-}
-
-if (
-    typeof Window !== 'undefined' &&
-    Window.prototype.originalAddEventListener == null
-) {
-    Window.prototype.originalAddEventListener =
-        Window.prototype.addEventListener;
-    let allHandlers: EventListener[] = [];
-    if (typeof window !== 'undefined') window.allHandlers = allHandlers;
-    // eslint-disable-next-line func-names
-    const addEventListenerHook = function <K extends keyof WindowEventMap>(
-        type: K,
-
-        fn: (this: Window, ev: WindowEventMap[K]) => any,
-        opt?: boolean | AddEventListenerOptions
-    ) {
-        allHandlers = allHandlers || [];
-        if (['scroll'].includes(type as string)) {
-            allHandlers.push({
-                type,
-                fn,
-                opt,
-            });
-        }
-        window.originalAddEventListener(type, fn, opt);
-    };
-
-    const removeEventListeners = (type: string) => {
-        window?.allHandlers
-            ?.filter((e) => e?.type === type && e.shouldRemoveBeforeNavigation)
-            ?.forEach((e) => {
-                window.removeEventListener('scroll', e.fn);
-            });
-    };
-
-    Window.prototype.addEventListener = addEventListenerHook;
-    Window.prototype.removeEventListeners = removeEventListeners;
-}
-
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
     const router = useRouter();
 
@@ -88,7 +31,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     useEffect(() => {
         const start = () => {
-            window.removeEventListeners('scroll');
             if (loadingRef.current) {
                 clearTimeout(loadingRef.current as number);
             }
