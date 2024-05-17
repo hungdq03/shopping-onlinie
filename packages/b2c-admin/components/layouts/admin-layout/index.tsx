@@ -7,10 +7,10 @@ type Props = {
 
 const AdminLayout = ({ children }: Props) => {
     return (
-        <main>
+        <div>
             <Header title="Admin" />
             {children}
-        </main>
+        </div>
     );
 };
 

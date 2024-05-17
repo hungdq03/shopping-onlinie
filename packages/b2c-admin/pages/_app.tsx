@@ -10,6 +10,7 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ToastContainer } from 'react-toastify';
 import { ReactElement, useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import DefaultLayout from '~/components/layouts/default-layout';
 import AdminLayout from '~/components/layouts/admin-layout';
 import MarketerLayout from '~/components/layouts/marketer-layout';
@@ -35,7 +36,7 @@ type AppPropsWithLayout = AppProps & {
     Component: NextPageWithLayout;
 };
 
-export default function App({ Component, pageProps }: AppPropsWithLayout) {
+function App({ Component, pageProps }: AppPropsWithLayout) {
     const cmsUser = Cookie.get('cmsUser');
 
     const user = cmsUser ? JSON.parse(cmsUser) : null;
@@ -101,3 +102,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         </QueryClientProvider>
     );
 }
+
+export default dynamic(() => Promise.resolve(App), {
+    ssr: false,
+});

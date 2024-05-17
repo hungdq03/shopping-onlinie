@@ -1,3 +1,7 @@
-export default function Home() {
-    return <main>Manager site</main>;
-}
+import React from 'react';
+
+const ManagerSite = () => {
+    return <div>ManagerSite</div>;
+};
+
+export default ManagerSite;
