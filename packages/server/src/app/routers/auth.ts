@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { loginUser, refreshToken } from '../controllers/auth/user';
+import { loginUser, refreshToken } from '../controllers/auth';
 import { loginAdmin, register } from '../controllers/auth/admin';
 
 export default (router: Router) => {
