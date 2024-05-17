@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 // Define your user roles here (replace with your actual roles)
 export enum Role {
-    ADMIN = 'admin',
-    SELLER = 'seller',
-    MARKETER = 'marketer',
+    ADMIN = 'ADMIN',
+    SELLER = 'SELLER',
+    MARKETER = 'MARKETER',
 }
 
 // Interface for user object retrieved from JWT
@@ -22,19 +22,19 @@ export default async function middleware(req: NextRequest) {
     const nextUrl = req?.nextUrl;
     // Extract user information from JWT (replace with your logic)
     // Add JWT secret
-    const cmsUser = req.cookies.get('cmsUser');
+    // const cmsUser = req.cookies.get('cmsUser');
 
-    const user = cmsUser ? JSON.parse(cmsUser.value) : null;
+    const user = { role: Role.MARKETER };
 
     const isPublicPath = nextUrl.pathname === '/auth/login';
 
     // If user is not authenticated, redirect to login
 
-    if (isPublicPath && cmsUser) {
+    if (isPublicPath && user) {
         return NextResponse.redirect(new URL('/', req.nextUrl));
     }
 
-    if (!isPublicPath && !cmsUser) {
+    if (!isPublicPath && !user) {
         return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
     }
 

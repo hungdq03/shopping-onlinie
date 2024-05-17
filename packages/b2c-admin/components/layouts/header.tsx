@@ -21,11 +21,11 @@ const Header: React.FC<Props> = ({ title }) => {
     ];
 
     return (
-        <header className="flex h-[76px] w-full items-center justify-between px-5 shadow-lg">
+        <header className="flex h-[76px] w-full items-center justify-between px-5 shadow-md">
             <h3 className="text-2xl font-bold uppercase">{title}</h3>
             <div>
                 <Dropdown menu={{ items }} placement="bottomLeft">
-                    <div className="flex cursor-pointer space-x-3 rounded-full border px-4 py-2">
+                    <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
                         <Image
                             alt="avatar"
                             className="rounded-full"
