@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 // Define your user roles here (replace with your actual roles)
 export enum Role {
     ADMIN = 'admin',
@@ -23,20 +22,20 @@ export default async function middleware(req: NextRequest) {
     const nextUrl = req?.nextUrl;
     // Extract user information from JWT (replace with your logic)
     // Add JWT secret
-    const user: User = {
-        role: Role.MARKETER,
-    };
+    const cmsUser = req.cookies.get('cmsUser');
 
-    const isPublicPath = nextUrl.pathname === '/login';
+    const user = cmsUser ? JSON.parse(cmsUser.value) : null;
+
+    const isPublicPath = nextUrl.pathname === '/auth/login';
 
     // If user is not authenticated, redirect to login
 
-    if (isPublicPath && user) {
+    if (isPublicPath && cmsUser) {
         return NextResponse.redirect(new URL('/', req.nextUrl));
     }
 
-    if (!isPublicPath && !user) {
-        return NextResponse.redirect(new URL('/login', req.nextUrl));
+    if (!isPublicPath && !cmsUser) {
+        return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
     }
 
     // Define route access rules based on roles (replace with your specific rules)
@@ -66,6 +65,6 @@ export const config = {
         '/seller/:path*',
         '/admin/:path*',
         '/marketer/:path*',
-        '/login',
+        '/auth/login',
     ],
 };
