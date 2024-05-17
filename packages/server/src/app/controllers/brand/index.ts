@@ -11,6 +11,10 @@ export const getListBrand = async (req: Request, res: Response) => {
                     contains: String(search),
                 },
             },
+            select: {
+                id: true,
+                name: true,
+            },
         });
 
         return res.status(201).json({

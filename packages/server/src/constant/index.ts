@@ -34,3 +34,5 @@ export const { TOKEN_KEY, REFRESH_TOKEN_KEY } = process.env;
 export const EXPIRES_TOKEN = '2d';
 
 export const TOKEN_TYPE = 'Bearer';
+
+export const PAGE_SIZE: number = 5;

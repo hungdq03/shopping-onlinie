@@ -1,7 +1,12 @@
 import React from 'react';
+import ListBrand from '~/components/marketer/brand';
 
-const ListBrand = () => {
-    return <div>ListBrand</div>;
+const ListBrandPage = () => {
+    return (
+        <div>
+            <ListBrand />
+        </div>
+    );
 };
 
-export default ListBrand;
+export default ListBrandPage;
