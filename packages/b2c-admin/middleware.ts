@@ -26,7 +26,7 @@ export default async function middleware(req: NextRequest) {
 
     const user = { role: Role.MARKETER };
 
-    const isPublicPath = nextUrl.pathname === '/login';
+    const isPublicPath = nextUrl.pathname === '/auth/login';
 
     // If user is not authenticated, redirect to login
 
@@ -35,7 +35,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (!isPublicPath && !user) {
-        return NextResponse.redirect(new URL('/login', req.nextUrl));
+        return NextResponse.redirect(new URL('/auth/login', req.nextUrl));
     }
 
     // Define route access rules based on roles (replace with your specific rules)
@@ -65,6 +65,6 @@ export const config = {
         '/seller/:path*',
         '/admin/:path*',
         '/marketer/:path*',
-        '/login',
+        '/auth/login',
     ],
 };
