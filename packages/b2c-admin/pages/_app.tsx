@@ -3,15 +3,23 @@ import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { NextPage } from 'next';
-import { ReactElement, useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/router';
 import { Spin } from 'antd';
+import { AxiosError } from 'axios';
+import Cookie from 'js-cookie';
+import type { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import { ToastContainer } from 'react-toastify';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import DefaultLayout from '~/components/layouts/default-layout';
 import AdminLayout from '~/components/layouts/admin-layout';
-import SellerLayout from '~/components/layouts/seller-layout';
 import MarketerLayout from '~/components/layouts/marketer-layout';
+import SellerLayout from '~/components/layouts/seller-layout';
+
+declare module '@tanstack/react-query' {
+    interface Register {
+        defaultError: AxiosError;
+    }
+}
 
 const queryClient = new QueryClient();
 
@@ -28,7 +36,11 @@ type AppPropsWithLayout = AppProps & {
 };
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
-    const role: string = 'MARKETER';
+    const cmsUser = Cookie.get('cmsUser');
+
+    const user = cmsUser ? JSON.parse(cmsUser) : null;
+
+    const role = user?.data?.role ?? null;
 
     const router = useRouter();
 

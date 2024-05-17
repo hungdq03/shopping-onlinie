@@ -22,9 +22,9 @@ export default async function middleware(req: NextRequest) {
     const nextUrl = req?.nextUrl;
     // Extract user information from JWT (replace with your logic)
     // Add JWT secret
-    // const cmsUser = req.cookies.get('cmsUser');
+    const cmsUser = req.cookies.get('cmsUser');
 
-    const user = { role: Role.MARKETER };
+    const user = cmsUser ? JSON.parse(cmsUser.value) : null;
 
     const isPublicPath = nextUrl.pathname === '/auth/login';
 
