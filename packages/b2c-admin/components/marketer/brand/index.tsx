@@ -17,6 +17,7 @@ import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { Brand } from '~/types/product';
 import BrandModal from './brand-modal';
+import Header from '~/components/header';
 
 type FormType = {
     search?: string;
@@ -148,15 +149,17 @@ const ListBrand = () => {
 
     return (
         <Spin spinning={isLoading}>
+            <Header title="Manage brand" />
             <div className="mb-5 flex justify-end">
                 <Form
+                    className="flex gap-5"
                     form={form}
                     initialValues={{ search: '', sortBy: '', sortOrder: '' }}
                     onFinish={onFinish}
                 >
-                    <div className="flex gap-5">
+                    <div className="grid grid-cols-3 gap-5">
                         <Form.Item label="Sort by" name="sortBy">
-                            <Select defaultValue="" style={{ width: 180 }}>
+                            <Select defaultValue="">
                                 {SORT_LIST?.map((item) => (
                                     <Select.Option
                                         key={item.key}
@@ -171,7 +174,7 @@ const ListBrand = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item label="Sort order" name="sortOrder">
-                            <Select defaultValue="" style={{ width: 180 }}>
+                            <Select defaultValue="">
                                 <Select.Option default value="">
                                     Select a order...
                                 </Select.Option>
@@ -217,20 +220,25 @@ const ListBrand = () => {
                     dataSource={dataSource}
                     pagination={false}
                 />
-                {data?.pagination?.total ? (
-                    <Pagination
-                        current={paginationValue?.currentPage}
-                        defaultCurrent={1}
-                        onChange={(page, pageSize) => {
-                            setPaginationValue({ currentPage: page, pageSize });
-                            setTimeout(() => {
-                                refetch();
-                            });
-                        }}
-                        pageSize={5}
-                        total={data?.pagination?.total}
-                    />
-                ) : null}
+                <div className="mt-5 flex justify-end">
+                    {data?.pagination?.total ? (
+                        <Pagination
+                            current={paginationValue?.currentPage}
+                            defaultCurrent={1}
+                            onChange={(page, pageSize) => {
+                                setPaginationValue({
+                                    currentPage: page,
+                                    pageSize,
+                                });
+                                setTimeout(() => {
+                                    refetch();
+                                });
+                            }}
+                            pageSize={5}
+                            total={data?.pagination?.total}
+                        />
+                    ) : null}
+                </div>
             </div>
         </Spin>
     );

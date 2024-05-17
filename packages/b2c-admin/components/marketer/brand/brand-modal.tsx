@@ -66,8 +66,12 @@ const BrandModal: React.FC<Props> = ({
         });
 
     useEffect(() => {
-        form.setFieldsValue({ name: data?.data?.name });
-    }, [data]);
+        if (brandId) {
+            form.setFieldsValue({ name: data?.data?.name });
+        } else {
+            form.resetFields();
+        }
+    }, [data, brandId]);
 
     const onFinish: FormProps<FormType>['onFinish'] = (values) => {
         if (brandId) {
