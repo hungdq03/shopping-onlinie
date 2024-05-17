@@ -40,8 +40,8 @@ model User {
 model Account{
   id String @id @default(uuid())
   userId String 
-  refresh_token String? 
-  access_token String?
+  refresh_token String? @db.Text
+  access_token String? @db.Text
   expires_at String?
   token_type String?    
 
