@@ -11,7 +11,7 @@ export default (router: Router) => {
     // Auth route
     router.get('/manage/brand', getListBrandManage);
     router.post('/brand/create', createBrand);
-    router.post('/brand/update/:id', updateBrand);
+    router.put('/brand/update/:id', updateBrand);
     router.delete('/brand/delete/:id', deleteBrand);
 
     // Public route

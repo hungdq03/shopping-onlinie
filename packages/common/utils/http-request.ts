@@ -16,7 +16,7 @@ export const get = async (path: string, req?: AxiosRequestConfig<any>) => {
 
 export const post = async (
     path: string,
-    req?: AxiosRequestConfig<any>,
+    req?: any,
     headers?: AxiosRequestConfig<AxiosRequestConfig<any>>
 ) => {
     const response = await request.post(path, req, headers);
@@ -25,7 +25,7 @@ export const post = async (
 
 export const put = async (
     path: string,
-    req: AxiosRequestConfig<any>,
+    req: any,
     headers?: AxiosRequestConfig<AxiosRequestConfig<any>>
 ) => {
     const response = await request.put(path, req, headers);

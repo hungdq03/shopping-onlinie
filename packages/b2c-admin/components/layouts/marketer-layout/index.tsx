@@ -8,7 +8,7 @@ type Props = {
 
 const MarketerLayout = ({ children }: Props) => {
     return (
-        <div className="h-full">
+        <div className="h-full min-w-[1280px]">
             <Header title="Marketer" />
             <main className="flex h-full">
                 <MarketerSidebar />

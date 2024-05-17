@@ -2,8 +2,20 @@ import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 import { PAGE_SIZE } from '../../../constant';
 
+type SortOrder = 'asc' | 'desc';
+
 export const getListBrandManage = async (req: Request, res: Response) => {
-    const { search, pageSize, currentPage } = req.query;
+    const { search, pageSize, currentPage, sortBy, sortOrder } = req.query;
+
+    const prismaQuery = {
+        skip: (Number(currentPage) - 1) * Number(pageSize || PAGE_SIZE),
+        take: Number(pageSize),
+        where: {
+            name: {
+                contains: String(search),
+            },
+        },
+    };
 
     try {
         const total = await db.brand.count({
@@ -14,22 +26,48 @@ export const getListBrandManage = async (req: Request, res: Response) => {
             },
         });
 
-        const listBrand = await db.brand.findMany({
-            skip: (Number(currentPage) - 1) * Number(pageSize || PAGE_SIZE),
-            take: Number(pageSize),
-            where: {
-                name: {
-                    contains: String(search),
-                },
-            },
-        });
+        let listBrand;
+
+        switch (sortBy) {
+            case 'name':
+                listBrand = await db.brand.findMany({
+                    ...prismaQuery,
+                    orderBy: {
+                        name: (sortOrder as SortOrder) || 'desc',
+                    },
+                });
+                break;
+            case 'createAt':
+                listBrand = await db.brand.findMany({
+                    ...prismaQuery,
+                    orderBy: {
+                        createdAt: (sortOrder as SortOrder) || 'desc',
+                    },
+                });
+                break;
+            case 'updateAt':
+                listBrand = await db.brand.findMany({
+                    ...prismaQuery,
+                    orderBy: {
+                        updatedAt: (sortOrder as SortOrder) || 'desc',
+                    },
+                });
+                break;
+            default:
+                listBrand = await db.brand.findMany({
+                    ...prismaQuery,
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                });
+        }
 
         return res.status(200).json({
             isOk: true,
             data: listBrand,
             message: 'Get list brand successfully!',
             pagination: {
-                totalPage: (total / Number(pageSize || PAGE_SIZE)).toFixed(),
+                total,
             },
         });
     } catch (error) {

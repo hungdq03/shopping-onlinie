@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '~/styles/globals.css';
+import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextPage } from 'next';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Spin } from 'antd';
+import { ToastContainer } from 'react-toastify';
 import DefaultLayout from '~/components/layouts/default-layout';
 import AdminLayout from '~/components/layouts/admin-layout';
 import SellerLayout from '~/components/layouts/seller-layout';
@@ -82,6 +84,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     return (
         <QueryClientProvider client={queryClient}>
             <Spin fullscreen spinning={loading} />
+            <ToastContainer />
             {getLayout(<Component {...pageProps} />)}
         </QueryClientProvider>
     );
