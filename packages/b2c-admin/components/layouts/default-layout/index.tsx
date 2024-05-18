@@ -5,12 +5,7 @@ type Props = {
 };
 
 const DefaultLayout = ({ children }: Props) => {
-    return (
-        <main>
-            <header>Default</header>
-            {children}
-        </main>
-    );
+    return children;
 };
 
 export default DefaultLayout;
