@@ -78,7 +78,7 @@ model Product {
   quantity Int @default(0)
   sold_quantity Int @default(0)
   description String? @db.Text
-  size String?
+  size Int?
   categoryId String
   thumbnail String? @db.Text
   rating Float @default(0)
