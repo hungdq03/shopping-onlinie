@@ -1,7 +1,8 @@
 import React from 'react';
+import ProductList from '~/components/marketer/product';
 
-const ProductList = () => {
-    return <div>ProductList</div>;
+const ProductPage = () => {
+    return <ProductList />;
 };
 
-export default ProductList;
+export default ProductPage;

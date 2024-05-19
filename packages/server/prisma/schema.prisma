@@ -71,6 +71,7 @@ enum Gender {
 
 model Product {
   id String @id @default(uuid())
+  name String
   brandId String
   original_price Int
   discount_price Int?
@@ -81,6 +82,7 @@ model Product {
   categoryId String
   thumbnail String? @db.Text
   rating Float @default(0)
+  isShow Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,6 +149,7 @@ model Slider {
 
 model Post {
   id String @id @default(uuid())
+  title String
   description String? @db.Text
   productId String
   thumbnail String? @db.Text
