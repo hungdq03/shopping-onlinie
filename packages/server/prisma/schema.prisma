@@ -27,9 +27,10 @@ model User {
   dob DateTime?
   phone String?
   address String?
+  status UserStatus?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
  
   accounts Account[]
   feedback Feedback[]
@@ -53,6 +54,14 @@ enum Role {
   ADMIN
   SELLER
   MARKETER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  NEWLY_REGISTER
+  NEWLY_BOUGHT
+  BANNED
 }
 
 enum Gender {
