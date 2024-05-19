@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 
-export const getListBrand = async (req: Request, res: Response) => {
+export const getListCategory = async (req: Request, res: Response) => {
     const { search } = req.query;
 
     try {
-        const listBrand = await db.brand.findMany({
+        const listCategory = await db.category.findMany({
             where: {
                 name: {
                     contains: String(search ?? ''),
@@ -22,8 +22,8 @@ export const getListBrand = async (req: Request, res: Response) => {
 
         return res.status(201).json({
             isOk: true,
-            data: listBrand,
-            message: 'Get list brand successfully!',
+            data: listCategory,
+            message: 'Get list category successfully!',
             params: search,
         });
     } catch (error) {
@@ -31,11 +31,11 @@ export const getListBrand = async (req: Request, res: Response) => {
     }
 };
 
-export const getBrandById = async (req: Request, res: Response) => {
+export const getCategoryById = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
-        const brand = await db.brand.findUnique({
+        const category = await db.category.findUnique({
             where: {
                 id,
             },
@@ -43,8 +43,8 @@ export const getBrandById = async (req: Request, res: Response) => {
 
         return res.status(201).json({
             isOk: true,
-            data: brand,
-            message: 'Get brand successfully!',
+            data: category,
+            message: 'Get category successfully!',
         });
     } catch (error) {
         return res.send(500);

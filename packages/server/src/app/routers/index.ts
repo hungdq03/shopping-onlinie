@@ -3,6 +3,7 @@ import auth from './auth';
 import user from './user';
 import brand from './brand';
 import upload from './upload';
+import category from './category';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ export default (): Router => {
     user(router);
     brand(router);
     upload(router);
+    category(router);
 
     return router;
 };
