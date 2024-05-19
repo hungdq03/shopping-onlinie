@@ -11,5 +11,8 @@
     },
     "cSpell.words": ["hagtag", "lowestpriceperweek", "tailwindcss"],
 
-    "explorer.compactFolders": false
+    "explorer.compactFolders": false,
+    "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    }
 }
