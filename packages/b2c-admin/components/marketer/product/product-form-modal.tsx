@@ -26,6 +26,7 @@ type Props = {
     type: 'CREATE' | 'UPDATE';
     title: string;
     reload: () => void;
+    productId?: string;
 };
 
 type FormType = {
@@ -56,7 +57,13 @@ type ProductRequestType = {
     product_image: string[];
 };
 
-const ProductFormModal: React.FC<Props> = ({ type, title, reload }) => {
+const ProductFormModal: React.FC<Props> = ({
+    type,
+    title,
+    reload,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    productId,
+}) => {
     const [form] = Form.useForm();
 
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
@@ -437,6 +444,10 @@ const ProductFormModal: React.FC<Props> = ({ type, title, reload }) => {
             </Modal>
         </div>
     );
+};
+
+ProductFormModal.defaultProps = {
+    productId: undefined,
 };
 
 export default ProductFormModal;

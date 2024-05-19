@@ -114,7 +114,7 @@ const ListBrand = () => {
                 <Space size="middle">
                     <Tooltip arrow={false} color="#108ee9" title="Edit brand">
                         <BrandModal
-                            brandId={record.id}
+                            brandId={record.id ?? ''}
                             button={
                                 <Button
                                     icon={<EditOutlined />}

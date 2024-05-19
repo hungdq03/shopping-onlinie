@@ -1,10 +1,13 @@
 import { Router } from 'express';
 
-import { createProduct } from '../controllers/product/cms-product';
+import {
+    createProduct,
+    getListProductManage,
+} from '../controllers/product/cms-product';
 
 export default (router: Router) => {
     // Auth route
-    // router.get('/manage/brand', getListBrandManage);
+    router.get('/manage/product', getListProductManage);
     router.post('/product/create', createProduct);
     // router.put('/brand/update/:id', updateBrand);
     // router.delete('/brand/delete/:id', deleteBrand);
