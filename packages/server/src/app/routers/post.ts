@@ -5,7 +5,7 @@ import {
     getListPostManage,
     updatePost,
 } from '../controllers/post/marketer-post';
-import { getPostById, getListPost } from '../controllers/post';
+import { getListPost, getPostById } from '../controllers/post';
 
 export default (router: Router) => {
     // Auth route
