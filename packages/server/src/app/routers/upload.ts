@@ -13,7 +13,7 @@ const upload = multer({ storage });
 
 export default (router: Router) => {
     // eslint-disable-next-line consistent-return
-    router.post('/upload', upload.array('images'), (req, res) => {
+    router.post('/upload', upload.array('files'), (req, res) => {
         try {
             const uploadedFiles = req.files as Express.Multer.File[]; // Type casting
 

@@ -118,7 +118,7 @@ export const createProduct = async (req: Request, res: Response) => {
             message: 'Create new product successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.status(500).json({ message: 'Internal server error!' });
     }
 };
 

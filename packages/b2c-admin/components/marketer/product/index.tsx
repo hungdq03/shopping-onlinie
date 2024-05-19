@@ -5,7 +5,11 @@ const ProductList = () => {
     return (
         <div>
             <div>
-                <ProductFormModal title="Create product" type="CREATE" />
+                <ProductFormModal
+                    reload={() => {}}
+                    title="Create product"
+                    type="CREATE"
+                />
             </div>
         </div>
     );
