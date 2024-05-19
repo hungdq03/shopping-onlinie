@@ -37,3 +37,29 @@ export const getUser = async (req: Request, res: Response) => {
 
     return res.status(200).json(successObj);
 };
+
+export const getListUser = async (req: Request, res: Response) => {
+    try {
+        const listUser = await db.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                gender: true,
+                address: true,
+                phone: true,
+                image: true,
+                role: true,
+                status: true,
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: listUser,
+            message: 'Get list user successfully!',
+        });
+    } catch (error) {
+        return res.send(500);
+    }
+};
