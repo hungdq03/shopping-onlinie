@@ -535,6 +535,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/eslint-plugin-next@npm:^14.2.3":
+  version: 14.2.3
+  resolution: "@next/eslint-plugin-next@npm:14.2.3"
+  dependencies:
+    glob: "npm:10.3.10"
+  checksum: de9af2c7465cce4eb4cb50654aa2548d4d2af788c8992d02e2b863b1bf4f99e3b6604d1f0775f8e50aca6a53cf30d51f4ac56810d1625d401548267ca5f1d883
+  languageName: node
+  linkType: hard
+
 "@next/swc-android-arm-eabi@npm:13.0.3":
   version: 13.0.3
   resolution: "@next/swc-android-arm-eabi@npm:13.0.3"
@@ -2348,6 +2357,7 @@ __metadata:
     "@ant-design/icons": "npm:^4.8.2"
     "@babel/runtime": "npm:^7.24.0"
     "@gumlet/react-hls-player": "npm:^1.0.1"
+    "@next/eslint-plugin-next": "npm:^14.2.3"
     "@tanstack/react-query": "npm:^5.28.6"
     "@types/eslint": "npm:^8"
     "@types/js-cookie": "npm:^3"
