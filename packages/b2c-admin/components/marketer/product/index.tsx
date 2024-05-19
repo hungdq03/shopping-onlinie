@@ -120,13 +120,15 @@ const ProductList = () => {
             title: 'Brand',
             dataIndex: 'brand',
             key: 'name',
-            render: (_: any, record: Brand) => <p>{record.name}</p>,
+            render: (_: any, record: Product) => <p>{record?.brand?.name}</p>,
         },
         {
             title: 'Category',
             dataIndex: 'category',
             key: 'name',
-            render: (_: any, record: Category) => <p>{record.name}</p>,
+            render: (_: any, record: Product) => (
+                <p>{record?.category?.name}</p>
+            ),
         },
         {
             title: 'Size',
@@ -232,6 +234,7 @@ const ProductList = () => {
                     <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
                         <Form.Item<FormType> label="Brand" name="brandId">
                             <Select
+                                allowClear
                                 filterOption={filterOption}
                                 options={brands?.data?.map((item: Brand) => ({
                                     value: item.id,
@@ -242,6 +245,7 @@ const ProductList = () => {
                         </Form.Item>
                         <Form.Item<FormType> label="Category" name="categoryId">
                             <Select
+                                allowClear
                                 filterOption={filterOption}
                                 options={categories?.data?.map(
                                     (item: Category) => ({
@@ -256,7 +260,7 @@ const ProductList = () => {
                             <Input />
                         </Form.Item>
                         <Form.Item<FormType> label="Rate" name="rating">
-                            <Select>
+                            <Select allowClear>
                                 {RATING_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
@@ -268,7 +272,7 @@ const ProductList = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select>
+                            <Select allowClear>
                                 {FILTER_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
