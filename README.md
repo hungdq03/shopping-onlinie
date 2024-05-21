@@ -37,7 +37,7 @@ yarn workspace server dlx prisma db push  # push prisma schema to database
 
 The b2c-client site should be running on [http://localhost:3000](http://localhost:3000).
 The b2c-admin site should be running on [http://localhost:3001](http://localhost:3001).
-The express-server site should be running on [http://localhost:8080](http://localhost:3001)
+The express-server site should be running on [http://localhost:8080](http://localhost:8080)
 
 ## Getting started
 

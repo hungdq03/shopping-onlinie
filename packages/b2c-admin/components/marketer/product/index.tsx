@@ -36,7 +36,7 @@ const FILTER_LIST = [
         name: 'Name: A to Z',
     },
     {
-        id: 'NAME_A_TO_Z',
+        id: 'NAME_Z_TO_A',
         name: 'Name: Z to A',
     },
     {
@@ -307,6 +307,7 @@ const ProductList = () => {
                     columns={columns}
                     dataSource={listProduct?.data}
                     pagination={false}
+                    rowKey="id"
                 />
                 <div className="mt-5 flex justify-end">
                     {listProduct?.pagination?.total ? (
