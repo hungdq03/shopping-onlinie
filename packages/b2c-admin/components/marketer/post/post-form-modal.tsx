@@ -272,10 +272,10 @@ const PostFormModal: React.FC<Props> = ({
                                         {listProduct?.data?.map(
                                             (item: Product) => (
                                                 <Select.Option
-                                                    key={item.id}
-                                                    value={item.id}
+                                                    key={item?.id}
+                                                    value={item?.id}
                                                 >
-                                                    {item.name}
+                                                    {item?.name}
                                                 </Select.Option>
                                             )
                                         )}

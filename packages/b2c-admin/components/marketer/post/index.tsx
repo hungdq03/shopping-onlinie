@@ -137,7 +137,7 @@ const PostList = () => {
         {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Product) => (
+            render: (_: any, record: Post) => (
                 <PostFormModal
                     postId={record?.id ?? ''}
                     reload={() => refetch()}
