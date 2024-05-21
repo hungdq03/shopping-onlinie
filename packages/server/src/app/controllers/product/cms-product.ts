@@ -6,6 +6,7 @@ type ProductFilter = {
     brandId?: string;
     categoryId?: string;
     rating?: number;
+    isShow?: boolean;
 };
 
 export const getListProductManage = async (req: Request, res: Response) => {
@@ -17,6 +18,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
         brandId,
         categoryId,
         rating,
+        isShow,
     } = req.query;
 
     const pagination = {
@@ -35,6 +37,9 @@ export const getListProductManage = async (req: Request, res: Response) => {
         }
         if (rating) {
             whereClause.rating = Number(rating);
+        }
+        if (isShow) {
+            whereClause.isShow = isShow === 'true';
         }
 
         const select = {

@@ -130,7 +130,7 @@ const ProductFormModal: React.FC<Props> = ({
                 );
             case 'UPDATE':
                 return (
-                    <Tooltip arrow={false} color="#108ee9" title="Edit brand">
+                    <Tooltip arrow={false} color="#108ee9" title="Edit Product">
                         <Button
                             icon={<EditOutlined />}
                             shape="circle"
