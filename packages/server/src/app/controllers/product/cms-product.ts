@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 import { PAGE_SIZE } from '../../../constant';
@@ -224,7 +223,9 @@ export const createProduct = async (req: Request, res: Response) => {
     const {
         name,
         brandId,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         original_price,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         discount_price,
         quantity,
         description,
@@ -232,6 +233,7 @@ export const createProduct = async (req: Request, res: Response) => {
         categoryId,
         thumbnail,
         isShow,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         product_image,
     } = req.body;
 
