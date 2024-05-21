@@ -10,7 +10,6 @@ import {
     Input,
     Modal,
     Select,
-    Spin,
     Tooltip,
     Upload,
     UploadFile,
@@ -31,7 +30,6 @@ type FormType = {
     name: string;
     email: string;
     image: UploadFile[];
-    password: string;
     role: string;
     gender: string;
     dob: string;
@@ -43,7 +41,6 @@ type FormType = {
 type UserRequestType = {
     name: string;
     email: string;
-    password: string;
     image: string;
     gender: string;
     role: string;
@@ -140,17 +137,8 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
     };
 
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
-        const {
-            name,
-            email,
-            image,
-            password,
-            role,
-            gender,
-            dob,
-            phone,
-            address,
-        } = values;
+        const { name, email, image, role, gender, dob, phone, address } =
+            values;
 
         const avatar = image?.map((file) => file.originFileObj);
         const imageResponse = await uploadFileTrigger(
@@ -160,7 +148,6 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
         createUser({
             name,
             email,
-            password,
             role,
             gender,
             dob,
@@ -182,193 +169,163 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
                 title={title}
                 width={800}
             >
-                <Spin spinning={false}>
-                    <div className="max-h-[75vh] overflow-auto px-5">
-                        <Form
-                            disabled={
-                                uploadFileIsPending || createUserIsPending
-                            }
-                            form={form}
-                            layout="vertical"
-                            onFinish={onFinish}
-                        >
-                            <div className="grid grid-cols-2 gap-x-10">
-                                <Form.Item<FormType>
-                                    label="Name"
-                                    name="name"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message:
-                                                'User name must be required!',
-                                        },
-                                    ]}
-                                >
-                                    <Input size="large" />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Email"
-                                    name="email"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Please input your email!',
-                                        },
-                                        {
-                                            type: 'email',
-                                            message:
-                                                'Please enter a valid email!',
-                                        },
-                                    ]}
-                                >
-                                    <Input size="large" />
-                                </Form.Item>
-                                <Form.Item<FormType>
-                                    label="Password"
-                                    name="password"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message:
-                                                'Password must be required!',
-                                        },
-                                    ]}
-                                >
-                                    <Input min={6} size="large" />
-                                </Form.Item>
-                                <Form.Item
-                                    label="Phone number"
-                                    name="phone"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message:
-                                                'Please input your phone number!',
-                                        },
-                                        {
-                                            pattern:
-                                                /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
-                                            message:
-                                                'Please enter a valid phone number!',
-                                        },
-                                    ]}
-                                >
-                                    <Input size="large" />
-                                </Form.Item>
-                                <Form.Item label="Address" name="address">
-                                    <Input size="large" />
-                                </Form.Item>
-                                <Form.Item<FormType>
-                                    label="Gender"
-                                    name="gender"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Gender must be required!',
-                                        },
-                                    ]}
-                                >
-                                    <Select size="large">
-                                        {Object.values(genderOptions).map(
-                                            (item: string) => (
-                                                <Select.Option
-                                                    key={Object.values(
-                                                        genderOptions
-                                                    ).indexOf(item)}
-                                                    value={
-                                                        Object.keys(
-                                                            genderOptions
-                                                        )[
-                                                            Object.values(
-                                                                genderOptions
-                                                            ).indexOf(item)
-                                                        ]
-                                                    }
-                                                >
-                                                    {item}
-                                                </Select.Option>
-                                            )
-                                        )}
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item<FormType>
-                                    label="Date of birth"
-                                    name="dob"
-                                >
-                                    <DatePicker
-                                        size="large"
-                                        style={{ width: '100%' }}
-                                    />
-                                </Form.Item>
-                                <Form.Item<FormType>
-                                    label="Role"
-                                    name="role"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: 'Role must be required!',
-                                        },
-                                    ]}
-                                >
-                                    <Select size="large">
-                                        {Object.values(roleOptions).map(
-                                            (item: string) => (
-                                                <Select.Option
-                                                    key={Object.values(
-                                                        roleOptions
-                                                    ).indexOf(item)}
-                                                    value={
-                                                        Object.keys(
-                                                            roleOptions
-                                                        )[
-                                                            Object.values(
-                                                                roleOptions
-                                                            ).indexOf(item)
-                                                        ]
-                                                    }
-                                                >
-                                                    {item}
-                                                </Select.Option>
-                                            )
-                                        )}
-                                    </Select>
-                                </Form.Item>
-                            </div>
+                <div className="max-h-[75vh] overflow-auto px-5">
+                    <Form
+                        disabled={uploadFileIsPending || createUserIsPending}
+                        form={form}
+                        layout="vertical"
+                        onFinish={onFinish}
+                    >
+                        <div className="grid grid-cols-2 gap-x-10">
                             <Form.Item<FormType>
-                                getValueFromEvent={normFile}
-                                label="Avatar"
-                                name="image"
-                                valuePropName="image"
+                                label="Name"
+                                name="name"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'User name must be required!',
+                                    },
+                                ]}
                             >
-                                <Upload
-                                    accept=".png, .jpg, .jpeg"
-                                    beforeUpload={() => false}
-                                    listType="picture-card"
-                                    maxCount={1}
-                                    name="image"
+                                <Input size="large" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Email"
+                                name="email"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Please input your email!',
+                                    },
+                                    {
+                                        type: 'email',
+                                        message: 'Please enter a valid email!',
+                                    },
+                                ]}
+                            >
+                                <Input size="large" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Phone number"
+                                name="phone"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message:
+                                            'Please input your phone number!',
+                                    },
+                                    {
+                                        pattern:
+                                            /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
+                                        message:
+                                            'Please enter a valid phone number!',
+                                    },
+                                ]}
+                            >
+                                <Input size="large" />
+                            </Form.Item>
+                            <Form.Item<FormType>
+                                label="Role"
+                                name="role"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: 'Role must be required!',
+                                    },
+                                ]}
+                            >
+                                <Select size="large">
+                                    {Object.values(roleOptions).map(
+                                        (item: string) => (
+                                            <Select.Option
+                                                key={Object.values(
+                                                    roleOptions
+                                                ).indexOf(item)}
+                                                value={
+                                                    Object.keys(roleOptions)[
+                                                        Object.values(
+                                                            roleOptions
+                                                        ).indexOf(item)
+                                                    ]
+                                                }
+                                            >
+                                                {item}
+                                            </Select.Option>
+                                        )
+                                    )}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item label="Address" name="address">
+                                <Input size="large" />
+                            </Form.Item>
+                            <Form.Item<FormType> label="Gender" name="gender">
+                                <Select size="large">
+                                    {Object.values(genderOptions).map(
+                                        (item: string) => (
+                                            <Select.Option
+                                                key={Object.values(
+                                                    genderOptions
+                                                ).indexOf(item)}
+                                                value={
+                                                    Object.keys(genderOptions)[
+                                                        Object.values(
+                                                            genderOptions
+                                                        ).indexOf(item)
+                                                    ]
+                                                }
+                                            >
+                                                {item}
+                                            </Select.Option>
+                                        )
+                                    )}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item<FormType>
+                                label="Date of birth"
+                                name="dob"
+                            >
+                                <DatePicker
+                                    size="large"
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </div>
+                        <Form.Item<FormType>
+                            getValueFromEvent={normFile}
+                            label="Avatar"
+                            name="image"
+                            valuePropName="image"
+                        >
+                            <Upload
+                                accept=".png, .jpg, .jpeg"
+                                beforeUpload={() => false}
+                                listType="picture-card"
+                                maxCount={1}
+                                name="image"
+                            >
+                                <button
+                                    style={{
+                                        border: 0,
+                                        background: 'none',
+                                    }}
+                                    type="button"
                                 >
-                                    <button
-                                        style={{
-                                            border: 0,
-                                            background: 'none',
-                                        }}
-                                        type="button"
-                                    >
-                                        <PlusOutlined />
-                                        <div style={{ marginTop: 8 }}>
-                                            Upload
-                                        </div>
-                                    </button>
-                                </Upload>
-                            </Form.Item>
-                            <Form.Item>
-                                <Button htmlType="submit" type="primary">
-                                    Submit
-                                </Button>
-                            </Form.Item>
-                        </Form>
-                    </div>
-                </Spin>
+                                    <PlusOutlined />
+                                    <div style={{ marginTop: 8 }}>Upload</div>
+                                </button>
+                            </Upload>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button
+                                htmlType="submit"
+                                loading={createUserIsPending}
+                                type="primary"
+                            >
+                                Create
+                            </Button>
+                        </Form.Item>
+                    </Form>
+                </div>
             </Modal>
         </div>
     );

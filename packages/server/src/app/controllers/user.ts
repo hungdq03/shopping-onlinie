@@ -1,6 +1,6 @@
+import { hashSync } from 'bcrypt';
 import { Request, Response } from 'express';
 import { jwtDecode } from 'jwt-decode';
-import { hashSync } from 'bcrypt';
 import {
     ERROR_RES,
     PAGE_SIZE,
@@ -8,8 +8,8 @@ import {
     SuccessResponseType,
 } from '../../constant';
 import { db } from '../../lib/db';
+import { getToken, sendMail } from '../../lib/utils';
 import { TokenDecoded } from '../../types';
-import { getToken } from '../../lib/utils';
 
 export const getUser = async (req: Request, res: Response) => {
     const accessToken = getToken(req);
@@ -51,8 +51,9 @@ export const getListUser = async (req: Request, res: Response) => {
         pageSize,
         currentPage,
         sortBy,
-        fillterBy,
-        fillter,
+        fillterByRole,
+        fillterByGender,
+        fillterByStatus,
     } = req.query;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,8 +63,15 @@ export const getListUser = async (req: Request, res: Response) => {
         where[String(searchBy)] = { contains: String(search) };
     }
 
-    if (fillterBy && fillter) {
-        where[String(fillterBy)] = String(fillter);
+    if (fillterByGender) {
+        where.gender = String(fillterByGender);
+    }
+    if (fillterByRole) {
+        where.role = String(fillterByRole);
+    }
+
+    if (fillterByStatus) {
+        where.status = String(fillterByStatus);
     }
 
     const prismaQuery = {
@@ -219,8 +227,7 @@ export const getListUser = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-    const { password, name, email, role, gender, address, dob, phone, image } =
-        req.body;
+    const { name, email, role, gender, address, dob, phone, image } = req.body;
 
     let user = await db.user.findFirst({
         where: { email },
@@ -237,7 +244,7 @@ export const createUser = async (req: Request, res: Response) => {
         data: {
             name,
             email,
-            hashedPassword: hashSync(password, SALT),
+            hashedPassword: hashSync(phone, SALT),
             phone,
             role,
             gender,
@@ -247,6 +254,15 @@ export const createUser = async (req: Request, res: Response) => {
             status: 'NEWLY_REGISTER',
         },
     });
+
+    const mailTitle = 'User create new user';
+    const mailBody = `
+    Hello ${name},
+    You have just created an account. You can use this account to login.
+    Please change your password to increase security.
+    Email: ${email}
+    Password: ${phone}`;
+    await sendMail(email, mailTitle, mailBody);
 
     const successObj: SuccessResponseType = {
         data: {

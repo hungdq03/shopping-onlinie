@@ -1,4 +1,4 @@
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import {
     Button,
@@ -79,21 +79,6 @@ const FILTER_LIST = [
     {
         id: 'STATUS_Z_TO_A',
         name: 'Status: Z to A',
-    },
-];
-
-const filterBy = [
-    {
-        id: 'role',
-        name: 'Role',
-    },
-    {
-        id: 'gender',
-        name: 'Gender',
-    },
-    {
-        id: 'status',
-        name: 'Status',
     },
 ];
 
@@ -251,24 +236,6 @@ const ListUser = () => {
         },
     ];
 
-    const [filterOptions, setFilterOptions] = useState([{ id: '', name: '' }]);
-
-    const handleFilterByChange = (value: string) => {
-        switch (value) {
-            case 'role':
-                setFilterOptions(filterRole);
-                break;
-            case 'gender':
-                setFilterOptions(filterGender);
-                break;
-            case 'status':
-                setFilterOptions(filterStatus);
-                break;
-            default:
-                setFilterOptions([]);
-        }
-    };
-
     const filterOption = (
         input: string,
         option?: { value: string; label: string }
@@ -285,14 +252,14 @@ const ListUser = () => {
     return (
         <Spin spinning={isLoading}>
             <Header title="Manage User" />
-            <div>
+            <div className="">
                 <Form
                     className="flex gap-x-10"
                     labelCol={{ span: 6 }}
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
+                    <div className="grid flex-1 grid-cols-3 items-end justify-start gap-x-5">
                         <Form.Item<FormType> label="Order by" name="sortBy">
                             <Select>
                                 {FILTER_LIST.map((item) => (
@@ -317,10 +284,10 @@ const ListUser = () => {
                                 showSearch
                             />
                         </Form.Item>
-                        <Form.Item<FormType> name="search">
+                        <Form.Item<FormType> label="Search" name="search">
                             <Input />
                         </Form.Item>
-                        <Form.Item label="Filter by" name="fillterBy">
+                        {/* <Form.Item label="Filter by" name="fillterBy">
                             <Select
                                 onChange={handleFilterByChange}
                                 options={filterBy.map((item) => ({
@@ -329,10 +296,34 @@ const ListUser = () => {
                                 }))}
                                 showSearch
                             />
-                        </Form.Item>
-                        <Form.Item label="Filter" name="fillter">
+                        </Form.Item> */}
+                        <Form.Item
+                            label="Filter by gender"
+                            name="fillterByGender"
+                        >
                             <Select
-                                options={filterOptions.map((item) => ({
+                                options={filterGender.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                showSearch
+                            />
+                        </Form.Item>
+                        <Form.Item label="Filter by role" name="fillterByRole">
+                            <Select
+                                options={filterRole.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                showSearch
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="Filter by status"
+                            name="fillterByStatus"
+                        >
+                            <Select
+                                options={filterStatus.map((item) => ({
                                     value: item.id,
                                     label: item.name,
                                 }))}
@@ -340,15 +331,26 @@ const ListUser = () => {
                             />
                         </Form.Item>
                     </div>
-                    <Form.Item>
-                        <Button
-                            htmlType="submit"
-                            icon={<SearchOutlined />}
-                            type="primary"
-                        >
-                            Search
-                        </Button>
-                    </Form.Item>
+                    <div className="">
+                        <Form.Item>
+                            <Button
+                                htmlType="submit"
+                                icon={<SearchOutlined />}
+                                type="primary"
+                            >
+                                Search
+                            </Button>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button
+                                htmlType="reset"
+                                icon={<SyncOutlined />}
+                                type="primary"
+                            >
+                                Reset
+                            </Button>
+                        </Form.Item>
+                    </div>
                 </Form>
             </div>
             <div className="mb-10 flex justify-end">
