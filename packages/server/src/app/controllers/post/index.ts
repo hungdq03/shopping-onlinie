@@ -14,6 +14,14 @@ export const getListPost = async (req: Request, res: Response) => {
             select: {
                 id: true,
                 title: true,
+                description: true,
+                product: {
+                    select: {
+                        name: true,
+                    },
+                },
+                thumbnail: true,
+                isShow: true,
             },
             orderBy: {
                 title: 'asc',
@@ -27,7 +35,7 @@ export const getListPost = async (req: Request, res: Response) => {
             params: search,
         });
     } catch (error) {
-        return res.send(500);
+        return res.status(500).json({ message: 'Internal server error!' });
     }
 };
 
