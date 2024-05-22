@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import {
     Button,
+    Flex,
     Form,
     FormProps,
     Input,
@@ -17,6 +18,7 @@ import { PAGE_SIZE } from 'common/constant';
 import { SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import PostFormModal from './post-form-modal';
+import DeletePostFormModal from './delete-post-form-modal';
 import { Post, Product } from '~/types/post';
 import Header from '~/components/header';
 
@@ -138,12 +140,20 @@ const PostList = () => {
             title: 'Actions',
             key: 'actions',
             render: (_: any, record: Post) => (
-                <PostFormModal
-                    postId={record?.id ?? ''}
-                    reload={() => refetch()}
-                    title="Update post"
-                    type="UPDATE"
-                />
+                <Flex align="start" gap="middle" vertical>
+                    <PostFormModal
+                        postId={record?.id ?? ''}
+                        reload={() => refetch()}
+                        title="Update post"
+                        type="UPDATE"
+                    />
+                    <DeletePostFormModal
+                        postId={record?.id ?? ''}
+                        reload={() => refetch()}
+                        title="Delete post"
+                        type="DELETE"
+                    />
+                </Flex>
             ),
         },
     ];
@@ -177,8 +187,8 @@ const PostList = () => {
                                 filterOption={filterOption}
                                 options={products?.data?.map(
                                     (item: Product) => ({
-                                        value: item.id,
-                                        label: item.name,
+                                        value: item?.id,
+                                        label: item?.name,
                                     })
                                 )}
                                 showSearch
