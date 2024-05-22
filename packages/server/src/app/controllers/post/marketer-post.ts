@@ -5,11 +5,11 @@ import { PAGE_SIZE } from '../../../constant';
 type PostFilter = {
     productId?: string;
     title?: string;
-    rating?: number;
+    isShow?: boolean;
 };
 
 export const getListPostManage = async (req: Request, res: Response) => {
-    const { search, pageSize, currentPage, sortBy, productId, title } =
+    const { search, pageSize, currentPage, sortBy, productId, title, isShow } =
         req.query;
 
     const pagination = {
@@ -25,6 +25,9 @@ export const getListPostManage = async (req: Request, res: Response) => {
         }
         if (title) {
             whereClause.title = String(title);
+        }
+        if (isShow) {
+            whereClause.isShow = isShow === 'true';
         }
 
         const select = {
