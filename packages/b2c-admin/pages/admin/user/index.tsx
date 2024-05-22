@@ -1,16 +1,22 @@
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import {
     Button,
     Form,
+    FormProps,
     Input,
+    Pagination,
     Select,
     Spin,
     Table,
     TableColumnsType,
 } from 'antd';
+import { PAGE_SIZE } from 'common/constant';
 import request from 'common/utils/http-request';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
+import Header from '~/components/header';
+import { User } from '~/types/user';
+import UserFormModal from './user-form-modal';
 
 interface DataType {
     key: string;
@@ -25,51 +31,157 @@ interface DataType {
     address: string;
 }
 
+const FILTER_LIST = [
+    {
+        id: 'NAME_A_TO_Z',
+        name: 'Name: A to Z',
+    },
+    {
+        id: 'NAME_Z_TO_A',
+        name: 'Name: Z to A',
+    },
+    {
+        id: 'EMAIL_A_TO_Z',
+        name: 'Email: A to Z',
+    },
+    {
+        id: 'EMAIL_Z_TO_A',
+        name: 'Email: Z to A',
+    },
+    {
+        id: 'GENDER_A_TO_Z',
+        name: 'Gender: A to Z',
+    },
+    {
+        id: 'GENDER_Z_TO_A',
+        name: 'Gender: Z to A',
+    },
+    {
+        id: 'PHONE_LOW_TO_HIGH',
+        name: 'Phone: Low to High',
+    },
+    {
+        id: 'PHONE_HIGH_TO_LOW',
+        name: 'Phone: High to Low',
+    },
+    {
+        id: 'ROLE_A_TO_Z',
+        name: 'Role: A to Z',
+    },
+    {
+        id: 'ROLE_Z_TO_A',
+        name: 'Role: Z to A',
+    },
+    {
+        id: 'STATUS_A_TO_Z',
+        name: 'Status: A to Z',
+    },
+    {
+        id: 'STATUS_Z_TO_A',
+        name: 'Status: Z to A',
+    },
+];
+
+const filterRole = [
+    {
+        id: 'ADMIN',
+        name: 'Admin',
+    },
+    {
+        id: 'USER',
+        name: 'User',
+    },
+    {
+        id: 'MAKERTER',
+        name: 'Marketer',
+    },
+    {
+        id: 'SALER',
+        name: 'Saler',
+    },
+];
+
+const filterGender = [
+    {
+        id: 'MALE',
+        name: 'Male',
+    },
+    {
+        id: 'FEMALE',
+        name: 'Female',
+    },
+];
+
+const filterStatus = [
+    {
+        id: 'ACTIVE',
+        name: 'Active',
+    },
+    {
+        id: 'INACTIVE',
+        name: 'Inactive',
+    },
+    {
+        id: 'BANNED',
+        name: 'Banned',
+    },
+    {
+        id: 'NEWLY_REGISTER',
+        name: 'Newly register',
+    },
+    {
+        id: 'NEWLY_BOUGHT',
+        name: 'Newly bought',
+    },
+];
+type FormType = {
+    brandId?: string;
+    searchBy?: string;
+    search?: string;
+    filterBy?: string;
+    filter?: string;
+    sortBy?: string;
+};
+
+const searchBy = [
+    {
+        id: 'name',
+        name: 'Name',
+    },
+    {
+        id: 'email',
+        name: 'Email',
+    },
+    {
+        id: 'phone',
+        name: 'Phone',
+    },
+];
+
+type SearchParams = FormType & {
+    pageSize?: number;
+    currentPage?: number;
+};
+
 const ListUser = () => {
-    const { data: listUser, isLoading } = useQuery({
-        queryKey: ['listUser'],
-        queryFn: () => request.get('/listUser').then((res) => res.data.data),
+    const [searchParams, setSearchParams] = useState<SearchParams>({
+        pageSize: PAGE_SIZE,
+        currentPage: 1,
     });
 
-    const originData: DataType[] = useMemo(() => {
-        if (!listUser) {
-            return [];
-        }
-        return listUser.map((e: DataType, i: number) => ({
-            key: i.toString(),
-            id: e.id,
-            name: e.name,
-            dob: e.dob,
-            address: e.address,
-            role: e.role,
-            status: e.status,
-            phone: e.phone,
-            email: e.email,
-            gender: e.gender,
-        }));
-    }, [listUser]);
-
-    const [form] = Form.useForm();
-    const [filterData, setData] = useState(originData);
-    const [searchType, setSearchType] = useState<keyof DataType>('name');
-    const [searchInput, setSearchInput] = useState('');
-
-    const handleSearch = () => {
-        if (searchInput !== '') {
-            const newData = originData.filter((item) =>
-                item[searchType]?.toLowerCase().includes(searchInput)
-            );
-            setData(newData);
-            setSearchInput('');
-        }
-    };
-
-    const handleReset = () => {
-        setData(originData);
-        setSearchInput('');
-    };
-
-    useEffect(() => setData(originData), [originData]);
+    const {
+        data: listUser,
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ['listUser'],
+        queryFn: () =>
+            request
+                .get('/user/list', {
+                    params: { ...searchParams },
+                })
+                .then((res) => res.data),
+    });
 
     const columns: TableColumnsType<DataType> = [
         {
@@ -77,150 +189,208 @@ const ListUser = () => {
             key: 'id',
             dataIndex: 'id',
             width: '20%',
-            sorter: (a, b) => {
-                if (a.id && b.id) {
-                    return a.id.length - b.id.length;
-                }
-                return 0;
+            render: (id: string, record: User, index: number) => {
+                return (
+                    index +
+                    1 +
+                    ((searchParams?.currentPage ?? 1) - 1) *
+                        (searchParams?.pageSize ?? 0)
+                );
             },
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Full name',
             key: 'name',
             dataIndex: 'name',
             width: '20%',
-            sorter: (a, b) => {
-                if (a.name && b.name) {
-                    return a.name.length - b.name.length;
-                }
-                return 0;
-            },
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Gender',
             key: 'gender',
             dataIndex: 'gender',
             width: '10%',
-            filters: [
-                { text: 'Male', value: 'MALE' },
-                { text: 'Female', value: 'FEMALE' },
-            ],
-            onFilter: (value, record) =>
-                record.gender.indexOf(value as string) === 0,
-            sorter: (a, b) => {
-                if (a.gender && b.gender) {
-                    return a.gender.length - b.gender.length;
-                }
-                return 0;
-            },
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Email',
             key: 'email',
             dataIndex: 'email',
             width: '20%',
-            sorter: (a, b) => {
-                if (a.email && b.email) {
-                    return a.email.length - b.email.length;
-                }
-                return 0;
-            },
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Phone',
             key: 'phone',
             dataIndex: 'phone',
             width: '10%',
-            sorter: (a, b) => {
-                if (a.phone && b.phone) {
-                    return a.phone.length - b.phone.length;
-                }
-                return 0;
-            },
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Role',
             key: 'role',
             dataIndex: 'role',
             width: '10%',
-            filters: [
-                { text: 'Admin', value: 'ADMIN' },
-                { text: 'Marketer', value: 'MARKETER' },
-                { text: 'Saler', value: 'SALER' },
-                { text: 'User', value: 'USER' },
-            ],
-            onFilter: (value, record) =>
-                record.role.indexOf(value as string) === 0,
-            sorter: (a, b) => a.role.length - b.role.length,
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Status',
             key: 'status',
             dataIndex: 'status',
             width: '10%',
-            filters: [
-                { text: 'ACTIVE', value: 'ACTIVE' },
-                { text: 'INACTIVE', value: 'INACTIVE' },
-                { text: 'NEWLY_REGISTER', value: 'NEWLY_REGISTER' },
-                { text: 'NEWLY_BOUGHT', value: 'NEWLY_BOUGHT' },
-                { text: 'BANNED', value: 'BANNED' },
-            ],
-            onFilter: (value, record) =>
-                record.status.indexOf(value as string) === 0,
-            sorter: (a, b) => a.status.length - b.status.length,
-            sortDirections: ['descend', 'ascend'],
         },
     ];
 
+    const filterOption = (
+        input: string,
+        option?: { value: string; label: string }
+    ) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
+    const onFinish: FormProps<FormType>['onFinish'] = (values) => {
+        setSearchParams((prev) => ({ ...prev, ...values, currentPage: 1 }));
+
+        setTimeout(() => {
+            refetch();
+        });
+    };
+
     return (
         <Spin spinning={isLoading}>
-            <div className="flex w-full items-center justify-between">
-                <div className="button mb-6 flex w-full justify-between">
-                    <Button type="primary">Create</Button>
-                    <div className="flex gap-2">
-                        <Button onClick={handleReset} type="primary">
-                            Reset
-                        </Button>
-
-                        <Select
-                            defaultValue="name"
-                            onChange={setSearchType}
-                            options={[
-                                { value: 'name', label: 'Name' },
-                                { value: 'email', label: 'Email' },
-                                { value: 'phone', label: 'Phone' },
-                            ]}
-                            style={{ width: 120 }}
-                        />
-                        <Input
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            placeholder="Search"
-                            value={searchInput}
-                        />
-                        <Button
-                            icon={<SearchOutlined />}
-                            onClick={handleSearch}
-                            type="primary"
+            <Header title="Manage User" />
+            <div className="">
+                <Form
+                    className="flex gap-x-10"
+                    labelCol={{ span: 6 }}
+                    onFinish={onFinish}
+                    wrapperCol={{ span: 18 }}
+                >
+                    <div className="grid flex-1 grid-cols-3 items-end justify-start gap-x-5">
+                        <Form.Item<FormType> label="Order by" name="sortBy">
+                            <Select>
+                                {FILTER_LIST.map((item) => (
+                                    <Select.Option
+                                        key={item.id}
+                                        value={item.id}
+                                    >
+                                        {item.name}
+                                    </Select.Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item<FormType> label="Search by" name="searchBy">
+                            <Select
+                                filterOption={filterOption}
+                                options={searchBy.map(
+                                    (item: { id: string; name: string }) => ({
+                                        value: item.id,
+                                        label: item.name,
+                                    })
+                                )}
+                                showSearch
+                            />
+                        </Form.Item>
+                        <Form.Item<FormType> label="Search" name="search">
+                            <Input />
+                        </Form.Item>
+                        {/* <Form.Item label="Filter by" name="fillterBy">
+                            <Select
+                                onChange={handleFilterByChange}
+                                options={filterBy.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                showSearch
+                            />
+                        </Form.Item> */}
+                        <Form.Item
+                            label="Filter by gender"
+                            name="fillterByGender"
                         >
-                            Search
-                        </Button>
+                            <Select
+                                options={filterGender.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                showSearch
+                            />
+                        </Form.Item>
+                        <Form.Item label="Filter by role" name="fillterByRole">
+                            <Select
+                                options={filterRole.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                showSearch
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label="Filter by status"
+                            name="fillterByStatus"
+                        >
+                            <Select
+                                options={filterStatus.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                showSearch
+                            />
+                        </Form.Item>
                     </div>
+                    <div className="">
+                        <Form.Item>
+                            <Button
+                                htmlType="submit"
+                                icon={<SearchOutlined />}
+                                type="primary"
+                            >
+                                Search
+                            </Button>
+                        </Form.Item>
+                        <Form.Item>
+                            <Button
+                                htmlType="reset"
+                                icon={<SyncOutlined />}
+                                type="primary"
+                            >
+                                Reset
+                            </Button>
+                        </Form.Item>
+                    </div>
+                </Form>
+            </div>
+            <div className="mb-10 flex justify-end">
+                <UserFormModal
+                    reload={() => {
+                        refetch();
+                    }}
+                    title="Create user"
+                    type="CREATE"
+                />
+            </div>
+            <div>
+                <Table
+                    columns={columns}
+                    dataSource={listUser?.data}
+                    pagination={false}
+                />
+                <div className="mt-5 flex justify-end">
+                    {listUser?.pagination?.total ? (
+                        <Pagination
+                            current={searchParams?.currentPage}
+                            defaultCurrent={1}
+                            onChange={(page, pageSize) => {
+                                setSearchParams((prev) => ({
+                                    ...prev,
+                                    currentPage: page,
+                                    pageSize,
+                                }));
+                                setTimeout(() => {
+                                    refetch();
+                                });
+                            }}
+                            pageSize={searchParams?.pageSize}
+                            pageSizeOptions={[5, 10, 20, 50]}
+                            showSizeChanger
+                            total={listUser?.pagination?.total}
+                        />
+                    ) : null}
                 </div>
             </div>
-            <Form component={false} form={form}>
-                <Table
-                    bordered
-                    columns={columns}
-                    dataSource={filterData}
-                    rowClassName="editable-row"
-                />
-            </Form>
         </Spin>
     );
 };
