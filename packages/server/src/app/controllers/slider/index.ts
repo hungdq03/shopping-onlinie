@@ -14,6 +14,14 @@ export const getListSlider = async (req: Request, res: Response) => {
             select: {
                 id: true,
                 title: true,
+                description: true,
+                product: {
+                    select: {
+                        name: true,
+                    },
+                },
+                image: true,
+                isShow: true,
             },
             orderBy: {
                 title: 'asc',

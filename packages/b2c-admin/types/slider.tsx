@@ -6,11 +6,9 @@ export type Slider = {
     createdAt?: string | null;
     updatedAt?: string | null;
     isshow?: boolean | null;
-    createAt?: string | null;
-    updateAt?: string | null;
     product?: Product | null;
+    productId?: string | null;
 };
-
 export type Brand = {
     id?: string | null | null;
     name?: string | null;

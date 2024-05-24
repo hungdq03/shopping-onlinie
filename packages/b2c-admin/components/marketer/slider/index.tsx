@@ -1,22 +1,26 @@
-import React, { useMemo, useState } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from 'react';
 import {
     Button,
+    Flex,
     Form,
     FormProps,
     Input,
     Pagination,
     Select,
-    Space,
     Spin,
     Table,
-    Tooltip,
+    Tag,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
-import { EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import { PAGE_SIZE } from 'common/constant';
 import SliderModal from './slider-modal';
-import { Slider } from '~/types/slider';
+import { Product, Slider } from '~/types/slider';
+import Header from '~/components/header';
+import DeleteSliderFormModal from './delete-slider-modal';
 
 type FormType = {
     search?: string;
@@ -24,43 +28,57 @@ type FormType = {
     sortOrder?: string;
 };
 
-const SORT_LIST = [
+const FILTER_LIST = [
     {
-        key: 'active',
-        value: 'active',
-        label: 'Active',
+        id: 'LATEST',
+        name: 'Latest Create Date',
     },
     {
-        key: 'inactive',
-        value: 'inactive',
-        label: 'Inactive',
+        id: 'OLDEST',
+        name: 'Oldest Create Date',
+    },
+    {
+        id: 'NAME_A_TO_Z',
+        name: 'Name: A to Z',
+    },
+    {
+        id: 'NAME_Z_TO_A',
+        name: 'Name: Z to A',
+    },
+    {
+        id: 'Active',
+        name: 'Active',
+    },
+    {
+        id: 'Inactive',
+        name: 'Inactive',
     },
 ];
 
+type SearchParams = FormType & {
+    pageSize?: number;
+    currentPage?: number;
+};
 const ListSlider = () => {
-    const [form] = Form.useForm<FormType>();
-    const [paginationValue, setPaginationValue] = useState({
-        pageSize: 5,
+    const [searchParams, setSearchParams] = useState<SearchParams>({
+        pageSize: PAGE_SIZE,
         currentPage: 1,
     });
 
-    const [searchValue, setSearchValue] = useState<FormType>({
-        search: '',
-        sortBy: '',
-        sortOrder: '',
+    const { data: products, isLoading: productLoading } = useQuery({
+        queryKey: ['product'],
+        queryFn: () => request.get('manage/product').then((res) => res.data),
     });
 
-    const { data, error, isLoading, refetch } = useQuery({
-        queryKey: ['list-slider', searchValue, paginationValue],
-        queryFn: async () =>
+    const {
+        data: listSlider,
+        isLoading: sliderLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ['slider'],
+        queryFn: () =>
             request
-                .get('/slider', {
-                    params: {
-                        ...searchValue,
-                        pageSize: paginationValue.pageSize,
-                        currentPage: paginationValue.currentPage,
-                    },
-                })
+                .get('manage/slider', { params: { ...searchParams } })
                 .then((res) => res.data),
     });
 
@@ -69,17 +87,44 @@ const ListSlider = () => {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
+            render: (id: string, record: Slider, index: number) => {
+                return (
+                    index +
+                    1 +
+                    ((searchParams?.currentPage ?? 1) - 1) *
+                        (searchParams?.pageSize ?? 0)
+                );
+            },
         },
         {
-            title: 'Name',
+            title: 'Product Name',
             dataIndex: 'name',
             key: 'name',
+            render: (_: any, record: Slider) => <p>{record?.product?.name}</p>,
+        },
+        {
+            title: 'Title',
+            dataIndex: 'title',
+            key: 'title',
+            render: (_: any, record: Slider) => <p>{record.title}</p>,
+        },
+        {
+            title: 'Show on Client',
+            dataIndex: 'isshow',
+            key: 'isshow',
+            render: (id: string, record: Slider) => {
+                return (
+                    <Tag color={record?.isshow ? 'blue' : 'red'}>
+                        {record?.isshow ? 'SHOW' : 'HIDE'}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (_: undefined, record: Slider) => (
+            render: (_: any, record: Slider) => (
                 <p>
                     {record?.createdAt &&
                         moment(record.createdAt).format('YYYY-MM-DD')}
@@ -90,7 +135,7 @@ const ListSlider = () => {
             title: 'Update At',
             dataIndex: 'updatedAt',
             key: 'updatedAt',
-            render: (_: undefined, record: Slider) => (
+            render: (_: any, record: Slider) => (
                 <p>
                     {record?.updatedAt &&
                         moment(record.updatedAt).format('YYYY-MM-DD')}
@@ -100,129 +145,122 @@ const ListSlider = () => {
         {
             title: 'Actions',
             key: 'actions',
-            render: (text: string, record: Slider) => (
-                <Space size="middle">
-                    <Tooltip arrow={false} color="#108ee9" title="Edit slider">
-                        <SliderModal
-                            button={
-                                <Button
-                                    icon={<EditOutlined />}
-                                    size="small"
-                                    type="primary"
-                                />
-                            }
-                            reloadList={refetch}
-                            sliderId={record.id ?? ''}
-                            title="Edit Slider"
-                        />
-                    </Tooltip>
-                </Space>
+            render: (_: any, record: Slider) => (
+                <Flex align="start" gap="middle" vertical>
+                    <SliderModal
+                        reload={() => refetch()}
+                        sliderID={record?.id ?? ''}
+                        title="Update Slider"
+                        type="UPDATE"
+                    />
+                    <DeleteSliderFormModal
+                        reload={() => refetch()}
+                        sliderId={record?.id ?? ''}
+                        title="Delete slider"
+                        type="DELETE"
+                    />
+                </Flex>
             ),
         },
     ];
 
-    const dataSource = useMemo<Slider[]>(() => data?.data || [], [data]);
-
-    if (error) {
-        return <div>Something went wrong!</div>;
-    }
+    const filterOption = (
+        input: string,
+        option?: { value: string; label: string }
+    ) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     const onFinish: FormProps<FormType>['onFinish'] = (values) => {
-        setSearchValue(values);
-        setPaginationValue((prev) => ({ ...prev, currentPage: 1 }));
+        setSearchParams((prev) => ({ ...prev, ...values, currentPage: 1 }));
         setTimeout(() => {
             refetch();
         });
     };
 
     return (
-        <Spin spinning={isLoading}>
-            <div className="mb-5 flex justify-end">
+        <Spin spinning={productLoading || sliderLoading}>
+            <Header title="Manage Slider" />
+            <div>
                 <Form
-                    className="flex gap-5"
-                    form={form}
-                    initialValues={{ search: '', sortBy: '', sortOrder: '' }}
+                    className="flex gap-x-10"
+                    labelCol={{ span: 6 }}
                     onFinish={onFinish}
+                    wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid grid-cols-3 gap-5">
-                        <Form.Item label="Sort by" name="sortBy">
-                            <Select defaultValue="" style={{ width: 180 }}>
-                                {SORT_LIST?.map((item) => (
+                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
+                        <Form.Item<FormType> label="Product">
+                            <Select
+                                allowClear
+                                filterOption={filterOption}
+                                options={products?.data?.map(
+                                    (item: Product) => ({
+                                        value: item?.id,
+                                        label: item?.name,
+                                    })
+                                )}
+                                showSearch
+                            />
+                        </Form.Item>
+
+                        <Form.Item<FormType> label="Order by" name="sortBy">
+                            <Select allowClear>
+                                {FILTER_LIST.map((item) => (
                                     <Select.Option
-                                        key={item.key}
-                                        value={item.value}
+                                        key={item.id}
+                                        value={item.id}
                                     >
-                                        {item.label}
+                                        {item.name}
                                     </Select.Option>
                                 ))}
-                                <Select.Option default value="">
-                                    Select a status
-                                </Select.Option>
                             </Select>
                         </Form.Item>
-                        <Form.Item label="Sort order" name="sortOrder">
-                            <Select defaultValue="" style={{ width: 180 }}>
-                                <Select.Option default value="">
-                                    Select a order...
-                                </Select.Option>
-                                <Select.Option default value="asc">
-                                    Ascending
-                                </Select.Option>
-                                <Select.Option default value="desc">
-                                    Descending
-                                </Select.Option>
-                            </Select>
-                        </Form.Item>
-                        <Form.Item label="Name" name="search">
+                        <Form.Item<FormType> label="Title" name="search">
                             <Input />
                         </Form.Item>
                     </div>
-                    <div className="flex justify-end">
-                        <Form.Item>
-                            <Button
-                                htmlType="submit"
-                                icon={<SearchOutlined />}
-                                type="primary"
-                            >
-                                Search
-                            </Button>
-                        </Form.Item>
-                    </div>
+                    <Form.Item>
+                        <Button
+                            htmlType="submit"
+                            icon={<SearchOutlined />}
+                            type="primary"
+                        >
+                            Search
+                        </Button>
+                    </Form.Item>
                 </Form>
             </div>
-            <div className="mb-5 flex justify-end">
+            <div className="mb-10 flex justify-end">
                 <SliderModal
-                    button={
-                        <Button icon={<PlusOutlined />} type="primary">
-                            Create slider
-                        </Button>
-                    }
-                    reloadList={() => refetch()}
-                    title="Create slider"
+                    reload={() => {}}
+                    title="Create Slider"
+                    type="CREATE"
                 />
             </div>
             <div>
                 <Table
                     columns={columns}
-                    dataSource={dataSource}
+                    dataSource={listSlider?.data}
                     pagination={false}
+                    rowKey="id"
                 />
                 <div className="mt-5 flex justify-end">
-                    {data?.pagination?.total ? (
+                    {listSlider?.pagination?.total ? (
                         <Pagination
-                            current={paginationValue?.currentPage}
+                            current={searchParams?.currentPage}
                             defaultCurrent={1}
                             onChange={(page, pageSize) => {
-                                setPaginationValue({
+                                setSearchParams((prev) => ({
+                                    ...prev,
                                     currentPage: page,
                                     pageSize,
-                                });
+                                }));
                                 setTimeout(() => {
                                     refetch();
                                 });
                             }}
-                            pageSize={5}
-                            total={data?.pagination?.total}
+                            pageSize={searchParams?.pageSize}
+                            pageSizeOptions={[5, 10, 20, 50]}
+                            showSizeChanger
+                            total={listSlider?.pagination?.total}
                         />
                     ) : null}
                 </div>
