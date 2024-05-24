@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import {
     Button,
+    Flex,
     Form,
     FormProps,
     Input,
     Pagination,
-    Rate,
     Select,
     Spin,
     Table,
@@ -14,12 +14,12 @@ import {
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
-import { PAGE_SIZE, RATING_LIST } from 'common/constant';
+import { PAGE_SIZE } from 'common/constant';
 import { SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import { currencyFormatter } from 'common/utils/formatter';
-import ProductFormModal from './product-form-modal';
-import { Brand, Category, Product } from '~/types/product';
+import PostFormModal from './post-form-modal';
+import DeletePostFormModal from './delete-post-form-modal';
+import { Post, Product } from '~/types/post';
 import Header from '~/components/header';
 
 const FILTER_LIST = [
@@ -39,30 +39,12 @@ const FILTER_LIST = [
         id: 'NAME_Z_TO_A',
         name: 'Name: Z to A',
     },
-    {
-        id: 'RATE_LOW_TO_HIGHT',
-        name: 'Rate: Low to Hight',
-    },
-    {
-        id: 'RATE_HIGHT_TO_LOW',
-        name: 'Rate: Hight to low',
-    },
-    {
-        id: 'PRICE_LOW_TO_HIGHT',
-        name: 'Price: Low to Hight',
-    },
-    {
-        id: 'PRICE_HIGHT_TO_LOW',
-        name: 'Price: Hight to low',
-    },
 ];
 
 type FormType = {
-    brandId?: string;
-    categoryId?: string;
     search?: string;
-    rating?: string;
     sortBy?: string;
+    productId?: string;
 };
 
 type SearchParams = FormType & {
@@ -70,39 +52,35 @@ type SearchParams = FormType & {
     currentPage?: number;
 };
 
-const ProductList = () => {
+const PostList = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
         currentPage: 1,
     });
 
-    const { data: categories, isLoading: categoryLoading } = useQuery({
-        queryKey: ['category'],
-        queryFn: () => request.get('category').then((res) => res.data),
-    });
-    const { data: brands, isLoading: brandLoading } = useQuery({
-        queryKey: ['brand'],
-        queryFn: () => request.get('brand').then((res) => res.data),
+    const { data: products, isLoading: productLoading } = useQuery({
+        queryKey: ['product'],
+        queryFn: () => request.get('manage/product').then((res) => res.data),
     });
 
     const {
-        data: listProduct,
-        isLoading: productLoading,
+        data: listPost,
+        isLoading: postLoading,
         refetch,
     } = useQuery({
-        queryKey: ['product'],
+        queryKey: ['post'],
         queryFn: () =>
             request
-                .get('manage/product', { params: { ...searchParams } })
+                .get('manage/post', { params: { ...searchParams } })
                 .then((res) => res.data),
     });
 
     const columns = [
         {
-            title: 'Index',
+            title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            render: (id: string, record: Product, index: number) => {
+            render: (id: string, record: Post, index: number) => {
                 return (
                     index +
                     1 +
@@ -112,71 +90,23 @@ const ProductList = () => {
             },
         },
         {
-            title: 'Name',
+            title: 'Product Name',
             dataIndex: 'name',
             key: 'name',
+            render: (_: any, record: Post) => <p>{record?.product?.name}</p>,
         },
         {
-            title: 'Brand',
-            dataIndex: 'brand',
-            key: 'name',
-            render: (_: any, record: Product) => <p>{record?.brand?.name}</p>,
+            title: 'Title',
+            dataIndex: 'title',
+            key: 'title',
+            render: (_: any, record: Post) => <p>{record.title}</p>,
         },
-        {
-            title: 'Category',
-            dataIndex: 'category',
-            key: 'name',
-            render: (_: any, record: Product) => (
-                <p>{record?.category?.name}</p>
-            ),
-        },
-        {
-            title: 'Size',
-            dataIndex: 'size',
-            key: 'size',
-        },
-        {
-            title: 'Quantity',
-            dataIndex: 'quantity',
-            key: 'quantity',
-        },
-        {
-            title: 'Sold Quantity',
-            dataIndex: 'sold_quantity',
-            key: 'sold_quantity',
-        },
-        {
-            title: 'Original Price',
-            dataIndex: 'original_price',
-            key: 'original_price',
-            render: (_: any, record: Product) =>
-                record?.original_price && (
-                    <p>{currencyFormatter(record?.original_price)}</p>
-                ),
-        },
-        {
-            title: 'Discount Price',
-            dataIndex: 'discount_price',
-            key: 'discount_price',
-            render: (_: any, record: Product) =>
-                record?.discount_price && (
-                    <p>{currencyFormatter(record?.discount_price)}</p>
-                ),
-        },
-        {
-            title: 'Rating',
-            dataIndex: 'rating',
-            key: 'rating',
-            width: '200px',
-            render: (_: any, record: Product) => (
-                <Rate disabled value={record?.rating ?? 0} />
-            ),
-        },
+
         {
             title: 'Show on Client',
             dataIndex: 'isShow',
             key: 'isShow',
-            render: (id: string, record: Product) => {
+            render: (id: string, record: Post) => {
                 return (
                     <Tag color={record?.isShow ? 'blue' : 'red'}>
                         {record?.isShow ? 'SHOW' : 'HIDE'}
@@ -188,7 +118,7 @@ const ProductList = () => {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (_: any, record: Brand) => (
+            render: (_: any, record: Post) => (
                 <p>
                     {record?.createdAt &&
                         moment(record.createdAt).format('YYYY-MM-DD')}
@@ -196,15 +126,34 @@ const ProductList = () => {
             ),
         },
         {
+            title: 'Update At',
+            dataIndex: 'updatedAt',
+            key: 'updatedAt',
+            render: (_: any, record: Post) => (
+                <p>
+                    {record?.updatedAt &&
+                        moment(record.updatedAt).format('YYYY-MM-DD')}
+                </p>
+            ),
+        },
+        {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Product) => (
-                <ProductFormModal
-                    productId={record?.id ?? ''}
-                    reload={() => refetch()}
-                    title="Update product"
-                    type="UPDATE"
-                />
+            render: (_: any, record: Post) => (
+                <Flex align="start" gap="middle" vertical>
+                    <PostFormModal
+                        postId={record?.id ?? ''}
+                        reload={() => refetch()}
+                        title="Update post"
+                        type="UPDATE"
+                    />
+                    <DeletePostFormModal
+                        postId={record?.id ?? ''}
+                        reload={() => refetch()}
+                        title="Delete post"
+                        type="DELETE"
+                    />
+                </Flex>
             ),
         },
     ];
@@ -222,8 +171,8 @@ const ProductList = () => {
     };
 
     return (
-        <Spin spinning={categoryLoading || brandLoading || productLoading}>
-            <Header title="Manage Product" />
+        <Spin spinning={productLoading || postLoading}>
+            <Header title="Manage Post" />
             <div>
                 <Form
                     className="flex gap-x-10"
@@ -232,45 +181,20 @@ const ProductList = () => {
                     wrapperCol={{ span: 18 }}
                 >
                     <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
-                        <Form.Item<FormType> label="Brand" name="brandId">
+                        <Form.Item<FormType> label="Product" name="productId">
                             <Select
                                 allowClear
                                 filterOption={filterOption}
-                                options={brands?.data?.map((item: Brand) => ({
-                                    value: item.id,
-                                    label: item.name,
-                                }))}
-                                showSearch
-                            />
-                        </Form.Item>
-                        <Form.Item<FormType> label="Category" name="categoryId">
-                            <Select
-                                allowClear
-                                filterOption={filterOption}
-                                options={categories?.data?.map(
-                                    (item: Category) => ({
-                                        value: item.id,
-                                        label: item.name,
+                                options={products?.data?.map(
+                                    (item: Product) => ({
+                                        value: item?.id,
+                                        label: item?.name,
                                     })
                                 )}
                                 showSearch
                             />
                         </Form.Item>
-                        <Form.Item<FormType> label="Name" name="search">
-                            <Input />
-                        </Form.Item>
-                        <Form.Item<FormType> label="Rate" name="rating">
-                            <Select allowClear>
-                                {RATING_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        <Rate disabled value={item.value} />
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
+
                         <Form.Item<FormType> label="Order by" name="sortBy">
                             <Select allowClear>
                                 {FILTER_LIST.map((item) => (
@@ -282,6 +206,9 @@ const ProductList = () => {
                                     </Select.Option>
                                 ))}
                             </Select>
+                        </Form.Item>
+                        <Form.Item<FormType> label="Title" name="search">
+                            <Input />
                         </Form.Item>
                     </div>
                     <Form.Item>
@@ -296,21 +223,21 @@ const ProductList = () => {
                 </Form>
             </div>
             <div className="mb-10 flex justify-end">
-                <ProductFormModal
+                <PostFormModal
                     reload={() => {}}
-                    title="Create product"
+                    title="Create post"
                     type="CREATE"
                 />
             </div>
             <div>
                 <Table
                     columns={columns}
-                    dataSource={listProduct?.data}
+                    dataSource={listPost?.data}
                     pagination={false}
                     rowKey="id"
                 />
                 <div className="mt-5 flex justify-end">
-                    {listProduct?.pagination?.total ? (
+                    {listPost?.pagination?.total ? (
                         <Pagination
                             current={searchParams?.currentPage}
                             defaultCurrent={1}
@@ -327,7 +254,7 @@ const ProductList = () => {
                             pageSize={searchParams?.pageSize}
                             pageSizeOptions={[5, 10, 20, 50]}
                             showSizeChanger
-                            total={listProduct?.pagination?.total}
+                            total={listPost?.pagination?.total}
                         />
                     ) : null}
                 </div>
@@ -336,4 +263,4 @@ const ProductList = () => {
     );
 };
 
-export default ProductList;
+export default PostList;

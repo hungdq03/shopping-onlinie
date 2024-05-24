@@ -2,63 +2,133 @@ import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 import { PAGE_SIZE } from '../../../constant';
 
-type SortOrder = 'asc' | 'desc';
+type PostFilter = {
+    productId?: string;
+    title?: string;
+    isShow?: boolean;
+};
 
 export const getListPostManage = async (req: Request, res: Response) => {
-    const { search, pageSize, currentPage, sortBy, sortOrder } = req.query;
+    const { search, pageSize, currentPage, sortBy, productId, title, isShow } =
+        req.query;
 
-    const prismaQuery = {
-        skip: (Number(currentPage) - 1) * Number(pageSize || PAGE_SIZE),
-        take: Number(pageSize),
-        where: {
-            title: {
-                contains: String(search),
-            },
-        },
+    const pagination = {
+        skip: (Number(currentPage ?? 1) - 1) * Number(pageSize ?? PAGE_SIZE),
+        take: Number(pageSize ?? PAGE_SIZE),
     };
 
     try {
+        const whereClause: PostFilter = {};
+
+        if (productId) {
+            whereClause.productId = String(productId);
+        }
+        if (title) {
+            whereClause.title = String(title);
+        }
+        if (isShow) {
+            whereClause.isShow = isShow === 'true';
+        }
+
+        const select = {
+            id: true,
+            title: true,
+            product: {
+                select: {
+                    name: true,
+                },
+            },
+            createdAt: true,
+            updatedAt: true,
+            isShow: true,
+        };
+
         const total = await db.post.count({
             where: {
                 title: {
                     contains: String(search || ''),
                 },
+                ...whereClause,
             },
         });
 
         let listPost;
 
         switch (sortBy) {
-            case 'title':
+            case 'LATEST':
                 listPost = await db.post.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        title: (sortOrder as SortOrder) || 'desc',
+                    ...pagination,
+                    where: {
+                        title: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
                     },
-                });
-                break;
-            case 'createAt':
-                listPost = await db.post.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        createdAt: (sortOrder as SortOrder) || 'desc',
-                    },
-                });
-                break;
-            case 'updateAt':
-                listPost = await db.post.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        updatedAt: (sortOrder as SortOrder) || 'desc',
-                    },
-                });
-                break;
-            default:
-                listPost = await db.post.findMany({
-                    ...prismaQuery,
                     orderBy: {
                         createdAt: 'desc',
                     },
+                    select,
+                });
+                break;
+            case 'OLDEST':
+                listPost = await db.post.findMany({
+                    ...pagination,
+                    where: {
+                        title: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        createdAt: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'NAME_A_TO_Z':
+                listPost = await db.post.findMany({
+                    ...pagination,
+                    where: {
+                        title: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        title: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'NAME_Z_TO_A':
+                listPost = await db.post.findMany({
+                    ...pagination,
+                    where: {
+                        title: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        title: 'desc',
+                    },
+                    select,
+                });
+                break;
+
+            default:
+                listPost = await prisma.post.findMany({
+                    ...pagination,
+                    where: {
+                        title: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                    select,
                 });
         }
 
@@ -95,7 +165,7 @@ export const createPost = async (req: Request, res: Response) => {
             message: 'Create new post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.status(500).json({ message: 'Internal server error!' });
     }
 };
 

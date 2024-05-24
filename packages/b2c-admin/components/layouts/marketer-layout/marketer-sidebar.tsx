@@ -30,6 +30,10 @@ const items: MenuItem[] = [
         ],
     },
     {
+        key: 'post',
+        label: <Link href="/marketer/post">Post</Link>,
+    },
+    {
         key: 'slider',
         label: <Link href="/marketer/slider">Slider</Link>,
     },

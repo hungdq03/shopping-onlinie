@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 import { PAGE_SIZE } from '../../../constant';
@@ -7,6 +6,7 @@ type ProductFilter = {
     brandId?: string;
     categoryId?: string;
     rating?: number;
+    isShow?: boolean;
 };
 
 export const getListProductManage = async (req: Request, res: Response) => {
@@ -18,6 +18,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
         brandId,
         categoryId,
         rating,
+        isShow,
     } = req.query;
 
     const pagination = {
@@ -36,6 +37,9 @@ export const getListProductManage = async (req: Request, res: Response) => {
         }
         if (rating) {
             whereClause.rating = Number(rating);
+        }
+        if (isShow) {
+            whereClause.isShow = isShow === 'true';
         }
 
         const select = {
@@ -224,7 +228,9 @@ export const createProduct = async (req: Request, res: Response) => {
     const {
         name,
         brandId,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         original_price,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         discount_price,
         quantity,
         description,
@@ -232,6 +238,7 @@ export const createProduct = async (req: Request, res: Response) => {
         categoryId,
         thumbnail,
         isShow,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         product_image,
     } = req.body;
 
