@@ -1,9 +1,19 @@
 import { Router } from 'express';
-import { createUser, getListUser, getUser } from '../controllers/user';
+import {
+    createUser,
+    deleteUser,
+    editUser,
+    getListUser,
+    getUser,
+    getUserById,
+} from '../controllers/user';
 import { isAuthenticated } from '../../middlewares';
 
 export default (router: Router) => {
     router.get('/user', isAuthenticated, getUser);
-    router.get('/user/list', getListUser);
-    router.post('/user/create', createUser);
+    router.get('/admin/user-list', getListUser);
+    router.post('/admin/create-user', createUser);
+    router.get('/admin/user-detail/:id', getUserById);
+    router.put('/admin/edit-user/:id', editUser);
+    router.put('/admin/delete-user/:id', deleteUser);
 };
