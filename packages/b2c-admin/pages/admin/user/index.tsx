@@ -16,6 +16,7 @@ import request from 'common/utils/http-request';
 import { useState } from 'react';
 import Header from '~/components/header';
 import { User } from '~/types/user';
+import DeleteUserModal from './delete-user-modal';
 import UserFormModal from './user-form-modal';
 
 interface DataType {
@@ -177,7 +178,7 @@ const ListUser = () => {
         queryKey: ['listUser'],
         queryFn: () =>
             request
-                .get('/user/list', {
+                .get('/admin/user-list', {
                     params: { ...searchParams },
                 })
                 .then((res) => res.data),
@@ -185,10 +186,10 @@ const ListUser = () => {
 
     const columns: TableColumnsType<DataType> = [
         {
-            title: 'Id',
-            key: 'id',
-            dataIndex: 'id',
-            width: '20%',
+            title: 'Index',
+            key: 'index',
+            dataIndex: 'index',
+            width: '10%',
             render: (id: string, record: User, index: number) => {
                 return (
                     index +
@@ -233,6 +234,34 @@ const ListUser = () => {
             key: 'status',
             dataIndex: 'status',
             width: '10%',
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_: unknown, record: User) => (
+                <div className="flex w-full justify-center gap-1">
+                    <UserFormModal
+                        reload={() => refetch()}
+                        title="Edit user"
+                        type="VIEW"
+                        userId={record?.id ?? ''}
+                    />
+                    <UserFormModal
+                        reload={() => refetch()}
+                        title="Edit user"
+                        type="EDIT"
+                        userId={record?.id ?? ''}
+                    />
+                    <div>
+                        <DeleteUserModal
+                            reload={() => refetch()}
+                            userId={record?.id ?? ''}
+                            userName={record?.name ?? ''}
+                        />
+                    </div>
+                </div>
+            ),
+            align: 'center',
         },
     ];
 
@@ -287,16 +316,6 @@ const ListUser = () => {
                         <Form.Item<FormType> label="Search" name="search">
                             <Input />
                         </Form.Item>
-                        {/* <Form.Item label="Filter by" name="fillterBy">
-                            <Select
-                                onChange={handleFilterByChange}
-                                options={filterBy.map((item) => ({
-                                    value: item.id,
-                                    label: item.name,
-                                }))}
-                                showSearch
-                            />
-                        </Form.Item> */}
                         <Form.Item
                             label="Filter by gender"
                             name="fillterByGender"
@@ -393,6 +412,7 @@ const ListUser = () => {
             </div>
         </Spin>
     );
+    // eslint-disable-next-line max-lines
 };
 
 export default ListUser;
