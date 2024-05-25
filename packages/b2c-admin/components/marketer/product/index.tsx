@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import {
     Button,
@@ -120,15 +119,13 @@ const ProductList = () => {
             title: 'Brand',
             dataIndex: 'brand',
             key: 'name',
-            render: (_: any, record: Product) => <p>{record?.brand?.name}</p>,
+            render: (value: Brand) => <p>{value?.name}</p>,
         },
         {
             title: 'Category',
             dataIndex: 'category',
             key: 'name',
-            render: (_: any, record: Product) => (
-                <p>{record?.category?.name}</p>
-            ),
+            render: (value: Category) => <p>{value?.name}</p>,
         },
         {
             title: 'Size',
@@ -149,37 +146,31 @@ const ProductList = () => {
             title: 'Original Price',
             dataIndex: 'original_price',
             key: 'original_price',
-            render: (_: any, record: Product) =>
-                record?.original_price && (
-                    <p>{currencyFormatter(record?.original_price)}</p>
-                ),
+            render: (value: number) =>
+                value && <p>{currencyFormatter(value)}</p>,
         },
         {
             title: 'Discount Price',
             dataIndex: 'discount_price',
             key: 'discount_price',
-            render: (_: any, record: Product) =>
-                record?.discount_price && (
-                    <p>{currencyFormatter(record?.discount_price)}</p>
-                ),
+            render: (value: number) =>
+                value && <p>{currencyFormatter(value)}</p>,
         },
         {
             title: 'Rating',
             dataIndex: 'rating',
             key: 'rating',
             width: '200px',
-            render: (_: any, record: Product) => (
-                <Rate disabled value={record?.rating ?? 0} />
-            ),
+            render: (value: number) => <Rate disabled value={value ?? 0} />,
         },
         {
             title: 'Show on Client',
             dataIndex: 'isShow',
             key: 'isShow',
-            render: (id: string, record: Product) => {
+            render: (value: boolean) => {
                 return (
-                    <Tag color={record?.isShow ? 'blue' : 'red'}>
-                        {record?.isShow ? 'SHOW' : 'HIDE'}
+                    <Tag color={value ? 'blue' : 'red'}>
+                        {value ? 'SHOW' : 'HIDE'}
                     </Tag>
                 );
             },
@@ -188,17 +179,14 @@ const ProductList = () => {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (_: any, record: Brand) => (
-                <p>
-                    {record?.createdAt &&
-                        moment(record.createdAt).format('YYYY-MM-DD')}
-                </p>
+            render: (value: string) => (
+                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
             ),
         },
         {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Product) => (
+            render: (_: undefined, record: Product) => (
                 <ProductFormModal
                     productId={record?.id ?? ''}
                     reload={() => refetch()}
