@@ -25,6 +25,7 @@ type Props = {
     reload: () => void;
     sliderID?: string;
 };
+
 type FormType = {
     title: string;
     description?: string;
@@ -33,6 +34,7 @@ type FormType = {
     image: string;
     imageList?: UploadFile[];
 };
+
 type SliderRequestType = {
     title: string;
     description?: string;
@@ -40,13 +42,20 @@ type SliderRequestType = {
     isShow: boolean;
     image: string;
 };
+
 interface FileProps {
     uid: string;
     name: string;
     status: string;
     url?: string;
 }
-const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
+
+const SliderModal: React.FC<Props> = ({
+    type,
+    title: modalTitle,
+    reload,
+    sliderID,
+}) => {
     const [form] = Form.useForm<FormType>();
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
     const { data: listProduct, isLoading: getListProductLoading } = useQuery({
@@ -66,6 +75,7 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                 toast.error('Upload file failed!');
             },
         });
+
     const { mutate: createSliderTrigger, isPending: createSliderIsPending } =
         useMutation({
             mutationFn: (data: SliderRequestType) => {
@@ -84,6 +94,7 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                 toast.error(error?.message);
             },
         });
+
     const { mutate: updateSliderTrigger, isPending: updateSliderPending } =
         useMutation({
             mutationFn: (slider: {
@@ -113,11 +124,13 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                 toast.error(error?.message);
             },
         });
+
     useEffect(() => {
         if (isOpenModal) {
             form.resetFields();
         }
     }, [isOpenModal]);
+
     const button = useMemo(() => {
         switch (type) {
             case 'CREATE':
@@ -140,11 +153,11 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                         />
                     </Tooltip>
                 );
-
             default:
                 return null;
         }
     }, [type]);
+
     const normFile = (e: UploadChangeParam<UploadFile<FileProps>>) => {
         if (Array.isArray(e)) {
             return e;
@@ -152,23 +165,17 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
         return e?.fileList || [];
     };
 
-    // eslint-disable-next-line consistent-return
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
-        const {
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            title,
-            description,
-            productId,
-            isShow,
-        } = values;
+        const { title: formTitle, description, productId, isShow } = values;
         const imageList = values?.imageList?.map((file) => file.originFileObj);
         const imageListResponse = await uploadFileTrigger(
             (imageList as RcFile[]) ?? []
         )?.then((res) => res.imageUrls);
+
         switch (type) {
             case 'CREATE':
                 createSliderTrigger({
-                    title,
+                    title: formTitle,
                     description,
                     productId,
                     isShow,
@@ -177,35 +184,36 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                 break;
             case 'UPDATE':
                 if (sliderID) {
-                    return updateSliderTrigger({
+                    updateSliderTrigger({
                         id: sliderID!,
-                        title: values.title || '',
-                        description: values.description || '',
-                        productId: values.productId || '',
-                        isShow: values.isShow,
+                        title: formTitle,
+                        description,
+                        productId,
+                        isShow,
                         image: imageListResponse?.[0] ?? '',
                     });
                 }
-
                 break;
             default:
-                return null;
+                // Handle default case
+                break;
         }
     };
+
     return (
         <div>
             {button}
             <Modal
                 closable={
-                    !uploadFileIsPending ||
-                    !createSliderIsPending ||
+                    !uploadFileIsPending &&
+                    !createSliderIsPending &&
                     !updateSliderPending
                 }
                 footer={false}
                 maskClosable={false}
                 onCancel={() => setIsOpenModal(false)}
                 open={isOpenModal}
-                title={title}
+                title={modalTitle}
                 width={800}
             >
                 <Spin spinning={getListProductLoading}>
@@ -281,12 +289,12 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                             </Form.Item>
                             <Form.Item<FormType>
                                 getValueFromEvent={normFile}
-                                label="image"
+                                label="Image"
                                 name="imageList"
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'image must be required!',
+                                        message: 'Image must be required!',
                                     },
                                 ]}
                                 valuePropName="fileList"
@@ -311,7 +319,6 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
                                     </button>
                                 </Upload>
                             </Form.Item>
-
                             <Form.Item>
                                 <Button htmlType="submit" type="primary">
                                     Submit
@@ -324,7 +331,9 @@ const SliderModal: React.FC<Props> = ({ type, title, reload, sliderID }) => {
         </div>
     );
 };
+
 SliderModal.defaultProps = {
     sliderID: undefined,
 };
+
 export default SliderModal;

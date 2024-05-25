@@ -1,27 +1,4 @@
-export type Slider = {
-    id?: string | null;
-    title?: string | null;
-    image?: string | null;
-    description?: string | null;
-    createdAt?: string | null;
-    updatedAt?: string | null;
-    isshow?: boolean | null;
-    product?: Product | null;
-    productId?: string | null;
-};
-export type Brand = {
-    id?: string | null | null;
-    name?: string | null;
-    createdAt?: string | null;
-    updatedAt?: string | null;
-};
-
-export type Category = {
-    id?: string | null;
-    name?: string | null;
-    createdAt?: string | null;
-    updatedAt?: string | null;
-};
+import { Brand, Category } from './product';
 
 export type Product = {
     id?: string | null;
@@ -40,4 +17,16 @@ export type Product = {
     createdAt?: string | null;
     updatedAt?: string | null;
     brand?: Brand | null;
+};
+
+export type Slider = {
+    id?: string | null;
+    title?: string | null;
+    image?: string | null;
+    description?: string | null;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+    isshow?: boolean | null;
+    product?: Product | null;
+    productId?: string | null;
 };

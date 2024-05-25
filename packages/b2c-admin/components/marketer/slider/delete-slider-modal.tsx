@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-/* eslint-disable @typescript-eslint/naming-convention */
 import { DeleteOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -17,11 +15,11 @@ import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 
 type Props = {
-    type: 'DELETE';
     title: string;
     reload: () => void;
     sliderId?: string;
 };
+
 type FormType = {
     title: string;
     description?: string;
@@ -30,19 +28,17 @@ type FormType = {
     image: string;
     imageList?: UploadFile[];
 };
+
 const DeleteSliderFormModal: React.FC<Props> = ({
-    type,
     title,
     reload,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     sliderId,
 }) => {
     const [form] = Form.useForm();
-
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
     const { isLoading, data, error } = useQuery({
-        queryKey: ['brand-detail'],
+        queryKey: ['brand-detail', sliderId],
         queryFn: () =>
             request.get(`slider/${sliderId}`).then((res) => res.data),
         enabled: Boolean(sliderId) && isOpenModal,
@@ -50,9 +46,7 @@ const DeleteSliderFormModal: React.FC<Props> = ({
 
     const { mutate: deleteSliderTrigger, isPending: deleteSliderPending } =
         useMutation({
-            mutationFn: (slider: { id: string }) => {
-                return request.del(`slider/delete/${slider.id}`);
-            },
+            mutationFn: () => request.del(`slider/delete/${sliderId}`),
             onSuccess: async (res) => {
                 toast.success(res.data.message);
                 setTimeout(() => {
@@ -64,40 +58,35 @@ const DeleteSliderFormModal: React.FC<Props> = ({
                 toast.error('Delete slider failed!');
             },
         });
+
     useEffect(() => {
         if (sliderId) {
             form.setFieldsValue({ name: data?.data?.name });
         } else {
             form.resetFields();
         }
-    }, [data, sliderId]);
-    const button = useMemo(() => {
-        switch (type) {
-            case 'DELETE':
-                return (
-                    <Tooltip
-                        arrow={false}
-                        color="#108ee9"
-                        title="Delete slider"
-                    >
-                        <Button
-                            icon={<DeleteOutlined />}
-                            key="id"
-                            onClick={() => setIsOpenModal(true)}
-                            type="primary"
-                        />
-                    </Tooltip>
-                );
-            default:
-                return null;
-        }
-    }, [type]);
+    }, [data, sliderId, form]);
+
+    const button = useMemo(
+        () => (
+            <Tooltip arrow={false} color="#108ee9" title="Delete slider">
+                <Button
+                    icon={<DeleteOutlined />}
+                    key="id"
+                    onClick={() => setIsOpenModal(true)}
+                    type="primary"
+                />
+            </Tooltip>
+        ),
+        []
+    );
+
     const onFinish: FormProps<FormType>['onFinish'] = () => {
         if (sliderId) {
-            return deleteSliderTrigger({ id: sliderId });
+            deleteSliderTrigger();
         }
-        return Promise.resolve();
     };
+
     return (
         <div>
             {button}
@@ -123,9 +112,9 @@ const DeleteSliderFormModal: React.FC<Props> = ({
                         >
                             <Alert
                                 description="Do you want to delete this slider"
-                                message="Error"
+                                message="Confirmation"
                                 showIcon
-                                type="error"
+                                type="warning"
                             />
                             <Form.Item>
                                 <Button
@@ -143,7 +132,9 @@ const DeleteSliderFormModal: React.FC<Props> = ({
         </div>
     );
 };
+
 DeleteSliderFormModal.defaultProps = {
     sliderId: undefined,
 };
+
 export default DeleteSliderFormModal;

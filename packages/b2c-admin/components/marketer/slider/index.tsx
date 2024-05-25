@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import {
     Button,
@@ -59,7 +58,8 @@ type SearchParams = FormType & {
     pageSize?: number;
     currentPage?: number;
 };
-const ListSlider = () => {
+
+const ListSlider: React.FC = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
         currentPage: 1,
@@ -100,52 +100,46 @@ const ListSlider = () => {
             title: 'Product Name',
             dataIndex: 'name',
             key: 'name',
-            render: (_: any, record: Slider) => <p>{record?.product?.name}</p>,
+            render: (_: string, record: Slider) => (
+                <p>{record?.product?.name}</p>
+            ),
         },
         {
             title: 'Title',
             dataIndex: 'title',
             key: 'title',
-            render: (_: any, record: Slider) => <p>{record.title}</p>,
+            render: (_: string, record: Slider) => <p>{record.title}</p>,
         },
         {
             title: 'Show on Client',
             dataIndex: 'isshow',
             key: 'isshow',
-            render: (id: string, record: Slider) => {
-                return (
-                    <Tag color={record?.isshow ? 'blue' : 'red'}>
-                        {record?.isshow ? 'SHOW' : 'HIDE'}
-                    </Tag>
-                );
-            },
+            render: (isShow: boolean) => (
+                <Tag color={isShow ? 'blue' : 'red'}>
+                    {isShow ? 'SHOW' : 'HIDE'}
+                </Tag>
+            ),
         },
         {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (_: any, record: Slider) => (
-                <p>
-                    {record?.createdAt &&
-                        moment(record.createdAt).format('YYYY-MM-DD')}
-                </p>
+            render: (createdAt: string) => (
+                <p>{createdAt && moment(createdAt).format('YYYY-MM-DD')}</p>
             ),
         },
         {
             title: 'Update At',
             dataIndex: 'updatedAt',
             key: 'updatedAt',
-            render: (_: any, record: Slider) => (
-                <p>
-                    {record?.updatedAt &&
-                        moment(record.updatedAt).format('YYYY-MM-DD')}
-                </p>
+            render: (updatedAt: string) => (
+                <p>{updatedAt && moment(updatedAt).format('YYYY-MM-DD')}</p>
             ),
         },
         {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Slider) => (
+            render: (record: Slider) => (
                 <Flex align="start" gap="middle" vertical>
                     <SliderModal
                         reload={() => refetch()}
@@ -157,7 +151,6 @@ const ListSlider = () => {
                         reload={() => refetch()}
                         sliderId={record?.id ?? ''}
                         title="Delete slider"
-                        type="DELETE"
                     />
                 </Flex>
             ),
