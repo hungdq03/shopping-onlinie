@@ -92,7 +92,7 @@ const MarketerSidebar = () => {
             items={items}
             mode="inline"
             selectedKeys={activeKey}
-            style={{ width: 256, height: 'calc(100vh - 76px)' }}
+            style={{ width: 200, height: 'calc(100vh - 76px)' }}
         />
     );
 };

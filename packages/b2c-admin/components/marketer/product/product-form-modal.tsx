@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
@@ -20,7 +21,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 import { RcFile } from 'antd/es/upload';
-import { Brand } from '~/types/product';
+import { dropListFiles } from 'common/utils/dropListFiles';
+import { Brand, ResponseProductById } from '~/types/product';
 
 type Props = {
     type: 'CREATE' | 'UPDATE';
@@ -61,10 +63,9 @@ const ProductFormModal: React.FC<Props> = ({
     type,
     title,
     reload,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     productId,
 }) => {
-    const [form] = Form.useForm();
+    const [form] = Form.useForm<FormType>();
 
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
@@ -78,6 +79,16 @@ const ProductFormModal: React.FC<Props> = ({
         queryFn: () => request.get('category').then((res) => res.data),
         enabled: isOpenModal,
     });
+
+    const { data: productInfo, isLoading: getProductInfoLoading } =
+        useQuery<ResponseProductById>({
+            queryKey: ['product-info'],
+            queryFn: () =>
+                request
+                    .get(`manage/product/${productId}`)
+                    .then((res) => res.data),
+            enabled: !!productId && isOpenModal,
+        });
 
     const { mutateAsync: uploadFileTrigger, isPending: uploadFileIsPending } =
         useMutation({
@@ -111,10 +122,41 @@ const ProductFormModal: React.FC<Props> = ({
         });
 
     useEffect(() => {
-        if (isOpenModal) {
+        if (isOpenModal && !productId) {
             form.resetFields();
         }
-    }, [isOpenModal]);
+        if (isOpenModal && productId && productInfo) {
+            form.setFieldsValue({
+                name: productInfo?.data?.name ?? undefined,
+                isShow: productInfo?.data?.isShow ?? undefined,
+                brandId: productInfo?.data?.brandId ?? undefined,
+                categoryId: productInfo?.data?.categoryId ?? undefined,
+                size: productInfo?.data?.size ?? undefined,
+                quantity: productInfo?.data?.quantity ?? undefined,
+                original_price: productInfo?.data?.original_price ?? undefined,
+                discount_price: productInfo?.data?.discount_price ?? undefined,
+                description: productInfo?.data?.description ?? undefined,
+                thumbnailList: productInfo?.data?.thumbnail
+                    ? [
+                          {
+                              uid: '-1',
+                              name: productInfo?.data?.thumbnail ?? '',
+                              status: 'done',
+                              url: `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${productInfo?.data?.thumbnail}`,
+                          },
+                      ]
+                    : undefined,
+                productImageList: productInfo?.data?.product_image
+                    ? productInfo?.data?.product_image?.map((item) => ({
+                          uid: item.id ?? '-1',
+                          name: item.url ?? '',
+                          status: 'done',
+                          url: `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.url}`,
+                      }))
+                    : undefined,
+            });
+        }
+    }, [isOpenModal, productId, productInfo]);
 
     const button = useMemo(() => {
         switch (type) {
@@ -133,6 +175,7 @@ const ProductFormModal: React.FC<Props> = ({
                     <Tooltip arrow={false} color="#108ee9" title="Edit Product">
                         <Button
                             icon={<EditOutlined />}
+                            onClick={() => setIsOpenModal(true)}
                             shape="circle"
                             type="link"
                         />
@@ -164,39 +207,52 @@ const ProductFormModal: React.FC<Props> = ({
             description,
         } = values;
 
-        const thumbnailList = values?.thumbnailList?.map(
-            (file) => file.originFileObj
-        );
+        if (type === 'CREATE') {
+            const thumbnailList = values?.thumbnailList?.map(
+                (file) => file.originFileObj
+            );
 
-        const productImageList = values?.productImageList?.map(
-            (file) => file.originFileObj
-        );
+            const productImageList = values?.productImageList?.map(
+                (file) => file.originFileObj
+            );
 
-        const thumbnailListResponse = await uploadFileTrigger(
-            (thumbnailList as RcFile[]) ?? []
-        )?.then((res) => res.imageUrls);
+            const thumbnailListResponse = await uploadFileTrigger(
+                (thumbnailList as RcFile[]) ?? []
+            )?.then((res) => res.imageUrls);
 
-        const productImageListResponse = await uploadFileTrigger(
-            (productImageList as RcFile[]) ?? []
-        )?.then((res) => res.imageUrls);
+            const productImageListResponse = await uploadFileTrigger(
+                (productImageList as RcFile[]) ?? []
+            )?.then((res) => res.imageUrls);
 
-        const productImageListRequest = productImageListResponse?.map(
-            (image: string) => ({ url: image })
-        );
+            const productImageListRequest = productImageListResponse?.map(
+                (image: string) => ({ url: image })
+            );
 
-        createProductTrigger({
-            name,
-            isShow,
-            brandId,
-            categoryId,
-            size,
-            quantity,
-            original_price,
-            discount_price,
-            description,
-            thumbnail: thumbnailListResponse?.[0] ?? '',
-            product_image: productImageListRequest ?? [],
-        });
+            createProductTrigger({
+                name,
+                isShow,
+                brandId,
+                categoryId,
+                size,
+                quantity,
+                original_price,
+                discount_price,
+                description,
+                thumbnail: thumbnailListResponse?.[0] ?? '',
+                product_image: productImageListRequest ?? [],
+            });
+        }
+
+        if (type === 'UPDATE') {
+            const { filesUploaded, fileNotUpload } = dropListFiles(
+                values.productImageList ?? []
+            );
+
+            // eslint-disable-next-line no-console
+            console.log('uploaded', filesUploaded);
+            // eslint-disable-next-line no-console
+            console.log('not uploaded', fileNotUpload);
+        }
     };
 
     return (
@@ -211,7 +267,13 @@ const ProductFormModal: React.FC<Props> = ({
                 title={title}
                 width={800}
             >
-                <Spin spinning={getListBrandLoading || getListCategoryLoading}>
+                <Spin
+                    spinning={
+                        getListBrandLoading ||
+                        getListCategoryLoading ||
+                        getProductInfoLoading
+                    }
+                >
                     <div className="max-h-[75vh] overflow-auto px-5">
                         <Form
                             disabled={
