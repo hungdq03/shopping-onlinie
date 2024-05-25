@@ -18,7 +18,7 @@ export const isAuthenticated = (
     }
 
     jwt.verify(accessToken, TOKEN_KEY, (err) => {
-        if (err) res.sendStatus(403);
+        if (err) res.send(403);
         next();
     });
 };
@@ -41,13 +41,11 @@ export const isMarketer = async (
         },
     });
 
-    if (!user || user.role !== 'SELLER') {
-        res.sendStatus(403);
+    if (!user || user.role !== 'MARKETER') {
+        res.send(403).json({ message: 'not marketer' });
     }
 
-    if (user.role === 'MARKETER') {
-        next();
-    }
+    next();
 };
 
 export const isSeller = async (
@@ -72,9 +70,7 @@ export const isSeller = async (
         res.sendStatus(403);
     }
 
-    if (user.role === 'SELLER') {
-        next();
-    }
+    next();
 };
 
 export const isAdmin = async (
@@ -99,7 +95,5 @@ export const isAdmin = async (
         res.sendStatus(403);
     }
 
-    if (user.role === 'ADMIN') {
-        next();
-    }
+    next();
 };

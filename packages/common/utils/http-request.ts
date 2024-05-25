@@ -2,11 +2,15 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
-const token = Cookies.get('accessToken');
+const cmsUser = Cookies.get('cmsUser');
+
+const user = cmsUser ? JSON.parse(cmsUser) : null;
 
 const request = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-    headers: { common: { Authorization: `Bearer ${token}` } },
+    headers: {
+        common: { Authorization: `Bearer ${user?.data?.access_token}` },
+    },
 });
 
 export const get = async (path: string, req?: AxiosRequestConfig<any>) => {
