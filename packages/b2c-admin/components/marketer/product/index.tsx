@@ -62,6 +62,7 @@ type FormType = {
     search?: string;
     rating?: string;
     sortBy?: string;
+    isShow?: boolean;
 };
 
 type SearchParams = FormType & {
@@ -188,7 +189,7 @@ const ProductList = () => {
             key: 'actions',
             render: (_: undefined, record: Product) => (
                 <ProductFormModal
-                    productId={record?.id ?? ''}
+                    productId={record?.id ?? undefined}
                     reload={() => refetch()}
                     title="Update product"
                     type="UPDATE"
@@ -219,7 +220,7 @@ const ProductList = () => {
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
+                    <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
                         <Form.Item<FormType> label="Brand" name="brandId">
                             <Select
                                 allowClear
@@ -271,6 +272,19 @@ const ProductList = () => {
                                 ))}
                             </Select>
                         </Form.Item>
+                        <Form.Item<FormType>
+                            label="Show on client"
+                            name="isShow"
+                        >
+                            <Select allowClear>
+                                <Select.Option value="true">
+                                    <Tag color="blue">SHOW</Tag>
+                                </Select.Option>
+                                <Select.Option value="false">
+                                    <Tag color="red">HIDE</Tag>
+                                </Select.Option>
+                            </Select>
+                        </Form.Item>
                     </div>
                     <Form.Item>
                         <Button
@@ -285,7 +299,9 @@ const ProductList = () => {
             </div>
             <div className="mb-10 flex justify-end">
                 <ProductFormModal
-                    reload={() => {}}
+                    reload={() => {
+                        refetch();
+                    }}
                     title="Create product"
                     type="CREATE"
                 />
@@ -296,6 +312,7 @@ const ProductList = () => {
                     dataSource={listProduct?.data}
                     pagination={false}
                     rowKey="id"
+                    tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
                     {listProduct?.pagination?.total ? (
