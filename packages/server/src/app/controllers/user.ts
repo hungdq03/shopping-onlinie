@@ -226,8 +226,29 @@ export const getListUser = async (req: Request, res: Response) => {
     }
 };
 
+export const getUserById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const brand = await db.user.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: brand,
+            message: 'Get user successfully!',
+        });
+    } catch (error) {
+        return res.send(500);
+    }
+};
+
 export const createUser = async (req: Request, res: Response) => {
-    const { name, email, role, gender, address, dob, phone, image } = req.body;
+    const { name, email, role, status, gender, address, dob, phone, image } =
+        req.body;
 
     let user = await db.user.findFirst({
         where: { email },
@@ -247,11 +268,11 @@ export const createUser = async (req: Request, res: Response) => {
             hashedPassword: hashSync(phone, SALT),
             phone,
             role,
+            status,
             gender,
             address,
             image,
             dob,
-            status: 'NEWLY_REGISTER',
         },
     });
 
@@ -273,4 +294,49 @@ export const createUser = async (req: Request, res: Response) => {
     };
 
     return res.status(200).json(successObj);
+};
+
+export const editUser = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { role, status } = req.body;
+
+    try {
+        const brand = await db.user.update({
+            where: {
+                id,
+            },
+            data: {
+                role,
+                status,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: brand,
+            message: 'Update user successfully!',
+        });
+    } catch (error) {
+        return res.send(500);
+    }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const user = await db.user.delete({
+            where: {
+                id,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: user,
+            message: 'Delete user successfully!',
+        });
+    } catch (error) {
+        return res.send(500);
+    }
 };
