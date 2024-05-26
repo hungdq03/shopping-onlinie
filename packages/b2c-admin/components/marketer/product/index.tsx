@@ -110,22 +110,26 @@ const ProductList = () => {
                         (searchParams?.pageSize ?? 0)
                 );
             },
+            width: 70,
         },
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            ellipsis: true,
         },
         {
             title: 'Brand',
             dataIndex: 'brand',
             key: 'name',
+            ellipsis: true,
             render: (value: Brand) => <p>{value?.name}</p>,
         },
         {
             title: 'Category',
             dataIndex: 'category',
             key: 'name',
+            ellipsis: true,
             render: (value: Category) => <p>{value?.name}</p>,
         },
         {
@@ -147,6 +151,7 @@ const ProductList = () => {
             title: 'Original Price',
             dataIndex: 'original_price',
             key: 'original_price',
+            width: 150,
             render: (value: number) =>
                 value && <p>{currencyFormatter(value)}</p>,
         },
@@ -154,6 +159,8 @@ const ProductList = () => {
             title: 'Discount Price',
             dataIndex: 'discount_price',
             key: 'discount_price',
+            ellipsis: true,
+            width: 150,
             render: (value: number) =>
                 value && <p>{currencyFormatter(value)}</p>,
         },
@@ -161,7 +168,7 @@ const ProductList = () => {
             title: 'Rating',
             dataIndex: 'rating',
             key: 'rating',
-            width: '200px',
+            width: 200,
             render: (value: number) => <Rate disabled value={value ?? 0} />,
         },
         {
@@ -180,6 +187,7 @@ const ProductList = () => {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
+            ellipsis: true,
             render: (value: string) => (
                 <p>{value && moment(value).format('YYYY-MM-DD')}</p>
             ),
@@ -229,6 +237,7 @@ const ProductList = () => {
                                     value: item.id,
                                     label: item.name,
                                 }))}
+                                placeholder="Select a brand..."
                                 showSearch
                             />
                         </Form.Item>
@@ -242,14 +251,15 @@ const ProductList = () => {
                                         label: item.name,
                                     })
                                 )}
+                                placeholder="Select a category..."
                                 showSearch
                             />
                         </Form.Item>
                         <Form.Item<FormType> label="Name" name="search">
-                            <Input />
+                            <Input.Search placeholder="Enter product name..." />
                         </Form.Item>
                         <Form.Item<FormType> label="Rate" name="rating">
-                            <Select allowClear>
+                            <Select allowClear placeholder="Select rating...">
                                 {RATING_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
@@ -261,7 +271,7 @@ const ProductList = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear>
+                            <Select allowClear placeholder="Choose a filter...">
                                 {FILTER_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
@@ -276,7 +286,10 @@ const ProductList = () => {
                             label="Show on client"
                             name="isShow"
                         >
-                            <Select allowClear>
+                            <Select
+                                allowClear
+                                placeholder="Choose show on client..."
+                            >
                                 <Select.Option value="true">
                                     <Tag color="blue">SHOW</Tag>
                                 </Select.Option>

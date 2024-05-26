@@ -32,30 +32,30 @@ type Props = {
 };
 
 type FormType = {
-    name: string;
-    brandId: string;
-    categoryId: string;
-    size: number;
-    original_price: number;
-    discount_price?: number;
-    quantity: number;
-    description?: string;
-    isShow: boolean;
+    name: string | null;
+    brandId: string | null;
+    categoryId: string | null;
+    size: number | null;
+    original_price: number | null;
+    discount_price?: number | null;
+    quantity: number | null;
+    description?: string | null;
+    isShow: boolean | null;
     thumbnailList?: UploadFile[];
     productImageList?: UploadFile[];
 };
 
 type ProductRequestType = {
-    name: string;
-    brandId: string;
-    categoryId: string;
-    size: number;
-    original_price: number;
-    discount_price?: number;
-    quantity: number;
-    description?: string;
-    isShow: boolean;
-    thumbnail: string;
+    name: string | null;
+    brandId: string | null;
+    categoryId: string | null;
+    size: number | null;
+    original_price: number | null;
+    discount_price?: number | null;
+    quantity: number | null;
+    description?: string | null;
+    isShow: boolean | null;
+    thumbnail: string | null;
     product_image: string[];
 };
 
@@ -120,6 +120,24 @@ const ProductFormModal: React.FC<Props> = ({
                 toast.error(error?.message);
             },
         });
+    const { mutate: updateProductTrigger, isPending: updateProductPending } =
+        useMutation({
+            mutationFn: (data: ProductRequestType) => {
+                return request
+                    .put(`product/update/${productId}`, data)
+                    .then((res) => res.data);
+            },
+            onSuccess: (res) => {
+                toast.success(res?.message);
+                setTimeout(() => {
+                    setIsOpenModal(false);
+                    reload();
+                }, 500);
+            },
+            onError: (error) => {
+                toast.error(error?.message);
+            },
+        });
 
     useEffect(() => {
         if (isOpenModal && !productId) {
@@ -127,15 +145,15 @@ const ProductFormModal: React.FC<Props> = ({
         }
         if (isOpenModal && productId && productInfo) {
             form.setFieldsValue({
-                name: productInfo?.data?.name ?? undefined,
-                isShow: productInfo?.data?.isShow ?? undefined,
-                brandId: productInfo?.data?.brandId ?? undefined,
-                categoryId: productInfo?.data?.categoryId ?? undefined,
-                size: productInfo?.data?.size ?? undefined,
-                quantity: productInfo?.data?.quantity ?? undefined,
-                original_price: productInfo?.data?.original_price ?? undefined,
-                discount_price: productInfo?.data?.discount_price ?? undefined,
-                description: productInfo?.data?.description ?? undefined,
+                name: productInfo?.data?.name,
+                isShow: productInfo?.data?.isShow,
+                brandId: productInfo?.data?.brandId,
+                categoryId: productInfo?.data?.categoryId,
+                size: productInfo?.data?.size,
+                quantity: productInfo?.data?.quantity,
+                original_price: productInfo?.data?.original_price,
+                discount_price: productInfo?.data?.discount_price,
+                description: productInfo?.data?.description,
                 thumbnailList: productInfo?.data?.thumbnail
                     ? [
                           {
@@ -243,15 +261,49 @@ const ProductFormModal: React.FC<Props> = ({
             });
         }
 
-        if (type === 'UPDATE') {
+        if (type === 'UPDATE' && productId) {
             const { filesUploaded, fileNotUpload } = dropListFiles(
                 values.productImageList ?? []
             );
 
-            // eslint-disable-next-line no-console
-            console.log('uploaded', filesUploaded);
-            // eslint-disable-next-line no-console
-            console.log('not uploaded', fileNotUpload);
+            const newThumbnail =
+                values?.thumbnailList?.[0]?.status === 'done'
+                    ? [values?.thumbnailList?.[0]?.name]
+                    : await uploadFileTrigger(
+                          values?.thumbnailList?.map(
+                              (item) => item.originFileObj as RcFile
+                          ) ?? []
+                      );
+
+            const newProductImage =
+                fileNotUpload?.length > 0
+                    ? await uploadFileTrigger(fileNotUpload).then(
+                          (res) => res.imageUrls
+                      )
+                    : [];
+
+            const newProductImageRequest = newProductImage?.map(
+                (image: string) => ({
+                    url: image,
+                })
+            );
+
+            const submitObj = {
+                name,
+                isShow,
+                brandId,
+                categoryId,
+                size,
+                quantity,
+                original_price,
+                discount_price,
+                description,
+                thumbnail: newThumbnail?.[0] ?? '',
+                product_image:
+                    [...filesUploaded, ...newProductImageRequest] ?? [],
+            };
+
+            updateProductTrigger(submitObj);
         }
     };
 
@@ -259,7 +311,11 @@ const ProductFormModal: React.FC<Props> = ({
         <div>
             {button}
             <Modal
-                closable={!uploadFileIsPending || !createProductIsPending}
+                closable={
+                    !uploadFileIsPending ||
+                    !createProductIsPending ||
+                    !updateProductPending
+                }
                 footer={false}
                 maskClosable={false}
                 onCancel={() => setIsOpenModal(false)}
@@ -277,7 +333,9 @@ const ProductFormModal: React.FC<Props> = ({
                     <div className="max-h-[75vh] overflow-auto px-5">
                         <Form
                             disabled={
-                                uploadFileIsPending || createProductIsPending
+                                uploadFileIsPending ||
+                                createProductIsPending ||
+                                updateProductPending
                             }
                             form={form}
                             initialValues={{

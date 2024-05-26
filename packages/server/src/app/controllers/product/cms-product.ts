@@ -272,6 +272,66 @@ export const createProduct = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Internal server error!' });
     }
 };
+
+export const updateProduct = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const {
+        name,
+        brandId,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        original_price,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        discount_price,
+        quantity,
+        description,
+        size,
+        categoryId,
+        thumbnail,
+        isShow,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        product_image,
+    } = req.body;
+
+    try {
+        await db.productImage.deleteMany({
+            where: {
+                productId: id,
+            },
+        });
+
+        const product = await db.product.update({
+            where: {
+                id,
+            },
+            data: {
+                name,
+                brandId,
+                original_price,
+                discount_price,
+                quantity,
+                description,
+                size,
+                categoryId,
+                thumbnail,
+                isShow,
+                product_image: {
+                    createMany: {
+                        data: product_image,
+                    },
+                },
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: product,
+            message: 'Update new product successfully!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
+    }
+};
+
 export const getProductById = async (req: Request, res: Response) => {
     const { id } = req.params;
 
