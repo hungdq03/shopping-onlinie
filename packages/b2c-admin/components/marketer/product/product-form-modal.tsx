@@ -463,8 +463,30 @@ const ProductFormModal: React.FC<Props> = ({
                                     />
                                 </Form.Item>
                                 <Form.Item<FormType>
+                                    dependencies={['original_price']}
                                     label="Discount Price"
                                     name="discount_price"
+                                    rules={[
+                                        ({ getFieldValue }) => ({
+                                            validator(_, value: number) {
+                                                if (
+                                                    !value ||
+                                                    Number(
+                                                        getFieldValue(
+                                                            'original_price'
+                                                        )
+                                                    ) > value
+                                                ) {
+                                                    return Promise.resolve();
+                                                }
+                                                return Promise.reject(
+                                                    new Error(
+                                                        'Discount price cannot be greater than Original price'
+                                                    )
+                                                );
+                                            },
+                                        }),
+                                    ]}
                                 >
                                     <InputNumber
                                         addonAfter="VND"
