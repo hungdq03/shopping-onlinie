@@ -80,8 +80,7 @@ export const loginAdmin = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
         { id: user.id, email: user.email, name: user.name },
-        TOKEN_KEY,
-        { expiresIn: EXPIRES_TOKEN }
+        TOKEN_KEY
     );
 
     const refreshToken = jwt.sign(

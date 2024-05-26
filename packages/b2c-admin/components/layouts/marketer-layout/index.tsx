@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from '../header';
+import Header from '../user-menu';
 import MarketerSidebar from './marketer-sidebar';
 
 type Props = {
