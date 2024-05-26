@@ -45,6 +45,7 @@ type FormType = {
     search?: string;
     sortBy?: string;
     productId?: string;
+    isShow?: boolean;
 };
 
 type SearchParams = FormType & {
@@ -142,7 +143,7 @@ const PostList = () => {
             render: (_: any, record: Post) => (
                 <Flex align="start" gap="middle" vertical>
                     <PostFormModal
-                        postId={record?.id ?? ''}
+                        postId={record?.id ?? undefined}
                         reload={() => refetch()}
                         title="Update post"
                         type="UPDATE"
@@ -180,7 +181,7 @@ const PostList = () => {
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
+                    <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
                         <Form.Item<FormType> label="Product" name="productId">
                             <Select
                                 allowClear
@@ -210,6 +211,19 @@ const PostList = () => {
                         <Form.Item<FormType> label="Title" name="search">
                             <Input />
                         </Form.Item>
+                        <Form.Item<FormType>
+                            label="Show on client"
+                            name="isShow"
+                        >
+                            <Select allowClear>
+                                <Select.Option value="true">
+                                    <Tag color="blue">SHOW</Tag>
+                                </Select.Option>
+                                <Select.Option value="false">
+                                    <Tag color="red">HIDE</Tag>
+                                </Select.Option>
+                            </Select>
+                        </Form.Item>
                     </div>
                     <Form.Item>
                         <Button
@@ -224,7 +238,9 @@ const PostList = () => {
             </div>
             <div className="mb-10 flex justify-end">
                 <PostFormModal
-                    reload={() => {}}
+                    reload={() => {
+                        refetch();
+                    }}
                     title="Create post"
                     type="CREATE"
                 />
@@ -235,6 +251,7 @@ const PostList = () => {
                     dataSource={listPost?.data}
                     pagination={false}
                     rowKey="id"
+                    tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
                     {listPost?.pagination?.total ? (

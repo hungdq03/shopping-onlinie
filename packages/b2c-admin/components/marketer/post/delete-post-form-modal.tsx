@@ -74,22 +74,35 @@ const DeletePostFormModal: React.FC<Props> = ({
         }
     }, [data, postId]);
 
+    // eslint-disable-next-line consistent-return
     const button = useMemo(() => {
-        switch (type) {
-            case 'DELETE':
-                return (
-                    <Tooltip arrow={false} color="#108ee9" title="Delete post">
-                        <Button
-                            icon={<DeleteOutlined />}
-                            key="id"
-                            onClick={() => setIsOpenModal(true)}
-                            type="primary"
-                        />
-                    </Tooltip>
-                );
-            default:
-                return null;
+        if (type === 'DELETE') {
+            return (
+                <Tooltip arrow={false} color="#108ee9" title="Delete post">
+                    <Button
+                        icon={<DeleteOutlined />}
+                        key="id"
+                        onClick={() => setIsOpenModal(true)}
+                        type="primary"
+                    />
+                </Tooltip>
+            );
         }
+        // switch (type) {
+        //     case 'DELETE':
+        //         return (
+        //             <Tooltip arrow={false} color="#108ee9" title="Delete post">
+        //                 <Button
+        //                     icon={<DeleteOutlined />}
+        //                     key="id"
+        //                     onClick={() => setIsOpenModal(true)}
+        //                     type="primary"
+        //                 />
+        //             </Tooltip>
+        //         );
+        //     default:
+        //         return null;
+        // }
     }, [type]);
 
     // eslint-disable-next-line consistent-return
