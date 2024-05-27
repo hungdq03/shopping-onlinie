@@ -7,16 +7,19 @@ import {
     Pagination,
     Rate,
     Select,
+    Space,
     Spin,
     Table,
     Tag,
+    Tooltip,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
 import { PAGE_SIZE, RATING_LIST } from 'common/constant';
-import { SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { currencyFormatter } from 'common/utils/formatter';
+import Link from 'next/link';
 import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
@@ -196,12 +199,19 @@ const ProductList = () => {
             title: 'Actions',
             key: 'actions',
             render: (_: undefined, record: Product) => (
-                <ProductFormModal
-                    productId={record?.id ?? undefined}
-                    reload={() => refetch()}
-                    title="Update product"
-                    type="UPDATE"
-                />
+                <Space size="middle">
+                    <ProductFormModal
+                        productId={record?.id ?? undefined}
+                        reload={() => refetch()}
+                        title="Update product"
+                        type="UPDATE"
+                    />
+                    <Tooltip arrow={false} color="#108ee9" title="Detail">
+                        <Link href={`/marketer/product/${record?.id}`}>
+                            <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                        </Link>
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
