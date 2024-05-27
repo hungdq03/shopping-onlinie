@@ -273,7 +273,7 @@ const ProductFormModal: React.FC<Props> = ({
                           values?.thumbnailList?.map(
                               (item) => item.originFileObj as RcFile
                           ) ?? []
-                      );
+                      ).then((res) => res?.imageUrls);
 
             const newProductImage =
                 fileNotUpload?.length > 0
@@ -298,7 +298,7 @@ const ProductFormModal: React.FC<Props> = ({
                 original_price,
                 discount_price,
                 description,
-                thumbnail: newThumbnail?.imageUrls?.[0] ?? '',
+                thumbnail: newThumbnail?.[0] ?? '',
                 product_image:
                     [...filesUploaded, ...newProductImageRequest] ?? [],
             };
