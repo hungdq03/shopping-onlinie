@@ -190,7 +190,7 @@ const ProductFormModal: React.FC<Props> = ({
                 );
             case 'UPDATE':
                 return (
-                    <Tooltip arrow={false} color="#108ee9" title="Edit Product">
+                    <Tooltip arrow={false} color="#108ee9" title="Edit">
                         <Button
                             icon={<EditOutlined />}
                             onClick={() => setIsOpenModal(true)}
@@ -273,7 +273,7 @@ const ProductFormModal: React.FC<Props> = ({
                           values?.thumbnailList?.map(
                               (item) => item.originFileObj as RcFile
                           ) ?? []
-                      );
+                      ).then((res) => res?.imageUrls);
 
             const newProductImage =
                 fileNotUpload?.length > 0
