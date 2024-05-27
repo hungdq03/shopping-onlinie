@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-/* eslint-disable @typescript-eslint/naming-convention */
 import { DeleteOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -36,7 +34,6 @@ const DeletePostFormModal: React.FC<Props> = ({
     type,
     title,
     reload,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     postId,
 }) => {
     const [form] = Form.useForm();
@@ -44,7 +41,7 @@ const DeletePostFormModal: React.FC<Props> = ({
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
     const { isLoading, data, error } = useQuery({
-        queryKey: ['brand-detail'],
+        queryKey: ['post-detail'],
         queryFn: () => request.get(`post/${postId}`).then((res) => res.data),
         enabled: Boolean(postId) && isOpenModal,
     });
@@ -78,31 +75,18 @@ const DeletePostFormModal: React.FC<Props> = ({
     const button = useMemo(() => {
         if (type === 'DELETE') {
             return (
-                <Tooltip arrow={false} color="#108ee9" title="Delete post">
+                <Tooltip arrow={false} color="red" title="Delete post">
                     <Button
+                        danger
                         icon={<DeleteOutlined />}
                         key="id"
                         onClick={() => setIsOpenModal(true)}
-                        type="primary"
+                        shape="circle"
+                        type="link"
                     />
                 </Tooltip>
             );
         }
-        // switch (type) {
-        //     case 'DELETE':
-        //         return (
-        //             <Tooltip arrow={false} color="#108ee9" title="Delete post">
-        //                 <Button
-        //                     icon={<DeleteOutlined />}
-        //                     key="id"
-        //                     onClick={() => setIsOpenModal(true)}
-        //                     type="primary"
-        //                 />
-        //             </Tooltip>
-        //         );
-        //     default:
-        //         return null;
-        // }
     }, [type]);
 
     // eslint-disable-next-line consistent-return

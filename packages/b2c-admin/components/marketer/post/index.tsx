@@ -2,21 +2,23 @@
 import React, { useState } from 'react';
 import {
     Button,
-    Flex,
     Form,
     FormProps,
     Input,
     Pagination,
     Select,
+    Space,
     Spin,
     Table,
     Tag,
+    Tooltip,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
 import { PAGE_SIZE } from 'common/constant';
-import { SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import Link from 'next/link';
 import PostFormModal from './post-form-modal';
 import DeletePostFormModal from './delete-post-form-modal';
 import { Post, Product } from '~/types/post';
@@ -141,7 +143,7 @@ const PostList = () => {
             title: 'Actions',
             key: 'actions',
             render: (_: any, record: Post) => (
-                <Flex align="start" gap="middle" vertical>
+                <Space size="middle">
                     <PostFormModal
                         postId={record?.id ?? undefined}
                         reload={() => refetch()}
@@ -154,7 +156,12 @@ const PostList = () => {
                         title="Delete post"
                         type="DELETE"
                     />
-                </Flex>
+                    <Tooltip arrow={false} color="#108ee9" title="Detail">
+                        <Link href={`/marketer/post/${record?.id}`}>
+                            <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                        </Link>
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
@@ -212,7 +219,7 @@ const PostList = () => {
                             <Input />
                         </Form.Item>
                         <Form.Item<FormType>
-                            label="Show on client"
+                            label="Show on client: "
                             name="isShow"
                         >
                             <Select allowClear>
