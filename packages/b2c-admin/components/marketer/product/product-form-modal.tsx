@@ -190,7 +190,7 @@ const ProductFormModal: React.FC<Props> = ({
                 );
             case 'UPDATE':
                 return (
-                    <Tooltip arrow={false} color="#108ee9" title="Edit Product">
+                    <Tooltip arrow={false} color="#108ee9" title="Edit">
                         <Button
                             icon={<EditOutlined />}
                             onClick={() => setIsOpenModal(true)}
@@ -298,7 +298,7 @@ const ProductFormModal: React.FC<Props> = ({
                 original_price,
                 discount_price,
                 description,
-                thumbnail: newThumbnail?.[0] ?? '',
+                thumbnail: newThumbnail?.imageUrls?.[0] ?? '',
                 product_image:
                     [...filesUploaded, ...newProductImageRequest] ?? [],
             };
