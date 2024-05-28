@@ -7,5 +7,4 @@ yarn lint ||
     false;
 )
 
-
 echo '✅✅✅✅ You win this time... I am committing this now. ✅✅✅✅'

@@ -24,7 +24,13 @@ const Header: React.FC<Props> = ({ title }) => {
         <div className="flex h-[76px] w-full items-center justify-between px-5 shadow-md">
             <div className="text-2xl font-bold uppercase">{title}</div>
             <div>
-                <Dropdown menu={{ items }} placement="bottomLeft">
+                <Dropdown
+                    menu={{ items }}
+                    overlayStyle={{
+                        width: 200,
+                    }}
+                    placement="bottomLeft"
+                >
                     <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
                         <Image
                             alt="avatar"

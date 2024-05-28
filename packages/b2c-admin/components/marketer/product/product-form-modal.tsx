@@ -339,7 +339,7 @@ const ProductFormModal: React.FC<Props> = ({
                             }
                             form={form}
                             initialValues={{
-                                isShow: true,
+                                isShow: false,
                                 discount_price: null,
                                 description: null,
                             }}
