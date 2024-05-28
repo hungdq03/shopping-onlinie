@@ -19,7 +19,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 import { RcFile } from 'antd/es/upload';
-import { Product } from '~/types/post';
+import { Product, ResponsePostById } from '~/types/post';
 
 type Props = {
     type: 'CREATE' | 'UPDATE';
@@ -29,20 +29,20 @@ type Props = {
 };
 
 type FormType = {
-    title: string;
-    description?: string;
-    productId: string;
-    isShow: boolean;
-    thumbnail: string;
+    title: string | null;
+    description?: string | null;
+    productId: string | null;
+    isShow: boolean | null;
+    thumbnail: string | null;
     thumbnailList?: UploadFile[];
 };
 
 type PostRequestType = {
-    title: string;
-    description?: string;
-    productId: string;
-    isShow: boolean;
-    thumbnail: string;
+    title: string | null;
+    description?: string | null;
+    productId: string | null;
+    isShow: boolean | null;
+    thumbnail: string | null;
 };
 
 const PostFormModal: React.FC<Props> = ({
@@ -74,6 +74,14 @@ const PostFormModal: React.FC<Props> = ({
             },
         });
 
+    const { data: postInfo, isLoading: getPostInfoLoading } =
+        useQuery<ResponsePostById>({
+            queryKey: ['post-info'],
+            queryFn: () =>
+                request.get(`post/${postId}`).then((res) => res.data),
+            enabled: !!postId && isOpenModal,
+        });
+
     const { mutate: createPostTrigger, isPending: createPostIsPending } =
         useMutation({
             mutationFn: (data: PostRequestType) => {
@@ -95,24 +103,13 @@ const PostFormModal: React.FC<Props> = ({
 
     const { mutate: updatePostTrigger, isPending: updatePostPending } =
         useMutation({
-            mutationFn: (post: {
-                id: string;
-                title: string;
-                description: string;
-                productId: string;
-                isShow: boolean;
-                thumbnailList: UploadFile[];
-            }) => {
-                return request.put(`post/update/${post.id}`, {
-                    title: post.title,
-                    description: post.description,
-                    productId: post.productId,
-                    isShow: post.isShow,
-                    thumbnailList: post.thumbnailList,
-                });
+            mutationFn: (data: PostRequestType) => {
+                return request
+                    .put(`post/update/${postId}`, data)
+                    .then((res) => res.data);
             },
             onSuccess: (res) => {
-                toast.success(res.data.message);
+                toast.success(res?.message);
                 setTimeout(() => {
                     setIsOpenModal(false);
                     reload();
@@ -124,10 +121,28 @@ const PostFormModal: React.FC<Props> = ({
         });
 
     useEffect(() => {
-        if (isOpenModal) {
+        if (isOpenModal && !postId) {
             form.resetFields();
         }
-    }, [isOpenModal]);
+        if (isOpenModal && postId && postInfo) {
+            form.setFieldsValue({
+                title: postInfo?.data?.title,
+                isShow: postInfo?.data?.isShow,
+                description: postInfo?.data?.description,
+                productId: postInfo?.data?.productId,
+                thumbnailList: postInfo?.data?.thumbnail
+                    ? [
+                          {
+                              uid: '-1',
+                              name: postInfo?.data?.thumbnail ?? '',
+                              status: 'done',
+                              url: `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${postInfo?.data?.thumbnail}`,
+                          },
+                      ]
+                    : undefined,
+            });
+        }
+    }, [isOpenModal, postId, postInfo]);
 
     const button = useMemo(() => {
         switch (type) {
@@ -147,7 +162,8 @@ const PostFormModal: React.FC<Props> = ({
                         <Button
                             icon={<EditOutlined />}
                             onClick={() => setIsOpenModal(true)}
-                            type="primary"
+                            shape="circle"
+                            type="link"
                         />
                     </Tooltip>
                 );
@@ -165,46 +181,47 @@ const PostFormModal: React.FC<Props> = ({
         return e?.fileList;
     };
 
-    // eslint-disable-next-line consistent-return
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
-        const {
-            // eslint-disable-next-line @typescript-eslint/no-shadow
-            title,
-            description,
-            productId,
-            isShow,
-        } = values;
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const { title, description, productId, isShow } = values;
 
-        const thumbnailList = values?.thumbnailList?.map(
-            (file) => file.originFileObj
-        );
+        if (type === 'CREATE') {
+            const thumbnailList = values?.thumbnailList?.map(
+                (file) => file.originFileObj
+            );
 
-        const thumbnailListResponse = await uploadFileTrigger(
-            (thumbnailList as RcFile[]) ?? []
-        )?.then((res) => res.imageUrls);
-        switch (type) {
-            case 'CREATE':
-                return createPostTrigger({
-                    title,
-                    description,
-                    productId,
-                    isShow,
-                    thumbnail: thumbnailListResponse?.[0] ?? '',
-                });
-            case 'UPDATE':
-                if (postId) {
-                    return updatePostTrigger({
-                        id: postId,
-                        title: values.title || '',
-                        description: values.description || '',
-                        productId: values.productId || '',
-                        isShow: values.isShow,
-                        thumbnailList: thumbnailListResponse?.[0] ?? '',
-                    });
-                }
-                break;
-            default:
-                return null;
+            const thumbnailListResponse = await uploadFileTrigger(
+                (thumbnailList as RcFile[]) ?? []
+            )?.then((res) => res.imageUrls);
+
+            createPostTrigger({
+                title,
+                isShow,
+                description,
+                productId,
+                thumbnail: thumbnailListResponse?.[0] ?? '',
+            });
+        }
+
+        if (type === 'UPDATE' && postId) {
+            const newThumbnail =
+                values?.thumbnailList?.[0]?.status === 'done'
+                    ? [values?.thumbnailList?.[0]?.name]
+                    : await uploadFileTrigger(
+                          values?.thumbnailList?.map(
+                              (item) => item.originFileObj as RcFile
+                          ) ?? []
+                      ).then((res) => res?.imageUrls);
+
+            const submitObj = {
+                title,
+                isShow,
+                description,
+                productId,
+                thumbnail: newThumbnail?.[0] ?? '',
+            };
+
+            updatePostTrigger(submitObj);
         }
     };
 
@@ -224,7 +241,7 @@ const PostFormModal: React.FC<Props> = ({
                 title={title}
                 width={800}
             >
-                <Spin spinning={getListProductLoading}>
+                <Spin spinning={getListProductLoading || getPostInfoLoading}>
                     <div className="max-h-[75vh] overflow-auto px-5">
                         <Form
                             disabled={
@@ -272,10 +289,10 @@ const PostFormModal: React.FC<Props> = ({
                                         {listProduct?.data?.map(
                                             (item: Product) => (
                                                 <Select.Option
-                                                    key={item?.id}
-                                                    value={item?.id}
+                                                    key={item.id}
+                                                    value={item.id}
                                                 >
-                                                    {item?.name}
+                                                    {item.name}
                                                 </Select.Option>
                                             )
                                         )}

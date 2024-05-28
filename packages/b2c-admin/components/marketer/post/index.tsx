@@ -2,21 +2,23 @@
 import React, { useState } from 'react';
 import {
     Button,
-    Flex,
     Form,
     FormProps,
     Input,
     Pagination,
     Select,
+    Space,
     Spin,
     Table,
     Tag,
+    Tooltip,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
 import { PAGE_SIZE } from 'common/constant';
-import { SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import Link from 'next/link';
 import PostFormModal from './post-form-modal';
 import DeletePostFormModal from './delete-post-form-modal';
 import { Post, Product } from '~/types/post';
@@ -45,6 +47,7 @@ type FormType = {
     search?: string;
     sortBy?: string;
     productId?: string;
+    isShow?: boolean;
 };
 
 type SearchParams = FormType & {
@@ -140,9 +143,9 @@ const PostList = () => {
             title: 'Actions',
             key: 'actions',
             render: (_: any, record: Post) => (
-                <Flex align="start" gap="middle" vertical>
+                <Space size="middle">
                     <PostFormModal
-                        postId={record?.id ?? ''}
+                        postId={record?.id ?? undefined}
                         reload={() => refetch()}
                         title="Update post"
                         type="UPDATE"
@@ -153,7 +156,12 @@ const PostList = () => {
                         title="Delete post"
                         type="DELETE"
                     />
-                </Flex>
+                    <Tooltip arrow={false} color="#108ee9" title="Detail">
+                        <Link href={`/marketer/post/${record?.id}`}>
+                            <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                        </Link>
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
@@ -180,7 +188,7 @@ const PostList = () => {
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
+                    <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
                         <Form.Item<FormType> label="Product" name="productId">
                             <Select
                                 allowClear
@@ -210,6 +218,19 @@ const PostList = () => {
                         <Form.Item<FormType> label="Title" name="search">
                             <Input />
                         </Form.Item>
+                        <Form.Item<FormType>
+                            label="Show on client: "
+                            name="isShow"
+                        >
+                            <Select allowClear>
+                                <Select.Option value="true">
+                                    <Tag color="blue">SHOW</Tag>
+                                </Select.Option>
+                                <Select.Option value="false">
+                                    <Tag color="red">HIDE</Tag>
+                                </Select.Option>
+                            </Select>
+                        </Form.Item>
                     </div>
                     <Form.Item>
                         <Button
@@ -224,7 +245,9 @@ const PostList = () => {
             </div>
             <div className="mb-10 flex justify-end">
                 <PostFormModal
-                    reload={() => {}}
+                    reload={() => {
+                        refetch();
+                    }}
                     title="Create post"
                     type="CREATE"
                 />
@@ -235,6 +258,7 @@ const PostList = () => {
                     dataSource={listPost?.data}
                     pagination={false}
                     rowKey="id"
+                    tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
                     {listPost?.pagination?.total ? (
