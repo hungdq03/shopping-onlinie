@@ -7,14 +7,18 @@ import {
     Input,
     Pagination,
     Select,
+    Space,
     Spin,
     Table,
     Tag,
+    Tooltip,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
-import { SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import Link from 'next/link';
+
 import { PAGE_SIZE } from 'common/constant';
 import SliderModal from './slider-modal';
 import { Product, Slider } from '~/types/slider';
@@ -24,7 +28,8 @@ import DeleteSliderFormModal from './delete-slider-modal';
 type FormType = {
     search?: string;
     sortBy?: string;
-    sortOrder?: string;
+    productId?: string;
+    isShow?: boolean;
 };
 
 const FILTER_LIST = [
@@ -43,14 +48,6 @@ const FILTER_LIST = [
     {
         id: 'NAME_Z_TO_A',
         name: 'Name: Z to A',
-    },
-    {
-        id: 'Active',
-        name: 'Active',
-    },
-    {
-        id: 'Inactive',
-        name: 'Inactive',
     },
 ];
 
@@ -100,58 +97,77 @@ const ListSlider: React.FC = () => {
             title: 'Product Name',
             dataIndex: 'name',
             key: 'name',
-            render: (_: string, record: Slider) => (
-                <p>{record?.product?.name}</p>
-            ),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            render: (_: any, record: Slider) => <p>{record?.product?.name}</p>,
         },
         {
             title: 'Title',
             dataIndex: 'title',
             key: 'title',
-            render: (_: string, record: Slider) => <p>{record.title}</p>,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            render: (_: any, record: Slider) => <p>{record.title}</p>,
         },
         {
             title: 'Show on Client',
-            dataIndex: 'isshow',
-            key: 'isshow',
-            render: (isShow: boolean) => (
-                <Tag color={isShow ? 'blue' : 'red'}>
-                    {isShow ? 'SHOW' : 'HIDE'}
-                </Tag>
-            ),
+            dataIndex: 'isShow',
+            key: 'isShow',
+            render: (id: string, record: Slider) => {
+                return (
+                    <Tag color={record?.isShow ? 'blue' : 'red'}>
+                        {record?.isShow ? 'SHOW' : 'HIDE'}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (createdAt: string) => (
-                <p>{createdAt && moment(createdAt).format('YYYY-MM-DD')}</p>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            render: (_: any, record: Slider) => (
+                <p>
+                    {record?.createdAt &&
+                        moment(record.createdAt).format('YYYY-MM-DD')}
+                </p>
             ),
         },
         {
             title: 'Update At',
             dataIndex: 'updatedAt',
             key: 'updatedAt',
-            render: (updatedAt: string) => (
-                <p>{updatedAt && moment(updatedAt).format('YYYY-MM-DD')}</p>
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            render: (_: any, record: Slider) => (
+                <p>
+                    {record?.updatedAt &&
+                        moment(record.updatedAt).format('YYYY-MM-DD')}
+                </p>
             ),
         },
         {
             title: 'Actions',
             key: 'actions',
-            render: (record: Slider) => (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            render: (_: any, record: Slider) => (
                 <Flex align="start" gap="middle" vertical>
-                    <SliderModal
-                        reload={() => refetch()}
-                        sliderID={record?.id ?? ''}
-                        title="Update Slider"
-                        type="UPDATE"
-                    />
-                    <DeleteSliderFormModal
-                        reload={() => refetch()}
-                        sliderId={record?.id ?? ''}
-                        title="Delete slider"
-                    />
+                    <Space size="middle">
+                        <SliderModal
+                            reload={() => refetch()}
+                            sliderID={record?.id ?? ''}
+                            title="Update Slider"
+                            type="UPDATE"
+                        />
+                        <DeleteSliderFormModal
+                            reload={() => refetch()}
+                            sliderId={record?.id ?? ''}
+                            title="Delete slider"
+                            type="DELETE"
+                        />
+                        <Tooltip arrow={false} color="#108ee9" title="Detail">
+                            <Link href={`/marketer/slider/${record?.id}`}>
+                                <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                            </Link>
+                        </Tooltip>
+                    </Space>
                 </Flex>
             ),
         },
@@ -179,8 +195,8 @@ const ListSlider: React.FC = () => {
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
-                        <Form.Item<FormType> label="Product">
+                    <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
+                        <Form.Item<FormType> label="Product" name="productId">
                             <Select
                                 allowClear
                                 filterOption={filterOption}
@@ -209,6 +225,19 @@ const ListSlider: React.FC = () => {
                         <Form.Item<FormType> label="Title" name="search">
                             <Input />
                         </Form.Item>
+                        <Form.Item<FormType>
+                            label="Show on client: "
+                            name="isShow"
+                        >
+                            <Select allowClear>
+                                <Select.Option value="true">
+                                    <Tag color="blue">SHOW</Tag>
+                                </Select.Option>
+                                <Select.Option value="false">
+                                    <Tag color="red">HIDE</Tag>
+                                </Select.Option>
+                            </Select>
+                        </Form.Item>
                     </div>
                     <Form.Item>
                         <Button
@@ -234,6 +263,7 @@ const ListSlider: React.FC = () => {
                     dataSource={listSlider?.data}
                     pagination={false}
                     rowKey="id"
+                    tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
                     {listSlider?.pagination?.total ? (
