@@ -27,6 +27,7 @@ model User {
   dob DateTime?
   phone String?
   address String?
+  isVerified Boolean? @default(false)
   status UserStatus?
 
   createdAt DateTime @default(now())

@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '~/styles/globals.css';
+import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { NextPage } from 'next';
 import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Spin } from 'common/components/spin';
+import { ToastContainer } from 'react-toastify';
 import { DefaultLayout } from '~/components/layouts/default-layout';
+import LoginModal from '~/components/modals/login-modal';
+import RegisterModal from '~/components/modals/register-modal';
 
 const queryClient = new QueryClient();
 
@@ -65,6 +69,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     return (
         <QueryClientProvider client={queryClient}>
             <Spin spinning={loading} />
+            <ToastContainer />
+            <LoginModal />
+            <RegisterModal />
             {getLayout(<Component {...pageProps} />)}
         </QueryClientProvider>
     );

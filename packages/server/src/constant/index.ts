@@ -2,7 +2,7 @@ export type SuccessResponseType = {
     data: {
         data: Record<
             string,
-            string | string[] | number | Date | Record<string, string>
+            boolean | string | string[] | number | Date | Record<string, string>
         >;
         meta_data?: Record<string, string>;
     };
