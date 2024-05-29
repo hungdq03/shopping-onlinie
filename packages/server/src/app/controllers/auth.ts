@@ -49,10 +49,10 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const verifyEmail = async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { email } = req.params;
 
-    // Tìm người dùng theo ID
-    const user = await db.user.findUnique({ where: { id } });
+    // Tìm người dùng theo email
+    const user = await db.user.findUnique({ where: { email: String(email) } });
 
     if (!user) {
         return res.status(404).json({ message: 'User not found!' });
@@ -108,7 +108,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
         Best regards,<br>
         Perfume shop.`;
     await sendMail({
-        to: 'hung2k3vn@gmail.com',
+        to: email,
         subject,
         title,
         mainContent,
@@ -172,6 +172,8 @@ export const checkVerify = async (req: Request, res: Response) => {
     };
     return res.status(200).json(successObj);
 };
+
+export const loginClient = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -192,6 +194,17 @@ export const checkVerify = async (req: Request, res: Response) => {
         });
     }
 
+    if (!user.isVerified) {
+        return res.status(400).json({
+            message: 'Unverified account!',
+            data: {
+                id: user.id,
+                email: user.email,
+                isVerified: user?.isVerified,
+            },
+        });
+    }
+
     const isCorrectPassword = await compareSync(password, user.hashedPassword);
 
     if (!isCorrectPassword) {
@@ -202,8 +215,8 @@ export const checkVerify = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
         { id: user.id, email: user.email, name: user.name },
-        TOKEN_KEY,
-        { expiresIn: EXPIRES_TOKEN }
+        TOKEN_KEY
+        // { expiresIn: EXPIRES_TOKEN }
     );
 
     const refreshToken = jwt.sign(

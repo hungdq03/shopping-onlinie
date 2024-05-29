@@ -13,7 +13,7 @@ export default (router: Router) => {
     router.post('/auth/admin/login', loginAdmin);
     // user
     router.post('/auth/user/register', register);
-    router.post('/auth/verify-email/:id', verifyEmail);
+    router.post('/auth/verify-email/:email', verifyEmail);
     router.post('/auth/check-verify', checkVerify);
     router.post('/auth/user/login', loginClient);
     router.post('/auth/refreshToken', refreshToken);
