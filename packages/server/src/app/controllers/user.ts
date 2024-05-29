@@ -8,8 +8,9 @@ import {
     SuccessResponseType,
 } from '../../constant';
 import { db } from '../../lib/db';
-import { getToken, sendMail } from '../../lib/utils';
+import { getToken } from '../../lib/utils';
 import { TokenDecoded } from '../../types';
+import { sendMail } from '../../lib/send-mail';
 
 export const getUser = async (req: Request, res: Response) => {
     const accessToken = getToken(req);
@@ -276,14 +277,24 @@ export const createUser = async (req: Request, res: Response) => {
         },
     });
 
-    const mailTitle = 'User create new user';
-    const mailBody = `
-    Hello ${name},
-    You have just created an account. You can use this account to login.
-    Please change your password to increase security.
-    Email: ${email}
-    Password: ${phone}`;
-    await sendMail(email, mailTitle, mailBody);
+    const subject = 'User have been created account';
+    const title = `Hi ${user.name},`;
+    const mainContent =
+        '    You have just created an account. You can use this account to login.Please change your password to increase security.';
+    const secondContent = `Email: ${email}<br>
+        Password: ${phone}
+        Best regards,<br>
+        Perfume shop.`;
+
+    await sendMail({
+        to: 'hungdqhe170076@fpt.edu.vn',
+        subject,
+        title,
+        mainContent,
+        secondContent,
+        label: undefined,
+        link: undefined,
+    });
 
     const successObj: SuccessResponseType = {
         data: {
