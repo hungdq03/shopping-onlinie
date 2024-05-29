@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 import { PAGE_SIZE } from '../../../constant';
@@ -191,6 +192,96 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     },
                     orderBy: {
                         original_price: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'DISCOUNT_PRICE_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        discount_price: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'DISCOUNT_PRICE_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        discount_price: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'QUANTITY_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        quantity: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'QUANTITY_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        quantity: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'SOLD_QUANTITY_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        sold_quantity: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'SOLD_QUANTITY_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: String(search ?? ''),
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        sold_quantity: 'desc',
                     },
                     select,
                 });
