@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import Cookies from 'js-cookie';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
+import ForgotPasswordModal from './forgot-password-modal';
 
 const LoginModal = () => {
     const router = useRouter();
@@ -167,7 +168,10 @@ const LoginModal = () => {
         <div className="mt-3 flex flex-col gap-4">
             <hr />
             <div className="mt-4 text-center font-light text-neutral-500">
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex flex-col items-center justify-center gap-2">
+                    <div>
+                        <ForgotPasswordModal />
+                    </div>
                     <div>First time shopping with us?</div>
                     <div
                         className="cursor-pointer text-neutral-800 hover:underline"
