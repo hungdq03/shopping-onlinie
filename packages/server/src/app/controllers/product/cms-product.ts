@@ -311,7 +311,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -447,6 +447,6 @@ export const getProductById = async (req: Request, res: Response) => {
             message: 'Get product successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
