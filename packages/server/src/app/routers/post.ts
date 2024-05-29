@@ -11,10 +11,8 @@ export default (router: Router) => {
     // Auth route
     router.get('/manage/post', getListPostManage);
     router.post('/post/create', createPost);
+    router.get('/post/:id', getPostById);
     router.put('/post/update/:id', updatePost);
     router.delete('/post/delete/:id', deletePost);
-
-    // Public route
     router.get('/post', getListPost);
-    router.get('/post/:id', getPostById);
 };

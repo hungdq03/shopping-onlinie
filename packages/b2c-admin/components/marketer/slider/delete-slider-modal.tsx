@@ -15,6 +15,7 @@ import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 
 type Props = {
+    type: 'DELETE';
     title: string;
     reload: () => void;
     sliderId?: string;
@@ -30,6 +31,7 @@ type FormType = {
 };
 
 const DeleteSliderFormModal: React.FC<Props> = ({
+    type,
     title,
     reload,
     sliderId,
@@ -38,7 +40,7 @@ const DeleteSliderFormModal: React.FC<Props> = ({
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
     const { isLoading, data, error } = useQuery({
-        queryKey: ['brand-detail', sliderId],
+        queryKey: ['slider-detail'],
         queryFn: () =>
             request.get(`slider/${sliderId}`).then((res) => res.data),
         enabled: Boolean(sliderId) && isOpenModal,
@@ -46,7 +48,8 @@ const DeleteSliderFormModal: React.FC<Props> = ({
 
     const { mutate: deleteSliderTrigger, isPending: deleteSliderPending } =
         useMutation({
-            mutationFn: () => request.del(`slider/delete/${sliderId}`),
+            mutationFn: (slider: { id: string }) =>
+                request.del(`slider/delete/${slider.id}`),
             onSuccess: async (res) => {
                 toast.success(res.data.message);
                 setTimeout(() => {
@@ -67,23 +70,28 @@ const DeleteSliderFormModal: React.FC<Props> = ({
         }
     }, [data, sliderId, form]);
 
-    const button = useMemo(
-        () => (
-            <Tooltip arrow={false} color="#108ee9" title="Delete slider">
-                <Button
-                    icon={<DeleteOutlined />}
-                    key="id"
-                    onClick={() => setIsOpenModal(true)}
-                    type="primary"
-                />
-            </Tooltip>
-        ),
-        []
-    );
+    // eslint-disable-next-line consistent-return
+    const button = useMemo(() => {
+        if (type === 'DELETE') {
+            return (
+                <Tooltip arrow={false} color="#108ee9" title="Delete slider">
+                    <Button
+                        danger
+                        icon={<DeleteOutlined />}
+                        key="id"
+                        onClick={() => setIsOpenModal(true)}
+                        shape="circle"
+                        type="link"
+                    />
+                </Tooltip>
+            );
+        }
+    }, [type]);
 
+    // eslint-disable-next-line consistent-return
     const onFinish: FormProps<FormType>['onFinish'] = () => {
         if (sliderId) {
-            deleteSliderTrigger();
+            return deleteSliderTrigger({ id: sliderId });
         }
     };
 
