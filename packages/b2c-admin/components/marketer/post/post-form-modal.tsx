@@ -57,8 +57,8 @@ const PostFormModal: React.FC<Props> = ({
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
     const { data: listProduct, isLoading: getListProductLoading } = useQuery({
-        queryKey: ['product'],
-        queryFn: () => request.get('product').then((res) => res.data),
+        queryKey: ['/product/select'],
+        queryFn: () => request.get('/product/select').then((res) => res.data),
         enabled: isOpenModal,
     });
 

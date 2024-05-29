@@ -85,7 +85,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
                     select,
                 });
                 break;
-            case 'NAME_A_TO_Z':
+            case 'TITLE_A_TO_Z':
                 listPost = await db.post.findMany({
                     ...pagination,
                     where: {
@@ -100,7 +100,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
                     select,
                 });
                 break;
-            case 'NAME_Z_TO_A':
+            case 'TITLE_Z_TO_A':
                 listPost = await db.post.findMany({
                     ...pagination,
                     where: {

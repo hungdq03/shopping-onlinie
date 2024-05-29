@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '~/components/header';
 
-const ProductDetail = () => {
+const PostDetail = () => {
     return (
         <div>
             <Header isBack title="Product detail" />
@@ -9,4 +9,4 @@ const ProductDetail = () => {
     );
 };
 
-export default ProductDetail;
+export default PostDetail;
