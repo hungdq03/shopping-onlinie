@@ -1,3 +1,5 @@
+import Header from '~/components/header';
+
 export default function Home() {
-    return <main>Client site</main>;
+    return <Header title="Home page" />;
 }
