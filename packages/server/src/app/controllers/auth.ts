@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { compareSync, hashSync } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { db } from '../../lib/db';
+import { sendMail } from '../../lib/send-mail';
 import {
     ERROR_RES,
     EXPIRES_TOKEN,
@@ -12,7 +13,7 @@ import {
     TOKEN_TYPE,
 } from '../../constant';
 
-export const signup = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response) => {
     const { password, name, email } = req.body;
 
     let user = await db.user.findFirst({
@@ -31,6 +32,8 @@ export const signup = async (req: Request, res: Response) => {
             name,
             email,
             hashedPassword: hashSync(password, SALT),
+            role: 'USER',
+            status: 'NEWLY_REGISTER',
         },
     });
 
@@ -45,7 +48,130 @@ export const signup = async (req: Request, res: Response) => {
     return res.status(200).json(successObj);
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const verifyEmail = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    // Tìm người dùng theo ID
+    const user = await db.user.findUnique({ where: { id } });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found!' });
+    }
+
+    // Tạo token
+    const token = jwt.sign(
+        { id: user.id, email: user.email, name: user.name },
+        TOKEN_KEY,
+        { expiresIn: EXPIRES_TOKEN }
+    );
+
+    const refreshToken = jwt.sign(
+        { id: user.id, email: user.email, name: user.name },
+        REFRESH_TOKEN_KEY
+    );
+
+    // Cập nhật token cho người dùng
+    const updateUserToken = await db.account.create({
+        data: {
+            token_type: TOKEN_TYPE,
+            userId: user.id,
+            access_token: token,
+            refresh_token: refreshToken,
+        },
+    });
+
+    // Lấy thông tin người dùng sau khi cập nhật token
+    const responseUser = await db.user.findUnique({
+        where: { id: user.id },
+        select: {
+            name: true,
+            email: true,
+            accounts: {
+                select: {
+                    access_token: true,
+                    refresh_token: true,
+                    token_type: true,
+                },
+            },
+            role: true,
+        },
+    });
+
+    // Gửi email xác thực
+    const subject = 'User Verification';
+    const title = `Hi ${user.name},`;
+    const mainContent =
+        'Thank you for registering with us. To continue using our services, please verify your email address by clicking the link below:';
+    const link = `http://localhost:3000/verify-email?id=${user.id}&token=${token}`;
+    const label = 'Click here to verify';
+    const secondContent = `If you did not request this verification, you can safely ignore this email. Your account will not be affected.<br>
+        Best regards,<br>
+        Perfume shop.`;
+    await sendMail({
+        to: 'hung2k3vn@gmail.com',
+        subject,
+        title,
+        mainContent,
+        secondContent,
+        label,
+        link,
+    });
+    const successObj = {
+        data: {
+            data: {
+                name: responseUser.name,
+                email: responseUser.email,
+                role: responseUser.role,
+                access_token: updateUserToken.access_token,
+                refresh_token: updateUserToken.refresh_token,
+                token_type: updateUserToken.token_type,
+            },
+        },
+        message: 'Verification email sent successfully!',
+    };
+
+    return res.status(200).json(successObj);
+};
+
+export const checkVerify = async (req: Request, res: Response) => {
+    const { id, token } = req.body;
+
+    const user = await db.user.findFirst({
+        where: {
+            id,
+            accounts: {
+                some: {
+                    access_token: token,
+                },
+            },
+        },
+    });
+
+    if (!user) {
+        return res.status(400).json({
+            message: 'Account not found!',
+        });
+    }
+
+    await db.user.update({
+        where: {
+            id,
+        },
+        data: {
+            isVerified: true,
+        },
+    });
+
+    const successObj = {
+        data: {
+            data: {
+                access_token: token,
+            },
+        },
+        message: 'Account verify successfully!',
+    };
+    return res.status(200).json(successObj);
+};
     const { email, password } = req.body;
 
     if (!email || !password) {
