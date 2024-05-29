@@ -101,7 +101,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
     const subject = 'User Verification';
     const title = `Hi ${user.name},`;
     const mainContent =
-        'Thank you for registering with us. To continue using our services, please verify your email address by clicking the link below:';
+        'Thank you for registering with us. To continue using our services, please verify your email address by clicking the button below:';
     const link = `http://localhost:3000/verify-email?id=${user.id}&token=${token}`;
     const label = 'Click here to verify';
     const secondContent = `If you did not request this verification, you can safely ignore this email. Your account will not be affected.<br>
@@ -264,6 +264,59 @@ export const loginClient = async (req: Request, res: Response) => {
     };
 
     return res.status(200).json(successObj);
+};
+
+export const senMailResetPassword = async (req: Request, res: Response) => {
+    const { email } = req.params;
+
+    const user = await db.user.findUnique({ where: { email: String(email) } });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found!' });
+    }
+
+    const subject = 'Request to reset password';
+    const title = `Hi ${user.name},`;
+    const mainContent =
+        'You received this email because we received a request to reset your password for your account. Click to button bellow to reset your password.';
+    const link = `http://localhost:3000/reset-password?email=${email}`;
+    const label = 'Click here to reset password';
+    const secondContent = `If you did not request this verification, you can safely ignore this email. Your account will not be affected.<br>
+        Best regards,<br>
+        Perfume shop.`;
+
+    await sendMail({
+        to: email,
+        subject,
+        title,
+        mainContent,
+        secondContent,
+        label,
+        link,
+    });
+
+    return res.status(200).json({ message: 'Email sent successfully!' });
+};
+
+export const changePassword = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    const user = await db.user.findUnique({ where: { email: String(email) } });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found!' });
+    }
+
+    const hashedPassword = await hashSync(password, SALT);
+
+    await db.user.update({
+        where: { id: user.id },
+        data: {
+            hashedPassword,
+        },
+    });
+
+    return res.status(200).json({ message: 'Change password successfully!' });
 };
 
 // eslint-disable-next-line consistent-return
