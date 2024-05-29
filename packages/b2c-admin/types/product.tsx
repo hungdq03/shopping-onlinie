@@ -12,10 +12,16 @@ export type Category = {
     updatedAt?: string | null;
 };
 
+export type ProductImage = {
+    id?: string | null;
+    url?: string | null;
+};
+
 export type Product = {
     id?: string | null;
     name?: string | null;
     brandId?: string | null;
+    categoryId?: string | null;
     original_price?: number | null;
     discount_price?: number | null;
     quantity?: number | null;
@@ -29,4 +35,11 @@ export type Product = {
     createdAt?: string | null;
     updatedAt?: string | null;
     brand?: Brand | null;
+    product_image?: ProductImage[] | null;
+};
+
+export type ResponseProductById = {
+    isOk?: boolean | null;
+    data?: Product | null;
+    message?: string | null;
 };

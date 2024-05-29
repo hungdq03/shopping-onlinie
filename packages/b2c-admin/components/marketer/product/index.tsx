@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import {
     Button,
@@ -8,16 +7,19 @@ import {
     Pagination,
     Rate,
     Select,
+    Space,
     Spin,
     Table,
     Tag,
+    Tooltip,
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
 import { PAGE_SIZE, RATING_LIST } from 'common/constant';
-import { SearchOutlined } from '@ant-design/icons';
+import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { currencyFormatter } from 'common/utils/formatter';
+import Link from 'next/link';
 import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
@@ -63,6 +65,7 @@ type FormType = {
     search?: string;
     rating?: string;
     sortBy?: string;
+    isShow?: boolean;
 };
 
 type SearchParams = FormType & {
@@ -110,25 +113,27 @@ const ProductList = () => {
                         (searchParams?.pageSize ?? 0)
                 );
             },
+            width: 70,
         },
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
+            ellipsis: true,
         },
         {
             title: 'Brand',
             dataIndex: 'brand',
             key: 'name',
-            render: (_: any, record: Product) => <p>{record?.brand?.name}</p>,
+            ellipsis: true,
+            render: (value: Brand) => <p>{value?.name}</p>,
         },
         {
             title: 'Category',
             dataIndex: 'category',
             key: 'name',
-            render: (_: any, record: Product) => (
-                <p>{record?.category?.name}</p>
-            ),
+            ellipsis: true,
+            render: (value: Category) => <p>{value?.name}</p>,
         },
         {
             title: 'Size',
@@ -149,37 +154,34 @@ const ProductList = () => {
             title: 'Original Price',
             dataIndex: 'original_price',
             key: 'original_price',
-            render: (_: any, record: Product) =>
-                record?.original_price && (
-                    <p>{currencyFormatter(record?.original_price)}</p>
-                ),
+            width: 150,
+            render: (value: number) =>
+                value && <p>{currencyFormatter(value)}</p>,
         },
         {
             title: 'Discount Price',
             dataIndex: 'discount_price',
             key: 'discount_price',
-            render: (_: any, record: Product) =>
-                record?.discount_price && (
-                    <p>{currencyFormatter(record?.discount_price)}</p>
-                ),
+            ellipsis: true,
+            width: 150,
+            render: (value: number) =>
+                value && <p>{currencyFormatter(value)}</p>,
         },
         {
             title: 'Rating',
             dataIndex: 'rating',
             key: 'rating',
-            width: '200px',
-            render: (_: any, record: Product) => (
-                <Rate disabled value={record?.rating ?? 0} />
-            ),
+            width: 200,
+            render: (value: number) => <Rate disabled value={value ?? 0} />,
         },
         {
             title: 'Show on Client',
             dataIndex: 'isShow',
             key: 'isShow',
-            render: (id: string, record: Product) => {
+            render: (value: boolean) => {
                 return (
-                    <Tag color={record?.isShow ? 'blue' : 'red'}>
-                        {record?.isShow ? 'SHOW' : 'HIDE'}
+                    <Tag color={value ? 'blue' : 'red'}>
+                        {value ? 'SHOW' : 'HIDE'}
                     </Tag>
                 );
             },
@@ -188,23 +190,28 @@ const ProductList = () => {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            render: (_: any, record: Brand) => (
-                <p>
-                    {record?.createdAt &&
-                        moment(record.createdAt).format('YYYY-MM-DD')}
-                </p>
+            ellipsis: true,
+            render: (value: string) => (
+                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
             ),
         },
         {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Product) => (
-                <ProductFormModal
-                    productId={record?.id ?? ''}
-                    reload={() => refetch()}
-                    title="Update product"
-                    type="UPDATE"
-                />
+            render: (_: undefined, record: Product) => (
+                <Space size="middle">
+                    <ProductFormModal
+                        productId={record?.id ?? undefined}
+                        reload={() => refetch()}
+                        title="Update product"
+                        type="UPDATE"
+                    />
+                    <Tooltip arrow={false} color="#108ee9" title="Detail">
+                        <Link href={`/marketer/product/${record?.id}`}>
+                            <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                        </Link>
+                    </Tooltip>
+                </Space>
             ),
         },
     ];
@@ -231,7 +238,7 @@ const ProductList = () => {
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
-                    <div className="grid flex-1 grid-cols-3 justify-end gap-x-5">
+                    <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
                         <Form.Item<FormType> label="Brand" name="brandId">
                             <Select
                                 allowClear
@@ -240,6 +247,7 @@ const ProductList = () => {
                                     value: item.id,
                                     label: item.name,
                                 }))}
+                                placeholder="Select a brand..."
                                 showSearch
                             />
                         </Form.Item>
@@ -253,14 +261,15 @@ const ProductList = () => {
                                         label: item.name,
                                     })
                                 )}
+                                placeholder="Select a category..."
                                 showSearch
                             />
                         </Form.Item>
                         <Form.Item<FormType> label="Name" name="search">
-                            <Input />
+                            <Input.Search placeholder="Enter product name..." />
                         </Form.Item>
                         <Form.Item<FormType> label="Rate" name="rating">
-                            <Select allowClear>
+                            <Select allowClear placeholder="Select rating...">
                                 {RATING_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
@@ -272,7 +281,7 @@ const ProductList = () => {
                             </Select>
                         </Form.Item>
                         <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear>
+                            <Select allowClear placeholder="Choose a filter...">
                                 {FILTER_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
@@ -281,6 +290,22 @@ const ProductList = () => {
                                         {item.name}
                                     </Select.Option>
                                 ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item<FormType>
+                            label="Show on client"
+                            name="isShow"
+                        >
+                            <Select
+                                allowClear
+                                placeholder="Choose show on client..."
+                            >
+                                <Select.Option value="true">
+                                    <Tag color="blue">SHOW</Tag>
+                                </Select.Option>
+                                <Select.Option value="false">
+                                    <Tag color="red">HIDE</Tag>
+                                </Select.Option>
                             </Select>
                         </Form.Item>
                     </div>
@@ -297,7 +322,9 @@ const ProductList = () => {
             </div>
             <div className="mb-10 flex justify-end">
                 <ProductFormModal
-                    reload={() => {}}
+                    reload={() => {
+                        refetch();
+                    }}
                     title="Create product"
                     type="CREATE"
                 />
@@ -308,6 +335,7 @@ const ProductList = () => {
                     dataSource={listProduct?.data}
                     pagination={false}
                     rowKey="id"
+                    tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
                     {listProduct?.pagination?.total ? (
