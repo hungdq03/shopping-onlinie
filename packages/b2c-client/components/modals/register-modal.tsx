@@ -3,16 +3,13 @@ import { Alert, Button, Form, Input } from 'antd';
 import { AxiosError, AxiosResponse } from 'axios';
 import Modal from 'common/components/modal';
 import * as request from 'common/utils/http-request';
-// import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
 
 const RegisterModal = () => {
-    // const router = useRouter();
-    const [userId, setUserId] = useState('');
-    const [email, setEmail] = useState('');
+    const [emailUser, setEmailUser] = useState('');
     const [form] = Form.useForm();
 
     const { isOpen, onClose } = useRegisterModal();
@@ -26,8 +23,8 @@ const RegisterModal = () => {
     }, [onClose, onOpen]);
 
     const { mutate: verifyEmail } = useMutation({
-        mutationFn: async (id: string) => {
-            return request.post(`/auth/verify-email/${id}`);
+        mutationFn: async (email: string) => {
+            return request.post(`/auth/verify-email/${email}`);
         },
         onSuccess: (res) => {
             toast.success(res.data.message);
@@ -68,12 +65,8 @@ const RegisterModal = () => {
         },
         onSuccess: (res: AxiosResponse) => {
             toast.success(res.data.message);
-            // setTimeout(() => {
-            //     // onClose();
-            // }, 500);
-            setUserId(res.data.data.id);
-            setEmail(res.data.data.email);
-            verifyEmail(userId);
+            setEmailUser(res.data.data.email);
+            verifyEmail(res.data.data.email);
         },
     });
 
@@ -92,7 +85,7 @@ const RegisterModal = () => {
     };
 
     const handleResendEmail = () => {
-        verifyEmail(userId);
+        verifyEmail(emailUser);
     };
 
     const bodyContent = (
@@ -216,7 +209,7 @@ const RegisterModal = () => {
                             </span>
                         </>
                     }
-                    message={`We've been sent email to ${email} to verify your email address and active your account.`}
+                    message={`We've been sent email to ${emailUser} to verify your email address and active your account.`}
                     type="info"
                 />
             )}
