@@ -51,14 +51,11 @@ const LoginModal = () => {
         },
         onSuccess: (res) => {
             toast.success(res.data.message);
-            // setTimeout(() => {
-            //     onClose();
-            //     router.reload();
-            // }, 500);
-            Cookies.set('accessTokenClient', JSON.stringify(res.data.data), {
-                expires: 7,
-            });
-            router.reload();
+            Cookies.set('accessTokenClient', JSON.stringify(res.data.data));
+            setTimeout(() => {
+                onClose();
+                router.reload();
+            }, 500);
         },
     });
 
