@@ -81,7 +81,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -96,7 +96,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -111,7 +111,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -126,7 +126,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -141,7 +141,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -156,7 +156,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -171,7 +171,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -186,7 +186,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -201,7 +201,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -216,7 +216,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -231,7 +231,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -246,7 +246,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -261,7 +261,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -276,7 +276,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
@@ -291,7 +291,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
                     ...pagination,
                     where: {
                         name: {
-                            contains: String(search ?? ''),
+                            contains: search ? String(search) : undefined,
                         },
                         ...whereClause,
                     },
