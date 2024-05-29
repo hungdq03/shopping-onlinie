@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
+import { jwtDecode } from 'jwt-decode';
 import { db } from '../../../lib/db';
 import { PAGE_SIZE } from '../../../constant';
+import { getToken } from '../../../lib/utils';
+import { TokenDecoded } from '../../../types';
 
 type PostFilter = {
     productId?: string;
@@ -146,8 +149,10 @@ export const getListPostManage = async (req: Request, res: Response) => {
 };
 
 export const createPost = async (req: Request, res: Response) => {
-    const { title, description, productId, thumbnail, isShow } = req.body;
-
+    const { title, description, productId, thumbnail, isShow, briefInfo } =
+        req.body;
+    const accessToken = getToken(req);
+    const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
     try {
         const post = await db.post.create({
             data: {
@@ -156,6 +161,8 @@ export const createPost = async (req: Request, res: Response) => {
                 productId,
                 thumbnail,
                 isShow,
+                brief_info: briefInfo,
+                userId: tokenDecoded.id,
             },
         });
 
@@ -171,7 +178,8 @@ export const createPost = async (req: Request, res: Response) => {
 
 export const updatePost = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { title, description, productId, thumbnail, isShow } = req.body;
+    const { title, description, productId, thumbnail, isShow, briefInfo } =
+        req.body;
 
     try {
         const post = await db.post.update({
@@ -184,6 +192,7 @@ export const updatePost = async (req: Request, res: Response) => {
                 productId,
                 thumbnail,
                 isShow,
+                brief_info: briefInfo,
             },
         });
 
