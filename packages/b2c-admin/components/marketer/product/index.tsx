@@ -249,18 +249,6 @@ const ProductList = () => {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear placeholder="Choose a filter...">
-                                {FILTER_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
                         <Form.Item<FormType>
                             label="Show on client"
                             name="isShow"
@@ -275,6 +263,18 @@ const ProductList = () => {
                                 <Select.Option value="false">
                                     <Tag color="red">HIDE</Tag>
                                 </Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item<FormType> label="Order by" name="sortBy">
+                            <Select allowClear placeholder="Choose a filter...">
+                                {FILTER_LIST.map((item) => (
+                                    <Select.Option
+                                        key={item.id}
+                                        value={item.id}
+                                    >
+                                        {item.name}
+                                    </Select.Option>
+                                ))}
                             </Select>
                         </Form.Item>
                     </div>

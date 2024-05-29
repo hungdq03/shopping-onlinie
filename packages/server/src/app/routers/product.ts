@@ -17,9 +17,19 @@ export default (router: Router) => {
         isMarketer,
         getListProductManage
     );
-    router.post('/product/create', createProduct);
-    router.get('/manage/product/:id', getProductById);
-    router.put('/product/update/:id', updateProduct);
+    router.post('/product/create', isAuthenticated, isMarketer, createProduct);
+    router.get(
+        '/manage/product/:id',
+        isAuthenticated,
+        isMarketer,
+        getProductById
+    );
+    router.put(
+        '/product/update/:id',
+        isAuthenticated,
+        isMarketer,
+        updateProduct
+    );
     // router.delete('/brand/delete/:id', deleteBrand);
 
     // Public route
