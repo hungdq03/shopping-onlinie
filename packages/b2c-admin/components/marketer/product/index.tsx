@@ -208,7 +208,11 @@ const ProductList = () => {
                     />
                     <Tooltip arrow={false} color="#108ee9" title="Detail">
                         <Link href={`/marketer/product/${record?.id}`}>
-                            <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                            <Button
+                                icon={<EyeOutlined />}
+                                shape="circle"
+                                type="link"
+                            />
                         </Link>
                     </Tooltip>
                 </Space>

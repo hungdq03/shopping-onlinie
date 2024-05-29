@@ -42,7 +42,7 @@ export const isMarketer = async (
     });
 
     if (!user || user.role !== 'MARKETER') {
-        res.send(403).json({ message: 'not marketer' });
+        res.sendStatus(403);
     }
 
     next();
