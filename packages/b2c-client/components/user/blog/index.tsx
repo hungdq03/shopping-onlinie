@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PAGE_SIZE } from 'common/constant';
 import moment from 'moment';
 import * as request from 'common/utils/http-request';
+import styles from './BlogPage.module.css'; // Import the CSS module
 
 const { Search } = Input;
 
@@ -49,8 +50,8 @@ const BlogPage = () => {
 
     return (
         <>
-            <header className="blog-header">
-                <div className="header-logo">
+            <header className={styles.blogHeader}>
+                <div className={styles.headerLogo}>
                     <h1>My Blog</h1>
                 </div>
                 <Menu mode="horizontal">
@@ -65,14 +66,14 @@ const BlogPage = () => {
                     </Menu.Item>
                 </Menu>
             </header>
-            <div className="blog-container">
-                <div className="blog-sidebar">
+            <div className={styles.blogContainer}>
+                <div className={styles.blogSidebar}>
                     <Search
                         enterButton
                         onSearch={onSearch}
                         placeholder="Search posts"
                     />
-                    <div className="blog-categories">
+                    <div className={styles.blogCategories}>
                         <h3>Categories</h3>
                         <Spin spinning={categoryLoading}>
                             <List
@@ -88,7 +89,7 @@ const BlogPage = () => {
                             />
                         </Spin>
                     </div>
-                    <div className="blog-latest-posts">
+                    <div className={styles.blogLatestPosts}>
                         <h3>Latest Posts</h3>
                         <Spin spinning={latestPostsLoading}>
                             <List
@@ -107,7 +108,7 @@ const BlogPage = () => {
                         </Spin>
                     </div>
                 </div>
-                <div className="blog-main">
+                <div className={styles.blogMain}>
                     <Spin spinning={postsLoading}>
                         <List
                             dataSource={postsData?.data}
@@ -157,7 +158,7 @@ const BlogPage = () => {
                     </Spin>
                 </div>
             </div>
-            <footer className="blog-footer">
+            <footer className={styles.blogFooter}>
                 <p>
                     &copy; {new Date().getFullYear()} My Blog. All rights
                     reserved.
