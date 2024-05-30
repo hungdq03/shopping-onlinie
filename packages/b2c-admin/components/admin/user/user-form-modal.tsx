@@ -7,8 +7,6 @@ import {
     DatePicker,
     Form,
     FormProps,
-    GetProp,
-    Image,
     Input,
     Modal,
     Select,
@@ -16,7 +14,7 @@ import {
     Upload,
     UploadFile,
 } from 'antd';
-import { RcFile, UploadProps } from 'antd/es/upload';
+import { RcFile } from 'antd/es/upload';
 import * as request from 'common/utils/http-request';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
@@ -53,16 +51,6 @@ type UserRequestType = {
     address: string;
 };
 
-type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
-
-const getBase64 = (file: FileType): Promise<string> =>
-    new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = (error) => reject(error);
-    });
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, max-lines-per-function
 const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
     const genderOptions = {
@@ -87,17 +75,6 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
 
     const [form] = Form.useForm();
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState('');
-
-    const handlePreview = async (file: UploadFile) => {
-        if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj as FileType);
-        }
-
-        setPreviewImage(file.url || (file.preview as string));
-        setPreviewOpen(true);
-    };
 
     const { mutateAsync: uploadFileTrigger, isPending: uploadFileIsPending } =
         useMutation({
@@ -151,13 +128,44 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
         queryKey: ['user', userId],
         queryFn: () =>
             request.get(`/admin/user-detail/${userId}`).then((res) => res.data),
+        enabled: !!isOpenModal && !!userId,
     });
 
+    // useEffect(() => {
+    //     if (isOpenModal) {
+    //         form.resetFields();
+    //     }
+    // }, [isOpenModal]);
+
     useEffect(() => {
-        if (isOpenModal) {
+        if (isOpenModal && !userId) {
             form.resetFields();
         }
-    }, [isOpenModal]);
+        if (isOpenModal && userId && userDetail) {
+            form.setFieldsValue({
+                name: userDetail?.data?.name,
+                email: userDetail?.data?.email,
+                role: userDetail?.data?.role,
+                gender: userDetail?.data?.gender,
+                status: userDetail?.data?.status,
+                dob: userDetail?.data?.dob
+                    ? dayjs(userDetail?.data?.dob)
+                    : null,
+                phone: userDetail?.data?.phone,
+                address: userDetail?.data?.address,
+                image: userDetail?.data?.image
+                    ? [
+                          {
+                              uid: '-1',
+                              name: userDetail?.data?.image ?? '',
+                              status: 'done',
+                              url: `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${userDetail.data.image}`,
+                          },
+                      ]
+                    : undefined,
+            });
+        }
+    }, [isOpenModal, userId, userDetail]);
 
     const button = useMemo(() => {
         switch (type) {
@@ -272,26 +280,14 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
                             editUserIsPending
                         }
                         form={form}
-                        initialValues={{
-                            name: userDetail?.data?.name,
-                            email: userDetail?.data?.email,
-                            role: userDetail?.data?.role,
-                            gender: userDetail?.data?.gender,
-                            status: userDetail?.data?.status,
-                            dob: userDetail?.data?.dob
-                                ? dayjs(userDetail?.data?.dob)
-                                : null,
-                            phone: userDetail?.data?.phone,
-                            address: userDetail?.data?.address,
-                            image: userDetail?.data?.image,
-                        }}
                         layout="vertical"
                         onFinish={onFinish}
                     >
-                        <Form.Item<FormType>
+                        <Form.Item
                             getValueFromEvent={normFile}
                             label="Avatar"
                             name="image"
+                            valuePropName="fileList"
                         >
                             <Upload
                                 accept=".png, .jpg, .jpeg"
@@ -299,31 +295,13 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
                                 disabled={type !== 'CREATE'}
                                 listType="picture-card"
                                 maxCount={1}
-                                name="image"
-                                onPreview={handlePreview}
+                                // onPreview={handlePreview}
                             >
-                                <button
-                                    style={{
-                                        border: 0,
-                                        background: 'none',
-                                    }}
-                                    type="button"
-                                >
+                                <div>
                                     <PlusOutlined />
                                     <div style={{ marginTop: 8 }}>Upload</div>
-                                </button>
+                                </div>
                             </Upload>
-                            <Image
-                                preview={{
-                                    visible: previewOpen,
-                                    onVisibleChange: (visible) =>
-                                        setPreviewOpen(visible),
-                                    afterOpenChange: (visible) =>
-                                        !visible && setPreviewImage(''),
-                                }}
-                                src={previewImage}
-                                wrapperStyle={{ display: 'none' }}
-                            />
                         </Form.Item>
                         <div className="grid grid-cols-2 gap-x-10">
                             <Form.Item<FormType>
