@@ -23,6 +23,7 @@ import Link from 'next/link';
 import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
+import DeleteProductAlert from './delete-product-alert';
 
 type FormType = {
     brandId?: string;
@@ -104,11 +105,13 @@ const ProductList = () => {
             title: 'Size',
             dataIndex: 'size',
             key: 'size',
+            width: 80,
         },
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: 100,
         },
         {
             title: 'Sold Quantity',
@@ -136,7 +139,7 @@ const ProductList = () => {
             title: 'Rating',
             dataIndex: 'rating',
             key: 'rating',
-            width: 200,
+            width: 180,
             render: (value: number) => <Rate disabled value={value ?? 0} />,
         },
         {
@@ -164,7 +167,7 @@ const ProductList = () => {
             title: 'Actions',
             key: 'actions',
             render: (_: undefined, record: Product) => (
-                <Space size="middle">
+                <Space>
                     <ProductFormModal
                         productId={record?.id ?? undefined}
                         reload={() => refetch()}
@@ -180,6 +183,13 @@ const ProductList = () => {
                             />
                         </Link>
                     </Tooltip>
+                    <DeleteProductAlert
+                        productId={record?.id ?? ''}
+                        productName={record?.name ?? ''}
+                        reload={() => {
+                            refetch();
+                        }}
+                    />
                 </Space>
             ),
         },
