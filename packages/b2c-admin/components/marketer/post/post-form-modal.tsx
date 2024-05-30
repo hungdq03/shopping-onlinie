@@ -229,6 +229,11 @@ const PostFormModal: React.FC<Props> = ({
         }
     };
 
+    const filterOption = (
+        input: string,
+        option?: { value: string; label: string }
+    ) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
     return (
         <div>
             {button}
@@ -289,18 +294,17 @@ const PostFormModal: React.FC<Props> = ({
                                         },
                                     ]}
                                 >
-                                    <Select>
-                                        {listProduct?.data?.map(
-                                            (item: Product) => (
-                                                <Select.Option
-                                                    key={item.id}
-                                                    value={item.id}
-                                                >
-                                                    {item.name}
-                                                </Select.Option>
-                                            )
+                                    <Select
+                                        allowClear
+                                        filterOption={filterOption}
+                                        options={listProduct?.data?.map(
+                                            (item: Product) => ({
+                                                value: item.id,
+                                                label: item.name,
+                                            })
                                         )}
-                                    </Select>
+                                        showSearch
+                                    />
                                 </Form.Item>
                             </div>
                             <Form.Item<FormType>
