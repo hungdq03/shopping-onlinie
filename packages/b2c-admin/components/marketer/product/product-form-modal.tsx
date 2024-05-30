@@ -22,7 +22,7 @@ import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 import { RcFile } from 'antd/es/upload';
 import { dropListFiles } from 'common/utils/dropListFiles';
-import { Brand, ResponseProductById } from '~/types/product';
+import { Brand, Category, ResponseProductById } from '~/types/product';
 
 type Props = {
     type: 'CREATE' | 'UPDATE';
@@ -307,6 +307,11 @@ const ProductFormModal: React.FC<Props> = ({
         }
     };
 
+    const filterOption = (
+        input: string,
+        option?: { value: string; label: string }
+    ) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+
     return (
         <div>
             {button}
@@ -339,7 +344,7 @@ const ProductFormModal: React.FC<Props> = ({
                             }
                             form={form}
                             initialValues={{
-                                isShow: true,
+                                isShow: false,
                                 discount_price: null,
                                 description: null,
                             }}
@@ -373,16 +378,18 @@ const ProductFormModal: React.FC<Props> = ({
                                         },
                                     ]}
                                 >
-                                    <Select>
-                                        {listBrand?.data?.map((item: Brand) => (
-                                            <Select.Option
-                                                key={item.id}
-                                                value={item.id}
-                                            >
-                                                {item.name}
-                                            </Select.Option>
-                                        ))}
-                                    </Select>
+                                    <Select
+                                        allowClear
+                                        filterOption={filterOption}
+                                        options={listBrand?.data?.map(
+                                            (item: Brand) => ({
+                                                value: item.id,
+                                                label: item.name,
+                                            })
+                                        )}
+                                        placeholder="Choose a brand..."
+                                        showSearch
+                                    />
                                 </Form.Item>
                                 <Form.Item<FormType>
                                     label="Category"
@@ -395,18 +402,18 @@ const ProductFormModal: React.FC<Props> = ({
                                         },
                                     ]}
                                 >
-                                    <Select>
-                                        {listCategory?.data?.map(
-                                            (item: Brand) => (
-                                                <Select.Option
-                                                    key={item.id}
-                                                    value={item.id}
-                                                >
-                                                    {item.name}
-                                                </Select.Option>
-                                            )
+                                    <Select
+                                        allowClear
+                                        filterOption={filterOption}
+                                        options={listCategory?.data?.map(
+                                            (item: Category) => ({
+                                                value: item.id,
+                                                label: item.name,
+                                            })
                                         )}
-                                    </Select>
+                                        placeholder="Choose a category..."
+                                        showSearch
+                                    />
                                 </Form.Item>
                                 <Form.Item<FormType>
                                     label="Size"

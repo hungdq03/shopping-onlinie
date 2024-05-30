@@ -18,7 +18,7 @@ export const isAuthenticated = (
     }
 
     jwt.verify(accessToken, TOKEN_KEY, (err) => {
-        if (err) res.send(403);
+        if (err) res.sendStatus(403);
         next();
     });
 };
@@ -42,7 +42,7 @@ export const isMarketer = async (
     });
 
     if (!user || user.role !== 'MARKETER') {
-        res.send(403).json({ message: 'not marketer' });
+        res.sendStatus(403);
     }
 
     next();

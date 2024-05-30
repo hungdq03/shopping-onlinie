@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
-import { PAGE_SIZE, RATING_LIST } from 'common/constant';
+import { FILTER_LIST, PAGE_SIZE, RATING_LIST } from 'common/constant';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { currencyFormatter } from 'common/utils/formatter';
@@ -23,41 +23,6 @@ import Link from 'next/link';
 import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
-
-const FILTER_LIST = [
-    {
-        id: 'LATEST',
-        name: 'Latest Create Date',
-    },
-    {
-        id: 'OLDEST',
-        name: 'Oldest Create Date',
-    },
-    {
-        id: 'NAME_A_TO_Z',
-        name: 'Name: A to Z',
-    },
-    {
-        id: 'NAME_Z_TO_A',
-        name: 'Name: Z to A',
-    },
-    {
-        id: 'RATE_LOW_TO_HIGHT',
-        name: 'Rate: Low to Hight',
-    },
-    {
-        id: 'RATE_HIGHT_TO_LOW',
-        name: 'Rate: Hight to low',
-    },
-    {
-        id: 'PRICE_LOW_TO_HIGHT',
-        name: 'Price: Low to Hight',
-    },
-    {
-        id: 'PRICE_HIGHT_TO_LOW',
-        name: 'Price: Hight to low',
-    },
-];
 
 type FormType = {
     brandId?: string;
@@ -208,7 +173,11 @@ const ProductList = () => {
                     />
                     <Tooltip arrow={false} color="#108ee9" title="Detail">
                         <Link href={`/marketer/product/${record?.id}`}>
-                            <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
+                            <Button
+                                icon={<EyeOutlined />}
+                                shape="circle"
+                                type="link"
+                            />
                         </Link>
                     </Tooltip>
                 </Space>
@@ -280,18 +249,6 @@ const ProductList = () => {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear placeholder="Choose a filter...">
-                                {FILTER_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
                         <Form.Item<FormType>
                             label="Show on client"
                             name="isShow"
@@ -306,6 +263,18 @@ const ProductList = () => {
                                 <Select.Option value="false">
                                     <Tag color="red">HIDE</Tag>
                                 </Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item<FormType> label="Order by" name="sortBy">
+                            <Select allowClear placeholder="Choose a filter...">
+                                {FILTER_LIST.map((item) => (
+                                    <Select.Option
+                                        key={item.id}
+                                        value={item.id}
+                                    >
+                                        {item.name}
+                                    </Select.Option>
+                                ))}
                             </Select>
                         </Form.Item>
                     </div>
