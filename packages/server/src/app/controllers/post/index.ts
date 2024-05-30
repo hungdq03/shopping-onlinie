@@ -53,6 +53,11 @@ export const getPostById = async (req: Request, res: Response) => {
                         name: true,
                     },
                 },
+                product: {
+                    select: {
+                        name: true,
+                    },
+                },
             },
         });
 

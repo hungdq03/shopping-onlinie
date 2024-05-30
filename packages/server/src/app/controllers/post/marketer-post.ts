@@ -151,8 +151,8 @@ export const getListPostManage = async (req: Request, res: Response) => {
 export const createPost = async (req: Request, res: Response) => {
     const { title, description, productId, thumbnail, isShow, briefInfo } =
         req.body;
-    const accessToken = getToken(req);
-    const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
+    const accessToken = await getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
     try {
         const post = await db.post.create({
             data: {

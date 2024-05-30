@@ -1,14 +1,18 @@
+import { User } from './user';
+
 export type Post = {
     id?: string | null;
     title?: string | null;
     description?: string | null;
     briefInfo?: string | null;
     productId?: string | null;
+    userId?: string | null;
     thumbnail?: string | null;
     isShow?: boolean | null;
     createdAt?: string | null;
     updatedAt?: string | null;
     product?: Product | null;
+    user?: User | null;
 };
 
 export type Brand = {
