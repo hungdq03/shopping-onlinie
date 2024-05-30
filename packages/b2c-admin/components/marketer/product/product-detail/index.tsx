@@ -3,6 +3,7 @@ import React from 'react';
 import * as request from 'common/utils/http-request';
 import { useRouter } from 'next/router';
 import { Spin } from 'antd';
+import { AxiosError } from 'axios';
 import Header from '~/components/header';
 import { Product } from '~/types/product';
 import ProductDetailAll from './product-detail-all';
@@ -10,7 +11,13 @@ import ProductDetailAll from './product-detail-all';
 const ProductDetail = () => {
     const { query } = useRouter();
 
-    const { data, isLoading } = useQuery<Product>({
+    const { data, isLoading, error } = useQuery<
+        Product,
+        AxiosError<{
+            isOk?: boolean | null;
+            message?: string | null;
+        }>
+    >({
         queryKey: ['product-detail'],
         queryFn: () =>
             request
@@ -20,6 +27,16 @@ const ProductDetail = () => {
         enabled: !!query?.id,
     });
 
+    if (error) {
+        return (
+            <div>
+                <Header isBack title="Product detail" />
+                <div className="mt-16 text-center text-2xl font-semibold">
+                    {error?.response?.data?.message}
+                </div>
+            </div>
+        );
+    }
     return (
         <Spin spinning={isLoading}>
             <div>

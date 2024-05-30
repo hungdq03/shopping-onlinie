@@ -451,6 +451,14 @@ export const getProductById = async (req: Request, res: Response) => {
             },
         });
 
+        if (!product) {
+            return res.status(400).json({
+                isOk: false,
+                data: null,
+                message: 'This product does not exist!',
+            });
+        }
+
         return res.status(200).json({
             isOk: true,
             data: product,

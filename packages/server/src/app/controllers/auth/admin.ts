@@ -16,7 +16,7 @@ export const register = async (req: Request, res: Response) => {
     const { password, name, email } = req.body;
 
     let user = await db.user.findFirst({
-        where: { email, role: 'ADMIN' },
+        where: { email },
     });
 
     if (user) {
