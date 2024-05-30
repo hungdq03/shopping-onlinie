@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { Alert, Button, Form, Input } from 'antd';
+import { Alert, Button, Form, Input, Select } from 'antd';
 import { AxiosError, AxiosResponse } from 'axios';
 import Modal from 'common/components/modal';
 import * as request from 'common/utils/http-request';
@@ -7,6 +7,11 @@ import { useCallback, useState } from 'react';
 import { toast } from 'react-toastify';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
+
+const genderOptions = {
+    MALE: 'Male',
+    FEMALE: 'Female',
+};
 
 const RegisterModal = () => {
     const [emailUser, setEmailUser] = useState('');
@@ -49,6 +54,9 @@ const RegisterModal = () => {
             email: string;
             password: string;
             name: string;
+            phone: string;
+            address: string;
+            gender: string;
         }) => {
             return request
                 .post('/auth/user/register', data)
@@ -78,6 +86,9 @@ const RegisterModal = () => {
         email: string;
         password: string;
         name: string;
+        gender: string;
+        phone: string;
+        address: string;
     }) => {
         setLoading(true);
         registerUser(values);
@@ -190,6 +201,29 @@ const RegisterModal = () => {
                         },
                     ]}
                 >
+                    <Input size="large" />
+                </Form.Item>
+
+                <Form.Item label="Gender" name="gender">
+                    <Select size="large">
+                        {Object.values(genderOptions).map((item: string) => (
+                            <Select.Option
+                                key={Object.values(genderOptions).indexOf(item)}
+                                value={
+                                    Object.keys(genderOptions)[
+                                        Object.values(genderOptions).indexOf(
+                                            item
+                                        )
+                                    ]
+                                }
+                            >
+                                {item}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+
+                <Form.Item label="Address" name="address">
                     <Input size="large" />
                 </Form.Item>
 

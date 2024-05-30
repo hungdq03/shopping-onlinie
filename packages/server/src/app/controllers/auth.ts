@@ -14,7 +14,7 @@ import {
 } from '../../constant';
 
 export const register = async (req: Request, res: Response) => {
-    const { password, name, email } = req.body;
+    const { password, name, email, phone, gender, address } = req.body;
 
     let user = await db.user.findFirst({
         where: { email },
@@ -32,6 +32,9 @@ export const register = async (req: Request, res: Response) => {
             name,
             email,
             hashedPassword: hashSync(password, SALT),
+            phone,
+            gender,
+            address,
             role: 'USER',
             status: 'NEWLY_REGISTER',
         },
