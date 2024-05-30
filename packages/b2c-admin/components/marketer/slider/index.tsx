@@ -18,8 +18,7 @@ import * as request from 'common/utils/http-request';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import Link from 'next/link';
-
-import { PAGE_SIZE } from 'common/constant';
+import { FILTER_LIST, PAGE_SIZE } from 'common/constant';
 import SliderModal from './slider-modal';
 import { Product, Slider } from '~/types/slider';
 import Header from '~/components/header';
@@ -32,30 +31,10 @@ type FormType = {
     isShow?: boolean;
 };
 
-const FILTER_LIST = [
-    {
-        id: 'LATEST',
-        name: 'Latest Create Date',
-    },
-    {
-        id: 'OLDEST',
-        name: 'Oldest Create Date',
-    },
-    {
-        id: 'NAME_A_TO_Z',
-        name: 'Name: A to Z',
-    },
-    {
-        id: 'NAME_Z_TO_A',
-        name: 'Name: Z to A',
-    },
-];
-
 type SearchParams = FormType & {
     pageSize?: number;
     currentPage?: number;
 };
-
 const ListSlider: React.FC = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
@@ -111,10 +90,10 @@ const ListSlider: React.FC = () => {
             title: 'Show on Client',
             dataIndex: 'isShow',
             key: 'isShow',
-            render: (id: string, record: Slider) => {
+            render: (value: boolean) => {
                 return (
-                    <Tag color={record?.isShow ? 'blue' : 'red'}>
-                        {record?.isShow ? 'SHOW' : 'HIDE'}
+                    <Tag color={value ? 'blue' : 'red'}>
+                        {value ? 'SHOW' : 'HIDE'}
                     </Tag>
                 );
             },
@@ -123,12 +102,9 @@ const ListSlider: React.FC = () => {
             title: 'Create At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            render: (_: any, record: Slider) => (
-                <p>
-                    {record?.createdAt &&
-                        moment(record.createdAt).format('YYYY-MM-DD')}
-                </p>
+            ellipsis: true,
+            render: (value: string) => (
+                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
             ),
         },
         {
@@ -136,11 +112,9 @@ const ListSlider: React.FC = () => {
             dataIndex: 'updatedAt',
             key: 'updatedAt',
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            render: (_: any, record: Slider) => (
-                <p>
-                    {record?.updatedAt &&
-                        moment(record.updatedAt).format('YYYY-MM-DD')}
-                </p>
+            ellipsis: true,
+            render: (value: string) => (
+                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
             ),
         },
         {
@@ -184,7 +158,6 @@ const ListSlider: React.FC = () => {
             refetch();
         });
     };
-
     return (
         <Spin spinning={productLoading || sliderLoading}>
             <Header title="Manage Slider" />
@@ -206,6 +179,7 @@ const ListSlider: React.FC = () => {
                                         label: item?.name,
                                     })
                                 )}
+                                placeholder="Select a product..."
                                 showSearch
                             />
                         </Form.Item>

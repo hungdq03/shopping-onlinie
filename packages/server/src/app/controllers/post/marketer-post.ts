@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
-import { db } from '../../../lib/db';
+import { jwtDecode } from 'jwt-decode';
+import { TokenDecoded } from '../../../types';
+import { getToken } from '../../../lib/utils';
 import { PAGE_SIZE } from '../../../constant';
+import { db } from '../../../lib/db';
 
 type PostFilter = {
     productId?: string;
@@ -85,7 +88,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
                     select,
                 });
                 break;
-            case 'NAME_A_TO_Z':
+            case 'TITLE_A_TO_Z':
                 listPost = await db.post.findMany({
                     ...pagination,
                     where: {
@@ -100,7 +103,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
                     select,
                 });
                 break;
-            case 'NAME_Z_TO_A':
+            case 'TITLE_Z_TO_A':
                 listPost = await db.post.findMany({
                     ...pagination,
                     where: {
@@ -141,13 +144,15 @@ export const getListPostManage = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
 export const createPost = async (req: Request, res: Response) => {
-    const { title, description, productId, thumbnail, isShow } = req.body;
-
+    const { title, description, productId, thumbnail, isShow, briefInfo } =
+        req.body;
+    const accessToken = await getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
     try {
         const post = await db.post.create({
             data: {
@@ -156,6 +161,8 @@ export const createPost = async (req: Request, res: Response) => {
                 productId,
                 thumbnail,
                 isShow,
+                briefInfo,
+                userId: tokenDecoded.id,
             },
         });
 
@@ -171,7 +178,8 @@ export const createPost = async (req: Request, res: Response) => {
 
 export const updatePost = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { title, description, productId, thumbnail, isShow } = req.body;
+    const { title, description, productId, thumbnail, isShow, briefInfo } =
+        req.body;
 
     try {
         const post = await db.post.update({
@@ -184,6 +192,7 @@ export const updatePost = async (req: Request, res: Response) => {
                 productId,
                 thumbnail,
                 isShow,
+                briefInfo,
             },
         });
 
@@ -193,7 +202,7 @@ export const updatePost = async (req: Request, res: Response) => {
             message: 'Update post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -213,6 +222,6 @@ export const deletePost = async (req: Request, res: Response) => {
             message: 'Delete post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

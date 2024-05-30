@@ -233,7 +233,7 @@ export const getListUser = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -253,7 +253,7 @@ export const getUserById = async (req: Request, res: Response) => {
             message: 'Get user successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -338,7 +338,7 @@ export const editUser = async (req: Request, res: Response) => {
             message: 'Update user successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -358,6 +358,6 @@ export const deleteUser = async (req: Request, res: Response) => {
             message: 'Delete user successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

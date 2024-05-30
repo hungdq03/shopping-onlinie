@@ -8,7 +8,7 @@ export const getListCategory = async (req: Request, res: Response) => {
         const listCategory = await db.category.findMany({
             where: {
                 name: {
-                    contains: String(search ?? ''),
+                    contains: search ? String(search) : undefined,
                 },
             },
             select: {
@@ -27,7 +27,7 @@ export const getListCategory = async (req: Request, res: Response) => {
             params: search,
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -47,6 +47,6 @@ export const getCategoryById = async (req: Request, res: Response) => {
             message: 'Get category successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

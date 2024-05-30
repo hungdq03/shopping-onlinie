@@ -47,6 +47,18 @@ export const getPostById = async (req: Request, res: Response) => {
             where: {
                 id,
             },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+                product: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
 
         return res.status(201).json({
@@ -55,6 +67,6 @@ export const getPostById = async (req: Request, res: Response) => {
             message: 'Get post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

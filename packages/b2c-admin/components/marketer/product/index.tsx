@@ -15,7 +15,7 @@ import {
 } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
-import { PAGE_SIZE, RATING_LIST } from 'common/constant';
+import { FILTER_LIST, PAGE_SIZE, RATING_LIST } from 'common/constant';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { currencyFormatter } from 'common/utils/formatter';
@@ -23,41 +23,7 @@ import Link from 'next/link';
 import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
-
-const FILTER_LIST = [
-    {
-        id: 'LATEST',
-        name: 'Latest Create Date',
-    },
-    {
-        id: 'OLDEST',
-        name: 'Oldest Create Date',
-    },
-    {
-        id: 'NAME_A_TO_Z',
-        name: 'Name: A to Z',
-    },
-    {
-        id: 'NAME_Z_TO_A',
-        name: 'Name: Z to A',
-    },
-    {
-        id: 'RATE_LOW_TO_HIGHT',
-        name: 'Rate: Low to Hight',
-    },
-    {
-        id: 'RATE_HIGHT_TO_LOW',
-        name: 'Rate: Hight to low',
-    },
-    {
-        id: 'PRICE_LOW_TO_HIGHT',
-        name: 'Price: Low to Hight',
-    },
-    {
-        id: 'PRICE_HIGHT_TO_LOW',
-        name: 'Price: Hight to low',
-    },
-];
+import DeleteProductAlert from './delete-product-alert';
 
 type FormType = {
     brandId?: string;
@@ -139,11 +105,13 @@ const ProductList = () => {
             title: 'Size',
             dataIndex: 'size',
             key: 'size',
+            width: 80,
         },
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: 100,
         },
         {
             title: 'Sold Quantity',
@@ -171,7 +139,7 @@ const ProductList = () => {
             title: 'Rating',
             dataIndex: 'rating',
             key: 'rating',
-            width: 200,
+            width: 180,
             render: (value: number) => <Rate disabled value={value ?? 0} />,
         },
         {
@@ -199,7 +167,7 @@ const ProductList = () => {
             title: 'Actions',
             key: 'actions',
             render: (_: undefined, record: Product) => (
-                <Space size="middle">
+                <Space>
                     <ProductFormModal
                         productId={record?.id ?? undefined}
                         reload={() => refetch()}
@@ -215,6 +183,13 @@ const ProductList = () => {
                             />
                         </Link>
                     </Tooltip>
+                    <DeleteProductAlert
+                        productId={record?.id ?? ''}
+                        productName={record?.name ?? ''}
+                        reload={() => {
+                            refetch();
+                        }}
+                    />
                 </Space>
             ),
         },
@@ -284,18 +259,6 @@ const ProductList = () => {
                                 ))}
                             </Select>
                         </Form.Item>
-                        <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear placeholder="Choose a filter...">
-                                {FILTER_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
                         <Form.Item<FormType>
                             label="Show on client"
                             name="isShow"
@@ -310,6 +273,18 @@ const ProductList = () => {
                                 <Select.Option value="false">
                                     <Tag color="red">HIDE</Tag>
                                 </Select.Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item<FormType> label="Order by" name="sortBy">
+                            <Select allowClear placeholder="Choose a filter...">
+                                {FILTER_LIST.map((item) => (
+                                    <Select.Option
+                                        key={item.id}
+                                        value={item.id}
+                                    >
+                                        {item.name}
+                                    </Select.Option>
+                                ))}
                             </Select>
                         </Form.Item>
                     </div>

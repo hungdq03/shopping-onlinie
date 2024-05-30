@@ -37,6 +37,7 @@ model User {
   feedback Feedback[]
   cart Cart[]
   order Order[]
+  post Post[]
 }
 
 model Account{
@@ -153,15 +154,17 @@ model Post {
   id String @id @default(uuid())
   title String
   description String? @db.Text
+  briefInfo String? @db.Text
   productId String
   thumbnail String? @db.Text
   isShow Boolean @default(true)
+  userId String 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
   @@index([productId])
 }
 

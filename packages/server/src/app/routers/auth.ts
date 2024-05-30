@@ -8,11 +8,16 @@ import {
     senMailResetPassword,
     verifyEmail,
 } from '../controllers/auth';
-import { loginAdmin } from '../controllers/auth/admin';
+import {
+    loginAdmin,
+    register as registerAdmin,
+} from '../controllers/auth/admin';
 
 export default (router: Router) => {
     // admin
     router.post('/auth/admin/login', loginAdmin);
+    router.post('/auth/admin/register', registerAdmin);
+
     // user
     router.post('/auth/user/register', register);
     router.post('/auth/verify-email/:email', verifyEmail);
