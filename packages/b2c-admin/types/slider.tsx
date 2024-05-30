@@ -18,9 +18,8 @@ export type Product = {
     createdAt?: string | null;
     updatedAt?: string | null;
     brand?: Brand | null;
-    product_image?: ProductImage[] | null;
 };
-export type ProductImage = {
+export type SliderImage = {
     id?: string | null;
     url?: string | null;
 };
@@ -33,7 +32,7 @@ export type Slider = {
     createdAt?: string | null;
     updatedAt?: string | null;
     isShow?: boolean | null;
-
+    slider_image?: SliderImage[] | null;
     product?: Product | null;
     productId?: string | null;
 };

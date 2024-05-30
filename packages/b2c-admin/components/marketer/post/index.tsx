@@ -27,19 +27,19 @@ import Header from '~/components/header';
 const FILTER_LIST = [
     {
         id: 'LATEST',
-        name: 'Latest Create Date',
+        name: 'Latest: Create Date',
     },
     {
         id: 'OLDEST',
-        name: 'Oldest Create Date',
+        name: 'Oldest: Create Date',
     },
     {
-        id: 'NAME_A_TO_Z',
-        name: 'Name: A to Z',
+        id: 'TITLE_A_TO_Z',
+        name: 'Title: A to Z',
     },
     {
-        id: 'NAME_Z_TO_A',
-        name: 'Name: Z to A',
+        id: 'TiTLE_Z_TO_A',
+        name: 'Title: Z to A',
     },
 ];
 
@@ -62,8 +62,8 @@ const PostList = () => {
     });
 
     const { data: products, isLoading: productLoading } = useQuery({
-        queryKey: ['product'],
-        queryFn: () => request.get('manage/product').then((res) => res.data),
+        queryKey: ['/product/select'],
+        queryFn: () => request.get('/product/select').then((res) => res.data),
     });
 
     const {
@@ -80,7 +80,7 @@ const PostList = () => {
 
     const columns = [
         {
-            title: 'ID',
+            title: 'Index',
             dataIndex: 'id',
             key: 'id',
             render: (id: string, record: Post, index: number) => {
@@ -92,17 +92,18 @@ const PostList = () => {
                 );
             },
         },
-        {
-            title: 'Product Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (_: any, record: Post) => <p>{record?.product?.name}</p>,
-        },
+
         {
             title: 'Title',
             dataIndex: 'title',
             key: 'title',
             render: (_: any, record: Post) => <p>{record.title}</p>,
+        },
+        {
+            title: 'Product Name',
+            dataIndex: 'name',
+            key: 'name',
+            render: (_: any, record: Post) => <p>{record?.product?.name}</p>,
         },
 
         {
@@ -153,8 +154,7 @@ const PostList = () => {
                     <DeletePostFormModal
                         postId={record?.id ?? ''}
                         reload={() => refetch()}
-                        title="Delete post"
-                        type="DELETE"
+                        title={record?.title ?? ''}
                     />
                     <Tooltip arrow={false} color="#108ee9" title="Detail">
                         <Link href={`/marketer/post/${record?.id}`}>
@@ -219,7 +219,7 @@ const PostList = () => {
                             <Input />
                         </Form.Item>
                         <Form.Item<FormType>
-                            label="Show on client: "
+                            label="Show on client"
                             name="isShow"
                         >
                             <Select allowClear>

@@ -5,30 +5,32 @@ import { useRouter } from 'next/router';
 import { Spin } from 'antd';
 import { AxiosError } from 'axios';
 import Header from '~/components/header';
-import { Product } from '~/types/product';
-import ProductDetailAll from './product-detail-all';
+import { Post } from '~/types/post';
+import PostDetailAll from './post-detail-all';
 
-const ProductDetail = () => {
+const PostDetail = () => {
     const { query } = useRouter();
+
     const { data, isLoading, error } = useQuery<
-        Product,
+        Post,
         AxiosError<{
             isOk?: boolean | null;
             message?: string | null;
         }>
     >({
-        queryKey: ['product-detail'],
+        queryKey: ['post-detail'],
         queryFn: () =>
             request
-                .get(`manage/product/${query?.id}`)
+                .get(`post/${query?.id}`)
                 .then((res) => res.data)
                 .then((res) => res.data),
         enabled: !!query?.id,
     });
+
     if (error) {
         return (
             <div>
-                <Header isBack title="Product detail" />
+                <Header isBack title="Post detail" />
                 <div className="mt-16 text-center text-2xl font-semibold">
                     {error?.response?.data?.message}
                 </div>
@@ -38,13 +40,13 @@ const ProductDetail = () => {
     return (
         <Spin spinning={isLoading}>
             <div>
-                <Header isBack title="Product detail" />
+                <Header isBack title="Post detail" />
                 <div>
-                    <ProductDetailAll data={data} />
+                    <PostDetailAll data={data} />
                 </div>
             </div>
         </Spin>
     );
 };
 
-export default ProductDetail;
+export default PostDetail;

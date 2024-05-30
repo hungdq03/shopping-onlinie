@@ -5,46 +5,49 @@ import { useRouter } from 'next/router';
 import { Spin } from 'antd';
 import { AxiosError } from 'axios';
 import Header from '~/components/header';
-import { Product } from '~/types/product';
-import ProductDetailAll from './product-detail-all';
+import { Slider } from '~/types/slider';
+import SliderDetailAll from './slider-detail-all';
 
-const ProductDetail = () => {
+const SliderDetail = () => {
     const { query } = useRouter();
+
     const { data, isLoading, error } = useQuery<
-        Product,
+        Slider,
         AxiosError<{
             isOk?: boolean | null;
             message?: string | null;
         }>
     >({
-        queryKey: ['product-detail'],
+        queryKey: ['slider-detail', query?.id],
         queryFn: () =>
             request
-                .get(`manage/product/${query?.id}`)
+                .get(`manage/slider/${query?.id}`)
                 .then((res) => res.data)
                 .then((res) => res.data),
         enabled: !!query?.id,
     });
+
     if (error) {
         return (
             <div>
-                <Header isBack title="Product detail" />
+                <Header isBack title="Slider Detail" />
                 <div className="mt-16 text-center text-2xl font-semibold">
                     {error?.response?.data?.message}
                 </div>
             </div>
         );
     }
+
     return (
         <Spin spinning={isLoading}>
             <div>
-                <Header isBack title="Product detail" />
+                <Header isBack title="Slider Detail" />
                 <div>
-                    <ProductDetailAll data={data} />
+                    <SliderDetailAll data={data} />
                 </div>
             </div>
         </Spin>
     );
 };
 
-export default ProductDetail;
+export default SliderDetail;
