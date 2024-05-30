@@ -413,7 +413,7 @@ export const updateProduct = async (req: Request, res: Response) => {
             },
         });
 
-        return res.status(201).json({
+        return res.status(200).json({
             isOk: true,
             data: product,
             message: 'Update new product successfully!',
@@ -438,13 +438,51 @@ export const getProductById = async (req: Request, res: Response) => {
                         url: true,
                     },
                 },
+                brand: {
+                    select: {
+                        name: true,
+                    },
+                },
+                category: {
+                    select: {
+                        name: true,
+                    },
+                },
             },
         });
 
-        return res.status(201).json({
+        if (!product) {
+            return res.status(400).json({
+                isOk: false,
+                data: null,
+                message: 'This product does not exist!',
+            });
+        }
+
+        return res.status(200).json({
             isOk: true,
             data: product,
             message: 'Get product successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const deleteProductById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const product = await db.product.delete({
+            where: {
+                id,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: product,
+            message: 'Delete product successfully!',
         });
     } catch (error) {
         return res.sendStatus(500);

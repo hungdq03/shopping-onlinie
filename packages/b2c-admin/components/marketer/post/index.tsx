@@ -154,8 +154,7 @@ const PostList = () => {
                     <DeletePostFormModal
                         postId={record?.id ?? ''}
                         reload={() => refetch()}
-                        title="Delete post"
-                        type="DELETE"
+                        title={record?.title ?? ''}
                     />
                     <Tooltip arrow={false} color="#108ee9" title="Detail">
                         <Link href={`/marketer/post/${record?.id}`}>

@@ -6,18 +6,21 @@ import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 
 type Props = {
-    postId: string;
-    title: string;
-
+    productId: string;
+    productName: string;
     reload: () => void;
 };
 
-const DeletePostFormModal: React.FC<Props> = ({ postId, title, reload }) => {
+const DeleteProductAlert: React.FC<Props> = ({
+    productId,
+    productName,
+    reload,
+}) => {
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
     const { mutate, isPending } = useMutation({
         mutationFn: () =>
-            request.del(`post/delete/${postId}`).then((res) => res.data),
+            request.del(`product/delete/${productId}`).then((res) => res.data),
         onSuccess: (res) => {
             toast.success(res?.message);
             setTimeout(() => {
@@ -47,18 +50,20 @@ const DeletePostFormModal: React.FC<Props> = ({ postId, title, reload }) => {
                 onCancel={() => setIsOpenModal(false)}
                 onOk={() => mutate()}
                 open={isOpenModal}
-                title="Delete Post"
+                title="Delete Product"
                 width={800}
             >
                 <div className="text-center">
                     <div className="py-5 text-xl font-semibold text-rose-600">
-                        Do you want delete this post?
+                        Do you want delete this product?
                     </div>
                     <div>
-                        <span className="font-semibold">Post ID:</span> {postId}
+                        <span className="font-semibold">Product ID:</span>{' '}
+                        {productId}
                     </div>
                     <div>
-                        <span className="font-semibold">Title:</span> {title}
+                        <span className="font-semibold">Product Name:</span>{' '}
+                        {productName}
                     </div>
                 </div>
             </Modal>
@@ -66,4 +71,4 @@ const DeletePostFormModal: React.FC<Props> = ({ postId, title, reload }) => {
     );
 };
 
-export default DeletePostFormModal;
+export default DeleteProductAlert;

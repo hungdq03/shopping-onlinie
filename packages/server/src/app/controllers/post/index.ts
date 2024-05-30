@@ -62,6 +62,6 @@ export const getPostById = async (req: Request, res: Response) => {
             message: 'Get post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
