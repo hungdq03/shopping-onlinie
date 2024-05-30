@@ -6,7 +6,7 @@ import {
     getListUser,
     getUser,
     getUserById,
-} from '../controllers/user';
+} from '../controllers/admin/user';
 import { isAuthenticated } from '../../middlewares';
 
 export default (router: Router) => {

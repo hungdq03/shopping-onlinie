@@ -55,7 +55,7 @@ type UserRequestType = {
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-const getBase64 = (file: FileType): Promise<string> =>
+const getBase64 = (file: RcFile): Promise<string> =>
     new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -153,11 +153,45 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
             request.get(`/admin/user-detail/${userId}`).then((res) => res.data),
     });
 
+    // useEffect(() => {
+    //     if (isOpenModal) {
+    //         form.resetFields();
+    //     }
+    // }, [isOpenModal]);
+
     useEffect(() => {
-        if (isOpenModal) {
+        if (isOpenModal && !userId) {
             form.resetFields();
         }
-    }, [isOpenModal]);
+        if (isOpenModal && userId && userDetail) {
+            form.setFieldsValue({
+                name: userDetail?.data?.name,
+                email: userDetail?.data?.email,
+                role: userDetail?.data?.role,
+                gender: userDetail?.data?.gender,
+                status: userDetail?.data?.status,
+                dob: userDetail?.data?.dob
+                    ? dayjs(userDetail?.data?.dob)
+                    : null,
+                phone: userDetail?.data?.phone,
+                address: userDetail?.data?.address,
+                image: userDetail?.data?.image
+                    ? [
+                          {
+                              uid: '-1',
+                              name: userDetail?.data?.image ?? '',
+                              status: 'done',
+                              url: `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${userDetail.data.image}`,
+                          },
+                      ]
+                    : undefined,
+            });
+
+            setPreviewImage(
+                `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${encodeURIComponent(userDetail?.data?.image)}`
+            );
+        }
+    }, [isOpenModal, userId, userDetail]);
 
     const button = useMemo(() => {
         switch (type) {
@@ -272,26 +306,14 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
                             editUserIsPending
                         }
                         form={form}
-                        initialValues={{
-                            name: userDetail?.data?.name,
-                            email: userDetail?.data?.email,
-                            role: userDetail?.data?.role,
-                            gender: userDetail?.data?.gender,
-                            status: userDetail?.data?.status,
-                            dob: userDetail?.data?.dob
-                                ? dayjs(userDetail?.data?.dob)
-                                : null,
-                            phone: userDetail?.data?.phone,
-                            address: userDetail?.data?.address,
-                            image: userDetail?.data?.image,
-                        }}
                         layout="vertical"
                         onFinish={onFinish}
                     >
-                        <Form.Item<FormType>
+                        <Form.Item
                             getValueFromEvent={normFile}
                             label="Avatar"
                             name="image"
+                            valuePropName="image"
                         >
                             <Upload
                                 accept=".png, .jpg, .jpeg"
@@ -302,16 +324,10 @@ const UserFormModal: React.FC<Props> = ({ type, title, reload, userId }) => {
                                 name="image"
                                 onPreview={handlePreview}
                             >
-                                <button
-                                    style={{
-                                        border: 0,
-                                        background: 'none',
-                                    }}
-                                    type="button"
-                                >
+                                <div>
                                     <PlusOutlined />
                                     <div style={{ marginTop: 8 }}>Upload</div>
-                                </button>
+                                </div>
                             </Upload>
                             <Image
                                 preview={{

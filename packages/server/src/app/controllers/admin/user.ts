@@ -6,11 +6,11 @@ import {
     PAGE_SIZE,
     SALT,
     SuccessResponseType,
-} from '../../constant';
-import { db } from '../../lib/db';
-import { getToken } from '../../lib/utils';
-import { TokenDecoded } from '../../types';
-import { sendMail } from '../../lib/send-mail';
+} from '../../../constant';
+import { db } from '../../../lib/db';
+import { getToken } from '../../../lib/utils';
+import { TokenDecoded } from '../../../types';
+import { sendMail } from '../../../lib/send-mail';
 
 export const getUser = async (req: Request, res: Response) => {
     const accessToken = getToken(req);
@@ -55,6 +55,8 @@ export const getListUser = async (req: Request, res: Response) => {
         fillterByRole,
         fillterByGender,
         fillterByStatus,
+        startDate,
+        endDate,
     } = req.query;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,6 +77,18 @@ export const getListUser = async (req: Request, res: Response) => {
         where.status = String(fillterByStatus);
     }
 
+    if (startDate || endDate) {
+        where.createdAt = {};
+        if (startDate) {
+            where.createdAt.gte = new Date(startDate as string);
+        }
+        if (endDate) {
+            const nextDay = new Date(endDate as string);
+            nextDay.setDate(nextDay.getDate() + 1);
+            where.createdAt.lt = nextDay;
+        }
+    }
+
     const prismaQuery = {
         skip: (Number(currentPage) - 1) * Number(pageSize || PAGE_SIZE),
         take: Number(pageSize),
@@ -83,11 +97,7 @@ export const getListUser = async (req: Request, res: Response) => {
 
     try {
         const total = await db.user.count({
-            where: {
-                name: {
-                    contains: String(search || ''),
-                },
-            },
+            where,
         });
 
         let listUser;
@@ -231,7 +241,7 @@ export const getUserById = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
-        const brand = await db.user.findUnique({
+        const user = await db.user.findUnique({
             where: {
                 id,
             },
@@ -239,7 +249,7 @@ export const getUserById = async (req: Request, res: Response) => {
 
         return res.status(201).json({
             isOk: true,
-            data: brand,
+            data: user,
             message: 'Get user successfully!',
         });
     } catch (error) {
@@ -282,12 +292,12 @@ export const createUser = async (req: Request, res: Response) => {
     const mainContent =
         '    You have just created an account. You can use this account to login.Please change your password to increase security.';
     const secondContent = `Email: ${email}<br>
-        Password: ${phone}
+        Password: ${phone}<br>
         Best regards,<br>
         Perfume shop.`;
 
     await sendMail({
-        to: 'hungdqhe170076@fpt.edu.vn',
+        to: 'hung2k3vn@gmail.com',
         subject,
         title,
         mainContent,

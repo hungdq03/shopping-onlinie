@@ -1,7 +1,9 @@
+/* eslint-disable max-lines */
 import { SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import {
     Button,
+    DatePicker,
     Form,
     FormProps,
     Input,
@@ -14,6 +16,7 @@ import {
 import { PAGE_SIZE } from 'common/constant';
 import request from 'common/utils/http-request';
 import { useState } from 'react';
+import { Moment } from 'moment';
 import Header from '~/components/header';
 import { User } from '~/types/user';
 import DeleteUserModal from './delete-user-modal';
@@ -81,6 +84,14 @@ const FILTER_LIST = [
         id: 'STATUS_Z_TO_A',
         name: 'Status: Z to A',
     },
+    {
+        id: 'LATEST',
+        name: 'Latest Create Date',
+    },
+    {
+        id: 'OLDEST',
+        name: 'Oldest Create Date',
+    },
 ];
 
 const filterRole = [
@@ -93,12 +104,12 @@ const filterRole = [
         name: 'User',
     },
     {
-        id: 'MAKERTER',
+        id: 'MARKETER',
         name: 'Marketer',
     },
     {
-        id: 'SALER',
-        name: 'Saler',
+        id: 'SELLER',
+        name: 'Seller',
     },
 ];
 
@@ -136,12 +147,14 @@ const filterStatus = [
     },
 ];
 type FormType = {
-    brandId?: string;
     searchBy?: string;
     search?: string;
     filterBy?: string;
     filter?: string;
     sortBy?: string;
+    dateRange?: [Moment, Moment];
+    startDate?: string;
+    endDate?: string;
 };
 
 const searchBy = [
@@ -169,7 +182,8 @@ const ListUser = () => {
         pageSize: PAGE_SIZE,
         currentPage: 1,
     });
-
+    const { RangePicker } = DatePicker;
+    const [form] = Form.useForm();
     const {
         data: listUser,
         isLoading,
@@ -203,7 +217,7 @@ const ListUser = () => {
             title: 'Full name',
             key: 'name',
             dataIndex: 'name',
-            width: '20%',
+            width: '15%',
         },
         {
             title: 'Gender',
@@ -228,12 +242,29 @@ const ListUser = () => {
             key: 'role',
             dataIndex: 'role',
             width: '10%',
+            render: (record: string) => {
+                const role = filterRole.find((r) => r.id === record);
+                return role ? role.name : record;
+            },
         },
         {
             title: 'Status',
             key: 'status',
             dataIndex: 'status',
             width: '10%',
+            render: (record: string) => {
+                const role = filterStatus.find((s) => s.id === record);
+                return role ? role.name : record;
+            },
+        },
+        {
+            title: 'Date Created',
+            key: 'createdAt',
+            dataIndex: 'createdAt',
+            width: '10%',
+            render: (record: string) => {
+                return record.split('T')[0];
+            },
         },
         {
             title: 'Actions',
@@ -271,7 +302,28 @@ const ListUser = () => {
     ) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     const onFinish: FormProps<FormType>['onFinish'] = (values) => {
-        setSearchParams((prev) => ({ ...prev, ...values, currentPage: 1 }));
+        let startDate;
+        let endDate;
+        if (values.dateRange) {
+            startDate = values.dateRange[0].format('YYYY-MM-DD');
+            endDate = values.dateRange[1].format('YYYY-MM-DD');
+        }
+
+        const newValues = {
+            ...values,
+            startDate,
+            endDate,
+        };
+
+        // Remove dateRange from newValues
+        delete newValues.dateRange;
+
+        // Gửi newValues đến backend
+        setSearchParams((prev) => ({
+            ...prev,
+            ...newValues,
+            currentPage: 1,
+        }));
 
         setTimeout(() => {
             refetch();
@@ -284,13 +336,17 @@ const ListUser = () => {
             <div className="">
                 <Form
                     className="flex gap-x-10"
+                    form={form}
                     labelCol={{ span: 6 }}
                     onFinish={onFinish}
                     wrapperCol={{ span: 18 }}
                 >
                     <div className="grid flex-1 grid-cols-3 items-end justify-start gap-x-5">
                         <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select>
+                            <Select
+                                allowClear
+                                placeholder="Select type of order..."
+                            >
                                 {FILTER_LIST.map((item) => (
                                     <Select.Option
                                         key={item.id}
@@ -303,6 +359,7 @@ const ListUser = () => {
                         </Form.Item>
                         <Form.Item<FormType> label="Search by" name="searchBy">
                             <Select
+                                allowClear
                                 filterOption={filterOption}
                                 options={searchBy.map(
                                     (item: { id: string; name: string }) => ({
@@ -310,30 +367,38 @@ const ListUser = () => {
                                         label: item.name,
                                     })
                                 )}
+                                placeholder="Select search by..."
                                 showSearch
                             />
                         </Form.Item>
                         <Form.Item<FormType> label="Search" name="search">
-                            <Input />
+                            <Input
+                                allowClear
+                                placeholder="Input to search..."
+                            />
                         </Form.Item>
                         <Form.Item
                             label="Filter by gender"
                             name="fillterByGender"
                         >
                             <Select
+                                allowClear
                                 options={filterGender.map((item) => ({
                                     value: item.id,
                                     label: item.name,
                                 }))}
+                                placeholder="Select gender to filter..."
                                 showSearch
                             />
                         </Form.Item>
                         <Form.Item label="Filter by role" name="fillterByRole">
                             <Select
+                                allowClear
                                 options={filterRole.map((item) => ({
                                     value: item.id,
                                     label: item.name,
                                 }))}
+                                placeholder="Select role to filter..."
                                 showSearch
                             />
                         </Form.Item>
@@ -342,12 +407,18 @@ const ListUser = () => {
                             name="fillterByStatus"
                         >
                             <Select
+                                allowClear
                                 options={filterStatus.map((item) => ({
                                     value: item.id,
                                     label: item.name,
                                 }))}
+                                placeholder="Select status to filter..."
                                 showSearch
                             />
+                        </Form.Item>
+
+                        <Form.Item label="Select date:" name="dateRange">
+                            <RangePicker />
                         </Form.Item>
                     </div>
                     <div className="">
@@ -364,6 +435,7 @@ const ListUser = () => {
                             <Button
                                 htmlType="reset"
                                 icon={<SyncOutlined />}
+                                onClick={() => form.resetFields()}
                                 type="primary"
                             >
                                 Reset
@@ -412,7 +484,6 @@ const ListUser = () => {
             </div>
         </Spin>
     );
-    // eslint-disable-next-line max-lines
 };
 
 export default ListUser;
