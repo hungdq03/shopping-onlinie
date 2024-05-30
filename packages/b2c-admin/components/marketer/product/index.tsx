@@ -17,7 +17,6 @@ import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
 import { FILTER_LIST, PAGE_SIZE, RATING_LIST } from 'common/constant';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
-import moment from 'moment';
 import { currencyFormatter } from 'common/utils/formatter';
 import Link from 'next/link';
 import ProductFormModal from './product-form-modal';
@@ -93,6 +92,7 @@ const ProductList = () => {
             key: 'name',
             ellipsis: true,
             render: (value: Brand) => <p>{value?.name}</p>,
+            width: 100,
         },
         {
             title: 'Category',
@@ -100,6 +100,7 @@ const ProductList = () => {
             key: 'name',
             ellipsis: true,
             render: (value: Category) => <p>{value?.name}</p>,
+            width: 100,
         },
         {
             title: 'Size',
@@ -117,6 +118,7 @@ const ProductList = () => {
             title: 'Sold Quantity',
             dataIndex: 'sold_quantity',
             key: 'sold_quantity',
+            width: 100,
         },
         {
             title: 'Original Price',
@@ -153,19 +155,12 @@ const ProductList = () => {
                     </Tag>
                 );
             },
-        },
-        {
-            title: 'Create At',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            ellipsis: true,
-            render: (value: string) => (
-                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
-            ),
+            width: 100,
         },
         {
             title: 'Actions',
             key: 'actions',
+            width: 150,
             render: (_: undefined, record: Product) => (
                 <Space>
                     <ProductFormModal

@@ -567,6 +567,7 @@ const ProductFormModal: React.FC<Props> = ({
                                     beforeUpload={() => false}
                                     listType="picture-card"
                                     maxCount={8}
+                                    multiple
                                 >
                                     <button
                                         style={{
