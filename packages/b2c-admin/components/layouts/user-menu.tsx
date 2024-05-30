@@ -3,12 +3,23 @@ import type { MenuProps } from 'antd';
 import { Dropdown } from 'antd';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/router';
 
 type Props = {
     title: string;
 };
 
 const Header: React.FC<Props> = ({ title }) => {
+    const router = useRouter();
+
+    const logOut = () => {
+        Cookies.remove('cmsUser');
+        setTimeout(() => {
+            router.reload();
+        }, 200);
+    };
+
     const items: MenuProps['items'] = [
         {
             key: '1',
@@ -16,7 +27,15 @@ const Header: React.FC<Props> = ({ title }) => {
         },
         {
             key: '2',
-            label: <p className="text-rose-500">Logout</p>,
+            label: (
+                <button
+                    className="text-rose-500"
+                    onClick={logOut}
+                    type="button"
+                >
+                    Log out
+                </button>
+            ),
         },
     ];
 
