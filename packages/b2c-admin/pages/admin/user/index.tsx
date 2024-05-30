@@ -19,8 +19,8 @@ import { useState } from 'react';
 import { Moment } from 'moment';
 import Header from '~/components/header';
 import { User } from '~/types/user';
-import DeleteUserModal from './delete-user-modal';
-import UserFormModal from './user-form-modal';
+import DeleteUserModal from '../../../components/admin/user/delete-user-modal';
+import UserFormModal from '../../../components/admin/user/user-form-modal';
 
 interface DataType {
     key: string;
