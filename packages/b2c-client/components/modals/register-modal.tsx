@@ -22,19 +22,23 @@ const RegisterModal = () => {
         onOpen();
     }, [onClose, onOpen]);
 
-    const { mutate: verifyEmail } = useMutation({
-        mutationFn: async (email: string) => {
-            return request.post(`/auth/verify-email/${email}`);
-        },
-        onSuccess: (res) => {
-            toast.success(res.data.message);
-        },
-        onError: (error: AxiosError<AxiosResponse<{ message: string }>>) => {
-            toast.error(
-                (error.response?.data as unknown as { message: string }).message
-            );
-        },
-    });
+    const { mutate: verifyEmail, isPending: verifyEmailIsPending } =
+        useMutation({
+            mutationFn: async (email: string) => {
+                return request.post(`/auth/verify-email/${email}`);
+            },
+            onSuccess: (res) => {
+                toast.success(res.data.message);
+            },
+            onError: (
+                error: AxiosError<AxiosResponse<{ message: string }>>
+            ) => {
+                toast.error(
+                    (error.response?.data as unknown as { message: string })
+                        .message
+                );
+            },
+        });
 
     const {
         mutate: registerUser,
@@ -98,7 +102,9 @@ const RegisterModal = () => {
             </div>
             <Form
                 className="no-scrollbar max-h-[40vh] overflow-auto"
-                disabled={registerUserIsPending || loading}
+                disabled={
+                    loading || registerUserIsPending || verifyEmailIsPending
+                }
                 form={form}
                 layout="vertical"
                 onFinish={onFinish}
@@ -238,7 +244,7 @@ const RegisterModal = () => {
         <Modal
             actionLabel="Register"
             body={bodyContent}
-            disabled={loading}
+            disabled={loading || verifyEmailIsPending || registerUserIsPending}
             footer={footerContent}
             isOpen={isOpen}
             onClose={onClose}
