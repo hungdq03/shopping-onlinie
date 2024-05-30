@@ -12,7 +12,7 @@ export const getListCategoryManage = async (req: Request, res: Response) => {
         take: Number(pageSize),
         where: {
             name: {
-                contains: String(search),
+                contains: search ? String(search) : undefined,
             },
         },
     };
@@ -21,7 +21,7 @@ export const getListCategoryManage = async (req: Request, res: Response) => {
         const total = await db.category.count({
             where: {
                 name: {
-                    contains: String(search || ''),
+                    contains: search ? String(search) : undefined,
                 },
             },
         });

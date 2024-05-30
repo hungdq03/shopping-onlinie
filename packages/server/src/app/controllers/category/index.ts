@@ -8,7 +8,7 @@ export const getListCategory = async (req: Request, res: Response) => {
         const listCategory = await db.category.findMany({
             where: {
                 name: {
-                    contains: String(search ?? ''),
+                    contains: search ? String(search) : undefined,
                 },
             },
             select: {

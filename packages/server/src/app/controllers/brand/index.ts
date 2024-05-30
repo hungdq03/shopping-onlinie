@@ -8,7 +8,7 @@ export const getListBrand = async (req: Request, res: Response) => {
         const listBrand = await db.brand.findMany({
             where: {
                 name: {
-                    contains: String(search ?? ''),
+                    contains: search ? String(search) : undefined,
                 },
             },
             select: {
