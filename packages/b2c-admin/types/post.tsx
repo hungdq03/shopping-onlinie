@@ -2,6 +2,7 @@ export type Post = {
     id?: string | null;
     title?: string | null;
     description?: string | null;
+    briefInfo?: string | null;
     productId?: string | null;
     thumbnail?: string | null;
     isShow?: boolean | null;

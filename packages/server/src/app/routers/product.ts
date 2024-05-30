@@ -13,21 +13,26 @@ export default (router: Router) => {
     // Auth route
     router.get(
         '/manage/product',
-        isAuthenticated,
-        isMarketer,
+        // isAuthenticated,
+        // isMarketer,
         getListProductManage
     );
-    router.post('/product/create', isAuthenticated, isMarketer, createProduct);
+    router.post(
+        '/product/create',
+        // isAuthenticated,
+        // isMarketer,
+        createProduct
+    );
     router.get(
         '/manage/product/:id',
-        isAuthenticated,
-        isMarketer,
+        // isAuthenticated,
+        // isMarketer,
         getProductById
     );
     router.put(
         '/product/update/:id',
-        isAuthenticated,
-        isMarketer,
+        // isAuthenticated,
+        // isMarketer,
         updateProduct
     );
     // router.delete('/brand/delete/:id', deleteBrand);

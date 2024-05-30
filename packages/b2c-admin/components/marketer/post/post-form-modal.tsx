@@ -31,6 +31,7 @@ type Props = {
 type FormType = {
     title: string | null;
     description?: string | null;
+    briefInfo?: string | null;
     productId: string | null;
     isShow: boolean | null;
     thumbnail: string | null;
@@ -43,6 +44,7 @@ type PostRequestType = {
     productId: string | null;
     isShow: boolean | null;
     thumbnail: string | null;
+    briefInfo?: string | null;
 };
 
 const PostFormModal: React.FC<Props> = ({
@@ -129,6 +131,7 @@ const PostFormModal: React.FC<Props> = ({
                 title: postInfo?.data?.title,
                 isShow: postInfo?.data?.isShow,
                 description: postInfo?.data?.description,
+                briefInfo: postInfo?.data?.briefInfo,
                 productId: postInfo?.data?.productId,
                 thumbnailList: postInfo?.data?.thumbnail
                     ? [
@@ -183,8 +186,7 @@ const PostFormModal: React.FC<Props> = ({
 
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
         // eslint-disable-next-line @typescript-eslint/no-shadow
-        const { title, description, productId, isShow } = values;
-
+        const { title, description, productId, isShow, briefInfo } = values;
         if (type === 'CREATE') {
             const thumbnailList = values?.thumbnailList?.map(
                 (file) => file.originFileObj
@@ -198,6 +200,7 @@ const PostFormModal: React.FC<Props> = ({
                 title,
                 isShow,
                 description,
+                briefInfo,
                 productId,
                 thumbnail: thumbnailListResponse?.[0] ?? '',
             });
@@ -217,6 +220,7 @@ const PostFormModal: React.FC<Props> = ({
                 title,
                 isShow,
                 description,
+                briefInfo,
                 productId,
                 thumbnail: newThumbnail?.[0] ?? '',
             };
@@ -299,6 +303,19 @@ const PostFormModal: React.FC<Props> = ({
                                     </Select>
                                 </Form.Item>
                             </div>
+                            <Form.Item<FormType>
+                                label="Brief Infomation"
+                                name="briefInfo"
+                                rules={[
+                                    {
+                                        max: 1000,
+                                        message:
+                                            'Brief Infomation must be less than 100 characters!',
+                                    },
+                                ]}
+                            >
+                                <Input.TextArea rows={5} />
+                            </Form.Item>
                             <Form.Item<FormType>
                                 label="Description"
                                 name="description"

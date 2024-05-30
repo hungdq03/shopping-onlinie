@@ -47,6 +47,13 @@ export const getPostById = async (req: Request, res: Response) => {
             where: {
                 id,
             },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+            },
         });
 
         return res.status(201).json({

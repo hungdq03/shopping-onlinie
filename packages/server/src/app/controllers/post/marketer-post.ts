@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { jwtDecode } from 'jwt-decode';
-import { db } from '../../../lib/db';
-import { PAGE_SIZE } from '../../../constant';
-import { getToken } from '../../../lib/utils';
 import { TokenDecoded } from '../../../types';
+import { getToken } from '../../../lib/utils';
+import { PAGE_SIZE } from '../../../constant';
+import { db } from '../../../lib/db';
 
 type PostFilter = {
     productId?: string;
@@ -161,7 +161,7 @@ export const createPost = async (req: Request, res: Response) => {
                 productId,
                 thumbnail,
                 isShow,
-                brief_info: briefInfo,
+                briefInfo,
                 userId: tokenDecoded.id,
             },
         });
@@ -192,7 +192,7 @@ export const updatePost = async (req: Request, res: Response) => {
                 productId,
                 thumbnail,
                 isShow,
-                brief_info: briefInfo,
+                briefInfo,
             },
         });
 
