@@ -71,7 +71,7 @@ export const getListBrandManage = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -91,7 +91,7 @@ export const createBrand = async (req: Request, res: Response) => {
             message: 'Create new brand successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -115,7 +115,7 @@ export const updateBrand = async (req: Request, res: Response) => {
             message: 'Update brand successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -135,6 +135,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
             message: 'Delete brand successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

@@ -170,7 +170,7 @@ export const getListSliderManage = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -194,7 +194,7 @@ export const createSlider = async (req: Request, res: Response) => {
             message: 'Create new slider successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -222,7 +222,7 @@ export const updateSlider = async (req: Request, res: Response) => {
             message: 'Update slider successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -242,6 +242,6 @@ export const deleteSlider = async (req: Request, res: Response) => {
             message: 'Delete slider successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

@@ -71,7 +71,7 @@ export const getListCategoryManage = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -91,7 +91,7 @@ export const createCategory = async (req: Request, res: Response) => {
             message: 'Create new category successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -115,7 +115,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             message: 'Update category successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -135,6 +135,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
             message: 'Delete category successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

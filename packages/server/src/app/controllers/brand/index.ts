@@ -27,7 +27,7 @@ export const getListBrand = async (req: Request, res: Response) => {
             params: search,
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -47,6 +47,6 @@ export const getBrandById = async (req: Request, res: Response) => {
             message: 'Get brand successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

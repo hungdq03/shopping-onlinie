@@ -22,6 +22,6 @@ export const getListProductSelect = async (req: Request, res: Response) => {
             params: search,
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };

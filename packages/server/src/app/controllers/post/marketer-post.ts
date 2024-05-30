@@ -141,7 +141,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
             },
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -193,7 +193,7 @@ export const updatePost = async (req: Request, res: Response) => {
             message: 'Update post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
 
@@ -213,6 +213,6 @@ export const deletePost = async (req: Request, res: Response) => {
             message: 'Delete post successfully!',
         });
     } catch (error) {
-        return res.send(500);
+        return res.sendStatus(500);
     }
 };
