@@ -107,6 +107,7 @@ const ProductList = () => {
             dataIndex: 'size',
             key: 'size',
             width: 80,
+            render: (value: string) => <p>{value} ML</p>,
         },
         {
             title: 'Quantity',
