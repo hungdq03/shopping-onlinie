@@ -21,7 +21,14 @@ declare module '@tanstack/react-query' {
     }
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 3,
+            retryDelay: () => 1500,
+        },
+    },
+});
 
 export type NextPageWithLayout<P = Record<string, never>, IP = P> = NextPage<
     P,

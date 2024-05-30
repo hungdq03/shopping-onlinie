@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { isAuthenticated, isMarketer } from '../../middlewares';
 import {
     createProduct,
+    deleteProductById,
     getListProductManage,
     getProductById,
     updateProduct,
@@ -30,7 +31,12 @@ export default (router: Router) => {
         isMarketer,
         updateProduct
     );
-    // router.delete('/brand/delete/:id', deleteBrand);
+    router.delete(
+        '/product/delete/:id',
+        isAuthenticated,
+        isMarketer,
+        deleteProductById
+    );
 
     // Public route
     router.get('/product/select', getListProductSelect);
