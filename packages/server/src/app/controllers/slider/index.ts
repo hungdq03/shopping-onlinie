@@ -1,44 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../../../lib/db';
 
-export const getListSlider = async (req: Request, res: Response) => {
-    const { search } = req.query;
-
-    try {
-        const listSlider = await db.slider.findMany({
-            where: {
-                title: {
-                    contains: String(search ?? ''),
-                },
-            },
-            select: {
-                id: true,
-                title: true,
-                description: true,
-                product: {
-                    select: {
-                        name: true,
-                    },
-                },
-                image: true,
-                isShow: true,
-            },
-            orderBy: {
-                title: 'asc',
-            },
-        });
-
-        return res.status(201).json({
-            isOk: true,
-            data: listSlider,
-            message: 'Get list slider successfully!',
-            params: search,
-        });
-    } catch (error) {
-        return res.sendStatus(500);
-    }
-};
-
 export const getSliderById = async (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -52,6 +14,31 @@ export const getSliderById = async (req: Request, res: Response) => {
             isOk: true,
             data: slider,
             message: 'Get slider successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const getListSliderSelect = async (req: Request, res: Response) => {
+    const { search } = req.query;
+
+    try {
+        const listProduct = await db.product.findMany({
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: listProduct,
+            message: 'Get list Slider successfully!',
+            params: search,
         });
     } catch (error) {
         return res.sendStatus(500);
