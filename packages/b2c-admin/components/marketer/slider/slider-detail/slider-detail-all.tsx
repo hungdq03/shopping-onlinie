@@ -9,11 +9,7 @@ type InfoItemProps = {
     value?: string | number | boolean | null;
 };
 
-const InfoItem: React.FC<InfoItemProps> = ({
-    title,
-    value,
-    render,
-}) => {
+const InfoItem: React.FC<InfoItemProps> = ({ title, value, render }) => {
     const renderValue = useMemo(() => {
         switch (render) {
             case 'IMAGE':
@@ -46,7 +42,12 @@ const SliderDetailAll: React.FC<{ data?: Slider }> = ({ data }) => {
             <InfoItem title="Slider ID" value={data?.id} />
             <InfoItem title="Title" value={data?.title} />
             <InfoItem title="Description" value={data?.description} />
-            <InfoItem key="image" render="IMAGE" title="Image" value={data?.image} />
+            <InfoItem
+                key="image"
+                render="IMAGE"
+                title="Image"
+                value={data?.image}
+            />
             <InfoItem
                 key="createdAt"
                 title="Create At"
@@ -63,10 +64,7 @@ const SliderDetailAll: React.FC<{ data?: Slider }> = ({ data }) => {
                     moment(data?.updatedAt).format('YYYY-MMM-DD')
                 }
             />
-            <InfoItem 
-                title="Status" 
-                value={data?.isShow ? 'show' : 'hide'} 
-            />
+            <InfoItem title="Status" value={data?.isShow ? 'show' : 'hide'} />
         </div>
     );
 };
