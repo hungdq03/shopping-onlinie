@@ -297,7 +297,7 @@ export const createUser = async (req: Request, res: Response) => {
         Perfume shop.`;
 
     await sendMail({
-        to: 'hung2k3vn@gmail.com',
+        to: user.email,
         subject,
         title,
         mainContent,

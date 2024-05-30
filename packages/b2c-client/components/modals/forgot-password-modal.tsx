@@ -84,7 +84,7 @@ const ForgotPasswordModal: React.FC = () => {
             <div className="mt-4 text-center font-light text-neutral-500">
                 <div className="flex flex-col items-center justify-center gap-2">
                     <div className="flex-row">
-                        <div>First time shopping with us?</div>
+                        {/* <div>First time shopping with us?</div> */}
                     </div>
                 </div>
             </div>
