@@ -28,13 +28,13 @@ const Header: React.FC<Props> = ({ title }) => {
         {
             key: '2',
             label: (
-                <button
+                <div
                     className="text-rose-500"
                     onClick={logOut}
-                    type="button"
+                    role="presentation"
                 >
                     Log out
-                </button>
+                </div>
             ),
         },
     ];
