@@ -7,10 +7,11 @@ import { AxiosError } from 'axios';
 import Header from '~/components/header';
 import { Product } from '~/types/product';
 import ProductDetailAll from './product-detail-all';
+import ProductFormModal from '../product-form-modal';
 
 const ProductDetail = () => {
     const { query } = useRouter();
-    const { data, isLoading, error } = useQuery<
+    const { data, isLoading, error, refetch } = useQuery<
         Product,
         AxiosError<{
             isOk?: boolean | null;
@@ -40,7 +41,19 @@ const ProductDetail = () => {
             <div>
                 <Header isBack title="Product detail" />
                 <div>
-                    <ProductDetailAll data={data} />
+                    <div className="flex justify-end px-5 py-2">
+                        <ProductFormModal
+                            productId={String(query?.id) ?? ''}
+                            reload={() => {
+                                refetch();
+                            }}
+                            title="Update product"
+                            type="UPDATE_BUTTON"
+                        />
+                    </div>
+                    <div>
+                        <ProductDetailAll data={data} />
+                    </div>
                 </div>
             </div>
         </Spin>
