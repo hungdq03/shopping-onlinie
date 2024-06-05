@@ -1,24 +1,33 @@
+/* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
     Button,
     Form,
     FormProps,
+    Image,
     Input,
     Pagination,
     Rate,
     Select,
     Space,
     Spin,
+    Switch,
     Table,
+    TableColumnsType,
+    TableProps,
     Tag,
     Tooltip,
 } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
-import { FILTER_LIST, PAGE_SIZE, RATING_LIST } from 'common/constant';
+import { PAGE_SIZE, RATING_LIST } from 'common/constant';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import { currencyFormatter } from 'common/utils/formatter';
 import Link from 'next/link';
+import { getImageUrl } from 'common/utils/getImageUrl';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+import { getSortOrder } from 'common/utils/getSortOrder';
 import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
@@ -29,7 +38,6 @@ type FormType = {
     categoryId?: string;
     search?: string;
     rating?: string;
-    sortBy?: string;
     isShow?: boolean;
 };
 
@@ -38,11 +46,18 @@ type SearchParams = FormType & {
     currentPage?: number;
 };
 
+type OnChange = NonNullable<TableProps<FormType>['onChange']>;
+
+type GetSingle<T> = T extends (infer U)[] ? U : never;
+
+type Sorts = GetSingle<Parameters<OnChange>[2]>;
+
 const ProductList = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
         currentPage: 1,
     });
+    const [sortedInfo, setSortedInfo] = useState<Sorts>({});
 
     const { data: categories, isLoading: categoryLoading } = useQuery({
         queryKey: ['category'],
@@ -52,7 +67,6 @@ const ProductList = () => {
         queryKey: ['brand'],
         queryFn: () => request.get('brand').then((res) => res.data),
     });
-
     const {
         data: listProduct,
         isLoading: productLoading,
@@ -61,71 +75,107 @@ const ProductList = () => {
         queryKey: ['product'],
         queryFn: () =>
             request
-                .get('manage/product', { params: { ...searchParams } })
+                .get('manage/product', {
+                    params: {
+                        ...searchParams,
+                        orderName: sortedInfo?.field,
+                        order: getSortOrder(sortedInfo?.order),
+                    },
+                })
                 .then((res) => res.data),
     });
+    const { mutate: updateProductStatusTrigger } = useMutation({
+        mutationFn: ({
+            productId,
+            isShow,
+        }: {
+            productId: string;
+            isShow: boolean;
+        }) => {
+            return request
+                .put(`product/updateStatus/${productId}`, { isShow })
+                .then((res) => res.data);
+        },
+        onSuccess: (res) => toast.success(res.message),
+        onError: (
+            error: AxiosError<{
+                isOk?: boolean | null;
+                message?: string | null;
+            }>
+        ) => toast.error(error.response?.data.message),
+    });
 
-    const columns = [
+    const columns: TableColumnsType<Product> = [
         {
-            title: 'Index',
+            title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            render: (id: string, record: Product, index: number) => {
-                return (
-                    index +
-                    1 +
-                    ((searchParams?.currentPage ?? 1) - 1) *
-                        (searchParams?.pageSize ?? 0)
-                );
-            },
-            width: 70,
+            ellipsis: true,
+            width: 180,
+            fixed: 'left',
         },
         {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
             ellipsis: true,
+            fixed: 'left',
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'name' ? sortedInfo.order : null,
         },
         {
             title: 'Brand',
             dataIndex: 'brand',
-            key: 'name',
+            key: 'brand',
             ellipsis: true,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'brand' ? sortedInfo.order : null,
             render: (value: Brand) => <p>{value?.name}</p>,
-            width: 100,
+            width: 150,
         },
         {
             title: 'Category',
             dataIndex: 'category',
-            key: 'name',
+            key: 'category',
             ellipsis: true,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'category' ? sortedInfo.order : null,
             render: (value: Category) => <p>{value?.name}</p>,
             width: 100,
-        },
-        {
-            title: 'Size',
-            dataIndex: 'size',
-            key: 'size',
-            width: 80,
-            render: (value: string) => <p>{value} ML</p>,
         },
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
             width: 100,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'quantity' ? sortedInfo.order : null,
         },
         {
             title: 'Sold Quantity',
             dataIndex: 'sold_quantity',
             key: 'sold_quantity',
             width: 100,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'sold_quantity'
+                    ? sortedInfo.order
+                    : null,
         },
         {
             title: 'Original Price',
             dataIndex: 'original_price',
             key: 'original_price',
             width: 150,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'original_price'
+                    ? sortedInfo.order
+                    : null,
             render: (value: number) =>
                 value && <p>{currencyFormatter(value)}</p>,
         },
@@ -135,6 +185,11 @@ const ProductList = () => {
             key: 'discount_price',
             ellipsis: true,
             width: 150,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'discount_price'
+                    ? sortedInfo.order
+                    : null,
             render: (value: number) =>
                 value && <p>{currencyFormatter(value)}</p>,
         },
@@ -143,25 +198,60 @@ const ProductList = () => {
             dataIndex: 'rating',
             key: 'rating',
             width: 180,
-            render: (value: number) => <Rate disabled value={value ?? 0} />,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'rating' ? sortedInfo.order : null,
+            render: (value: number) => (
+                <Rate className="text-md" disabled value={value ?? 0} />
+            ),
+        },
+
+        {
+            title: 'Thumbnail',
+            dataIndex: 'thumbnail',
+            key: 'thumbnail',
+            width: 150,
+            align: 'center',
+            render: (value: string) => (
+                <Image height={80} src={getImageUrl(value)} width={80} />
+            ),
         },
         {
-            title: 'Show on Client',
+            title: 'Brief Info',
+            dataIndex: 'description',
+            key: 'description',
+            width: 200,
+            render: (value: string) => (
+                <div className="line-clamp-3">{value}</div>
+            ),
+        },
+        {
+            title: 'Status',
             dataIndex: 'isShow',
             key: 'isShow',
-            render: (value: boolean) => {
+            fixed: 'right',
+            render: (value: boolean, record: Product) => {
                 return (
-                    <Tag color={value ? 'blue' : 'red'}>
-                        {value ? 'SHOW' : 'HIDE'}
-                    </Tag>
+                    <Switch
+                        checkedChildren="Show"
+                        defaultChecked={value}
+                        onChange={(checked: boolean) => {
+                            updateProductStatusTrigger({
+                                productId: record?.id || '',
+                                isShow: checked,
+                            });
+                        }}
+                        unCheckedChildren="Hide"
+                    />
                 );
             },
-            width: 100,
+            width: 120,
         },
         {
             title: 'Actions',
             key: 'actions',
             width: 150,
+            fixed: 'right',
             render: (_: undefined, record: Product) => (
                 <Space>
                     <ProductFormModal
@@ -203,6 +293,17 @@ const ProductList = () => {
         });
     };
 
+    const handleTableChange: TableProps<Product>['onChange'] = (
+        pagination,
+        filters,
+        sorter
+    ) => {
+        setSortedInfo(sorter as Sorts);
+        setTimeout(() => {
+            refetch();
+        }, 500);
+    };
+
     return (
         <Spin spinning={categoryLoading || brandLoading || productLoading}>
             <Header title="Manage Product" />
@@ -240,7 +341,7 @@ const ProductList = () => {
                                 showSearch
                             />
                         </Form.Item>
-                        <Form.Item<FormType> label="Name" name="search">
+                        <Form.Item<FormType> label="Search" name="search">
                             <Input.Search placeholder="Enter product name..." />
                         </Form.Item>
                         <Form.Item<FormType> label="Rate" name="rating">
@@ -271,18 +372,6 @@ const ProductList = () => {
                                 </Select.Option>
                             </Select>
                         </Form.Item>
-                        <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear placeholder="Choose a filter...">
-                                {FILTER_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
                     </div>
                     <Form.Item>
                         <Button
@@ -306,10 +395,14 @@ const ProductList = () => {
             </div>
             <div>
                 <Table
+                    bordered
                     columns={columns}
                     dataSource={listProduct?.data}
+                    onChange={handleTableChange}
                     pagination={false}
                     rowKey="id"
+                    scroll={{ x: 2000 }}
+                    size="small"
                     tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
