@@ -2401,6 +2401,7 @@ __metadata:
     next-plugin-antd-less: "npm:^1.8.0"
     next-transpile-modules: "npm:^10.0.1"
     nodemailer: "npm:^6.9.13"
+    postcss-antd-fixes: "npm:^0.2.0"
     prettier: "npm:^3.2.5"
     prettier-plugin-tailwindcss: "npm:^0.5.12"
     react-toastify: "npm:^10.0.5"
@@ -6086,6 +6087,15 @@ __metadata:
   version: 1.0.0
   resolution: "possible-typed-array-names@npm:1.0.0"
   checksum: d9aa22d31f4f7680e20269db76791b41c3a32c01a373e25f8a4813b4d45f7456bfc2b6d68f752dc4aab0e0bb0721cb3d76fb678c9101cb7a16316664bc2c73fd
+  languageName: node
+  linkType: hard
+
+"postcss-antd-fixes@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "postcss-antd-fixes@npm:0.2.0"
+  peerDependencies:
+    postcss: ^8.0.0
+  checksum: ebc3fe9282ff5003c380acb6f227d9be506b72eceb5c0331fc4ad3155f3e25e4789f369a5b85414f04bc9347a89d9fc02cd0312fa03d146cd8eb622c69a4606c
   languageName: node
   linkType: hard
 

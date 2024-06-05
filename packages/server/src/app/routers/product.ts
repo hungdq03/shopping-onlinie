@@ -7,6 +7,7 @@ import {
     getListProductManage,
     getProductById,
     updateProduct,
+    updateProductStatus,
 } from '../controllers/product/cms-product';
 import { getListProductSelect } from '../controllers/product';
 
@@ -14,8 +15,8 @@ export default (router: Router) => {
     // Auth route
     router.get(
         '/manage/product',
-        isAuthenticated,
-        isMarketer,
+        // isAuthenticated,
+        // isMarketer,
         getListProductManage
     );
     router.post('/product/create', isAuthenticated, isMarketer, createProduct);
@@ -36,6 +37,12 @@ export default (router: Router) => {
         isAuthenticated,
         isMarketer,
         deleteProductById
+    );
+    router.put(
+        '/product/updateStatus/:id',
+        isAuthenticated,
+        isMarketer,
+        updateProductStatus
     );
 
     // Public route

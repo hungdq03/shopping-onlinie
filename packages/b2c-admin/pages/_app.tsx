@@ -103,7 +103,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
     return (
         <QueryClientProvider client={queryClient}>
             <Spin fullscreen spinning={loading} />
-            <ToastContainer />
+            <ToastContainer autoClose={2000} />
             {getLayout(<Component {...pageProps} />)}
         </QueryClientProvider>
     );

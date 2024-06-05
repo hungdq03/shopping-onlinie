@@ -25,7 +25,7 @@ import { dropListFiles } from 'common/utils/dropListFiles';
 import { Brand, Category, ResponseProductById } from '~/types/product';
 
 type Props = {
-    type: 'CREATE' | 'UPDATE';
+    type: 'CREATE' | 'UPDATE' | 'UPDATE_BUTTON';
     title: string;
     reload: () => void;
     productId?: string;
@@ -199,6 +199,16 @@ const ProductFormModal: React.FC<Props> = ({
                         />
                     </Tooltip>
                 );
+            case 'UPDATE_BUTTON':
+                return (
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => setIsOpenModal(true)}
+                        type="primary"
+                    >
+                        Edit
+                    </Button>
+                );
             default:
                 return null;
         }
@@ -261,7 +271,7 @@ const ProductFormModal: React.FC<Props> = ({
             });
         }
 
-        if (type === 'UPDATE' && productId) {
+        if ((type === 'UPDATE' || type === 'UPDATE_BUTTON') && productId) {
             const { filesUploaded, fileNotUpload } = dropListFiles(
                 values.productImageList ?? []
             );

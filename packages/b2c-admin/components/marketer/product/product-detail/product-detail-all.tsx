@@ -89,6 +89,10 @@ const ProductDetailAll: React.FC<Props> = ({ data }) => {
                     currencyFormatter(data?.discount_price)
                 }
             />
+            <InfoItem
+                title="Show on Client"
+                value={data?.isShow ? 'SHOW' : 'HIDE'}
+            />
             <InfoItem title="Quantity" value={data?.quantity} />
             <InfoItem title="Sold Quantity" value={data?.sold_quantity} />
             <InfoItem render="RATE" title="Rating" value={data?.rating} />
