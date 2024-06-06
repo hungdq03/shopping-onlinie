@@ -4,50 +4,41 @@ import {
     Button,
     Form,
     FormProps,
+    Image,
     Input,
     Pagination,
     Select,
     Space,
     Spin,
+    Switch,
     Table,
+    TableColumnsType,
+    TableProps,
     Tag,
     Tooltip,
 } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
 import { PAGE_SIZE } from 'common/constant';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import Link from 'next/link';
+import { getImageUrl } from 'common/utils/getImageUrl';
+import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+import { getSortOrder } from 'common/utils/getSortOrder';
 import PostFormModal from './post-form-modal';
 import DeletePostFormModal from './delete-post-form-modal';
-import { Post, Product } from '~/types/post';
+import { Category, Post, User } from '~/types/post';
 import Header from '~/components/header';
-
-const FILTER_LIST = [
-    {
-        id: 'LATEST',
-        name: 'Latest: Create Date',
-    },
-    {
-        id: 'OLDEST',
-        name: 'Oldest: Create Date',
-    },
-    {
-        id: 'TITLE_A_TO_Z',
-        name: 'Title: A to Z',
-    },
-    {
-        id: 'TiTLE_Z_TO_A',
-        name: 'Title: Z to A',
-    },
-];
 
 type FormType = {
     search?: string;
     sortBy?: string;
     productId?: string;
     isShow?: boolean;
+    categoryId?: string;
+    userId?: string;
 };
 
 type SearchParams = FormType & {
@@ -55,15 +46,33 @@ type SearchParams = FormType & {
     currentPage?: number;
 };
 
+type OnChange = NonNullable<TableProps<FormType>['onChange']>;
+
+type GetSingle<T> = T extends (infer U)[] ? U : never;
+
+type Sorts = GetSingle<Parameters<OnChange>[2]>;
+
 const PostList = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
         currentPage: 1,
     });
 
-    const { data: products, isLoading: productLoading } = useQuery({
-        queryKey: ['/product/select'],
-        queryFn: () => request.get('/product/select').then((res) => res.data),
+    const [sortedInfo, setSortedInfo] = useState<Sorts>({});
+
+    const { data: categories, isLoading: categoryLoading } = useQuery({
+        queryKey: ['category'],
+        queryFn: () => request.get('category').then((res) => res.data),
+    });
+
+    const { data: users, isLoading: userLoading } = useQuery({
+        queryKey: ['listUser'],
+        queryFn: () =>
+            request
+                .get('marketers', {
+                    params: { ...searchParams },
+                })
+                .then((res) => res.data),
     });
 
     const {
@@ -74,49 +83,112 @@ const PostList = () => {
         queryKey: ['post'],
         queryFn: () =>
             request
-                .get('manage/post', { params: { ...searchParams } })
+                .get('manage/post', {
+                    params: {
+                        ...searchParams,
+                        orderName: sortedInfo?.field,
+                        order: getSortOrder(sortedInfo?.order),
+                    },
+                })
                 .then((res) => res.data),
     });
 
-    const columns = [
+    const { mutate: updatePostStatusTrigger } = useMutation({
+        mutationFn: ({
+            postId,
+            isShow,
+        }: {
+            postId: string;
+            isShow: boolean;
+        }) => {
+            return request
+                .put(`post/updateStatus/${postId}`, { isShow })
+                .then((res) => res.data);
+        },
+        onSuccess: (res) => toast.success(res.message),
+        onError: (
+            error: AxiosError<{
+                isOk?: boolean | null;
+                message?: string | null;
+            }>
+        ) => toast.error(error.response?.data.message),
+    });
+
+    const columns: TableColumnsType<Post> = [
         {
-            title: 'Index',
+            title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            render: (id: string, record: Post, index: number) => {
-                return (
-                    index +
-                    1 +
-                    ((searchParams?.currentPage ?? 1) - 1) *
-                        (searchParams?.pageSize ?? 0)
-                );
-            },
+            ellipsis: true,
+            width: 100,
+            fixed: 'left',
         },
 
         {
             title: 'Title',
             dataIndex: 'title',
             key: 'title',
-            render: (_: any, record: Post) => <p>{record.title}</p>,
+            ellipsis: true,
+            fixed: 'left',
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'title' ? sortedInfo.order : null,
+            width: 100,
         },
         {
-            title: 'Product Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (_: any, record: Post) => <p>{record?.product?.name}</p>,
+            title: 'Thumbnail',
+            dataIndex: 'thumbnail',
+            key: 'thumbnail',
+            width: 150,
+            align: 'center',
+            render: (value: string) => (
+                <Image height={80} src={getImageUrl(value)} width={80} />
+            ),
         },
 
         {
-            title: 'Show on Client',
+            title: 'Category',
+            dataIndex: 'category',
+            key: 'category',
+            ellipsis: true,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'category' ? sortedInfo.order : null,
+            render: (value: Category) => <p>{value?.name}</p>,
+            width: 150,
+        },
+        {
+            title: 'Status',
             dataIndex: 'isShow',
             key: 'isShow',
-            render: (id: string, record: Post) => {
+            fixed: 'right',
+            render: (value: boolean, record: Post) => {
                 return (
-                    <Tag color={record?.isShow ? 'blue' : 'red'}>
-                        {record?.isShow ? 'SHOW' : 'HIDE'}
-                    </Tag>
+                    <Switch
+                        checkedChildren="Show"
+                        defaultChecked={value}
+                        onChange={(checked: boolean) => {
+                            updatePostStatusTrigger({
+                                postId: record?.id || '',
+                                isShow: checked,
+                            });
+                        }}
+                        unCheckedChildren="Hide"
+                    />
                 );
             },
+            width: 120,
+        },
+        {
+            title: 'Author',
+            dataIndex: 'user',
+            key: 'user',
+            ellipsis: true,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'user' ? sortedInfo.order : null,
+            render: (value: User) => <p>{value?.name}</p>,
+            width: 150,
         },
         {
             title: 'Create At',
@@ -128,6 +200,7 @@ const PostList = () => {
                         moment(record.createdAt).format('YYYY-MM-DD')}
                 </p>
             ),
+            width: 110,
         },
         {
             title: 'Update At',
@@ -139,10 +212,13 @@ const PostList = () => {
                         moment(record.updatedAt).format('YYYY-MM-DD')}
                 </p>
             ),
+            width: 110,
         },
         {
             title: 'Actions',
             key: 'actions',
+            width: 150,
+            fixed: 'right',
             render: (_: any, record: Post) => (
                 <Space size="middle">
                     <PostFormModal
@@ -178,8 +254,19 @@ const PostList = () => {
         });
     };
 
+    const handleTableChange: TableProps<Post>['onChange'] = (
+        pagination,
+        filters,
+        sorter
+    ) => {
+        setSortedInfo(sorter as Sorts);
+        setTimeout(() => {
+            refetch();
+        }, 500);
+    };
+
     return (
-        <Spin spinning={productLoading || postLoading}>
+        <Spin spinning={postLoading || categoryLoading || userLoading}>
             <Header title="Manage Post" />
             <div>
                 <Form
@@ -189,39 +276,38 @@ const PostList = () => {
                     wrapperCol={{ span: 18 }}
                 >
                     <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
-                        <Form.Item<FormType> label="Product" name="productId">
+                        <Form.Item<FormType> label="Category" name="categoryId">
                             <Select
                                 allowClear
                                 filterOption={filterOption}
-                                options={products?.data?.map(
-                                    (item: Product) => ({
-                                        value: item?.id,
-                                        label: item?.name,
+                                options={categories?.data?.map(
+                                    (item: Category) => ({
+                                        value: item.id,
+                                        label: item.name,
                                     })
                                 )}
+                                placeholder="Select a category..."
                                 showSearch
                             />
                         </Form.Item>
 
-                        <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear>
-                                {FILTER_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
+                        <Form.Item<FormType> label="Author" name="userId">
+                            <Select
+                                allowClear
+                                filterOption={filterOption}
+                                options={users?.data?.map((item: User) => ({
+                                    value: item.id,
+                                    label: item.name,
+                                }))}
+                                placeholder="Select a author..."
+                                showSearch
+                            />
                         </Form.Item>
-                        <Form.Item<FormType> label="Title" name="search">
-                            <Input />
+
+                        <Form.Item<FormType> label="Search" name="search">
+                            <Input.Search placeholder="Enter post title..." />
                         </Form.Item>
-                        <Form.Item<FormType>
-                            label="Show on client"
-                            name="isShow"
-                        >
+                        <Form.Item<FormType> label="Status" name="isShow">
                             <Select allowClear>
                                 <Select.Option value="true">
                                     <Tag color="blue">SHOW</Tag>
@@ -256,6 +342,7 @@ const PostList = () => {
                 <Table
                     columns={columns}
                     dataSource={listPost?.data}
+                    onChange={handleTableChange}
                     pagination={false}
                     rowKey="id"
                     tableLayout="fixed"

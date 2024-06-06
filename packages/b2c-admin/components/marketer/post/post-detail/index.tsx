@@ -7,11 +7,12 @@ import { AxiosError } from 'axios';
 import Header from '~/components/header';
 import { Post } from '~/types/post';
 import PostDetailAll from './post-detail-all';
+import PostFormModal from '../post-form-modal';
 
 const PostDetail = () => {
     const { query } = useRouter();
 
-    const { data, isLoading, error } = useQuery<
+    const { data, isLoading, error, refetch } = useQuery<
         Post,
         AxiosError<{
             isOk?: boolean | null;
@@ -42,7 +43,19 @@ const PostDetail = () => {
             <div>
                 <Header isBack title="Post detail" />
                 <div>
-                    <PostDetailAll data={data} />
+                    <div className="flex justify-end px-5 py-2">
+                        <PostFormModal
+                            postId={String(query?.id) ?? ''}
+                            reload={() => {
+                                refetch();
+                            }}
+                            title="Update product"
+                            type="UPDATE_BUTTON"
+                        />
+                    </div>
+                    <div>
+                        <PostDetailAll data={data} />
+                    </div>
                 </div>
             </div>
         </Spin>

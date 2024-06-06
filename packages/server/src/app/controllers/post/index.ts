@@ -15,7 +15,7 @@ export const getListPost = async (req: Request, res: Response) => {
                 id: true,
                 title: true,
                 description: true,
-                product: {
+                category: {
                     select: {
                         name: true,
                     },
@@ -53,7 +53,7 @@ export const getPostById = async (req: Request, res: Response) => {
                         name: true,
                     },
                 },
-                product: {
+                category: {
                     select: {
                         name: true,
                     },

@@ -94,7 +94,7 @@ model Product {
 
   product_image ProductImage[]
   slider Slider[]
-  post Post[]
+  
   feedback Feedback[]
   cart Cart[]
 
@@ -118,6 +118,7 @@ model Category {
   updatedAt DateTime @updatedAt
   
   product Product[]
+  post Post[]
 }
 
 model ProductImage {
@@ -155,17 +156,20 @@ model Post {
   title String
   description String? @db.Text
   briefInfo String? @db.Text
-  productId String
+  //productId String
   thumbnail String? @db.Text
   isShow Boolean @default(true)
   userId String 
+  categoryId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
-  @@index([productId])
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
+  //@@index([productId])
+  @@index([categoryId])
 }
 
 enum SLIDER_STATUS {
