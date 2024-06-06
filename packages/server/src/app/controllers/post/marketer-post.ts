@@ -6,14 +6,26 @@ import { PAGE_SIZE } from '../../../constant';
 import { db } from '../../../lib/db';
 
 type PostFilter = {
-    productId?: string;
     title?: string;
     isShow?: boolean;
+    categoryId?: string;
+    userId?: string;
 };
 
+type SortOrder = 'desc' | 'asc';
+
 export const getListPostManage = async (req: Request, res: Response) => {
-    const { search, pageSize, currentPage, sortBy, productId, title, isShow } =
-        req.query;
+    const {
+        search,
+        pageSize,
+        currentPage,
+        categoryId,
+        userId,
+        title,
+        isShow,
+        orderName,
+        order,
+    } = req.query;
 
     const pagination = {
         skip: (Number(currentPage ?? 1) - 1) * Number(pageSize ?? PAGE_SIZE),
@@ -23,11 +35,32 @@ export const getListPostManage = async (req: Request, res: Response) => {
     try {
         const whereClause: PostFilter = {};
 
-        if (productId) {
-            whereClause.productId = String(productId);
+        let orderBy:
+            | Record<string, SortOrder | Record<string, SortOrder>>
+            | undefined;
+
+        if (orderName && order) {
+            if (orderName === 'category' || orderName === 'user') {
+                orderBy = {
+                    [String(orderName)]: {
+                        name: order as SortOrder,
+                    },
+                };
+            } else {
+                orderBy = {
+                    [String(orderName)]: order as SortOrder,
+                };
+            }
+        }
+
+        if (categoryId) {
+            whereClause.categoryId = String(categoryId);
         }
         if (title) {
             whereClause.title = String(title);
+        }
+        if (userId) {
+            whereClause.userId = String(userId);
         }
         if (isShow) {
             whereClause.isShow = isShow === 'true';
@@ -36,7 +69,12 @@ export const getListPostManage = async (req: Request, res: Response) => {
         const select = {
             id: true,
             title: true,
-            product: {
+            category: {
+                select: {
+                    name: true,
+                },
+            },
+            user: {
                 select: {
                     name: true,
                 },
@@ -44,6 +82,8 @@ export const getListPostManage = async (req: Request, res: Response) => {
             createdAt: true,
             updatedAt: true,
             isShow: true,
+            thumbnail: true,
+            description: true,
         };
 
         const total = await db.post.count({
@@ -55,85 +95,19 @@ export const getListPostManage = async (req: Request, res: Response) => {
             },
         });
 
-        let listPost;
-
-        switch (sortBy) {
-            case 'LATEST':
-                listPost = await db.post.findMany({
-                    ...pagination,
-                    where: {
-                        title: {
-                            contains: String(search ?? ''),
-                        },
-                        ...whereClause,
-                    },
-                    orderBy: {
-                        createdAt: 'desc',
-                    },
-                    select,
-                });
-                break;
-            case 'OLDEST':
-                listPost = await db.post.findMany({
-                    ...pagination,
-                    where: {
-                        title: {
-                            contains: String(search ?? ''),
-                        },
-                        ...whereClause,
-                    },
-                    orderBy: {
-                        createdAt: 'asc',
-                    },
-                    select,
-                });
-                break;
-            case 'TITLE_A_TO_Z':
-                listPost = await db.post.findMany({
-                    ...pagination,
-                    where: {
-                        title: {
-                            contains: String(search ?? ''),
-                        },
-                        ...whereClause,
-                    },
-                    orderBy: {
-                        title: 'asc',
-                    },
-                    select,
-                });
-                break;
-            case 'TITLE_Z_TO_A':
-                listPost = await db.post.findMany({
-                    ...pagination,
-                    where: {
-                        title: {
-                            contains: String(search ?? ''),
-                        },
-                        ...whereClause,
-                    },
-                    orderBy: {
-                        title: 'desc',
-                    },
-                    select,
-                });
-                break;
-
-            default:
-                listPost = await prisma.post.findMany({
-                    ...pagination,
-                    where: {
-                        title: {
-                            contains: String(search ?? ''),
-                        },
-                        ...whereClause,
-                    },
-                    orderBy: {
-                        createdAt: 'desc',
-                    },
-                    select,
-                });
-        }
+        const listPost = await db.post.findMany({
+            ...pagination,
+            where: {
+                title: {
+                    contains: search ? String(search) : undefined,
+                },
+                ...whereClause,
+            },
+            orderBy: orderBy ?? {
+                createdAt: 'desc',
+            },
+            select,
+        });
 
         return res.status(200).json({
             isOk: true,
@@ -149,7 +123,7 @@ export const getListPostManage = async (req: Request, res: Response) => {
 };
 
 export const createPost = async (req: Request, res: Response) => {
-    const { title, description, productId, thumbnail, isShow, briefInfo } =
+    const { title, description, categoryId, thumbnail, isShow, briefInfo } =
         req.body;
     const accessToken = await getToken(req);
     const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
@@ -158,7 +132,7 @@ export const createPost = async (req: Request, res: Response) => {
             data: {
                 title,
                 description,
-                productId,
+                categoryId,
                 thumbnail,
                 isShow,
                 briefInfo,
@@ -178,7 +152,7 @@ export const createPost = async (req: Request, res: Response) => {
 
 export const updatePost = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { title, description, productId, thumbnail, isShow, briefInfo } =
+    const { title, description, categoryId, thumbnail, isShow, briefInfo } =
         req.body;
 
     try {
@@ -189,7 +163,7 @@ export const updatePost = async (req: Request, res: Response) => {
             data: {
                 title,
                 description,
-                productId,
+                categoryId,
                 thumbnail,
                 isShow,
                 briefInfo,
@@ -223,5 +197,54 @@ export const deletePost = async (req: Request, res: Response) => {
         });
     } catch (error) {
         return res.sendStatus(500);
+    }
+};
+
+export const updatePostStatus = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { isShow } = req.body;
+
+    try {
+        const post = await db.post.update({
+            where: {
+                id,
+            },
+            data: {
+                isShow,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: post,
+            message: 'Change post status successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const getListMaketer = async (req: Request, res: Response) => {
+    try {
+        const listMaketers = await db.user.findMany({
+            where: {
+                role: 'MARKETER',
+            },
+            select: {
+                id: true,
+                name: true,
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: listMaketers,
+            message: 'Get list marketers successfully!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
     }
 };

@@ -19,10 +19,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as request from 'common/utils/http-request';
 import { toast } from 'react-toastify';
 import { RcFile } from 'antd/es/upload';
-import { Product, ResponsePostById } from '~/types/post';
+import { Category, ResponsePostById } from '~/types/post';
 
 type Props = {
-    type: 'CREATE' | 'UPDATE';
+    type: 'CREATE' | 'UPDATE' | 'UPDATE_BUTTON';
     title: string;
     reload: () => void;
     postId?: string;
@@ -32,7 +32,7 @@ type FormType = {
     title: string | null;
     description?: string | null;
     briefInfo?: string | null;
-    productId: string | null;
+    categoryId: string | null;
     isShow: boolean | null;
     thumbnail: string | null;
     thumbnailList?: UploadFile[];
@@ -41,7 +41,7 @@ type FormType = {
 type PostRequestType = {
     title: string | null;
     description?: string | null;
-    productId: string | null;
+    categoryId: string | null;
     isShow: boolean | null;
     thumbnail: string | null;
     briefInfo?: string | null;
@@ -58,9 +58,9 @@ const PostFormModal: React.FC<Props> = ({
 
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
-    const { data: listProduct, isLoading: getListProductLoading } = useQuery({
-        queryKey: ['/product/select'],
-        queryFn: () => request.get('/product/select').then((res) => res.data),
+    const { data: listCategory, isLoading: getListCategoryLoading } = useQuery({
+        queryKey: ['category'],
+        queryFn: () => request.get('category').then((res) => res.data),
         enabled: isOpenModal,
     });
 
@@ -132,7 +132,7 @@ const PostFormModal: React.FC<Props> = ({
                 isShow: postInfo?.data?.isShow,
                 description: postInfo?.data?.description,
                 briefInfo: postInfo?.data?.briefInfo,
-                productId: postInfo?.data?.productId,
+                categoryId: postInfo?.data?.categoryId,
                 thumbnailList: postInfo?.data?.thumbnail
                     ? [
                           {
@@ -170,7 +170,16 @@ const PostFormModal: React.FC<Props> = ({
                         />
                     </Tooltip>
                 );
-
+            case 'UPDATE_BUTTON':
+                return (
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => setIsOpenModal(true)}
+                        type="primary"
+                    >
+                        Edit
+                    </Button>
+                );
             default:
                 return null;
         }
@@ -186,7 +195,7 @@ const PostFormModal: React.FC<Props> = ({
 
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
         // eslint-disable-next-line @typescript-eslint/no-shadow
-        const { title, description, productId, isShow, briefInfo } = values;
+        const { title, description, categoryId, isShow, briefInfo } = values;
         if (type === 'CREATE') {
             const thumbnailList = values?.thumbnailList?.map(
                 (file) => file.originFileObj
@@ -201,7 +210,7 @@ const PostFormModal: React.FC<Props> = ({
                 isShow,
                 description,
                 briefInfo,
-                productId,
+                categoryId,
                 thumbnail: thumbnailListResponse?.[0] ?? '',
             });
         }
@@ -221,7 +230,29 @@ const PostFormModal: React.FC<Props> = ({
                 isShow,
                 description,
                 briefInfo,
-                productId,
+                categoryId,
+                thumbnail: newThumbnail?.[0] ?? '',
+            };
+
+            updatePostTrigger(submitObj);
+        }
+
+        if (type === 'UPDATE_BUTTON' && postId) {
+            const newThumbnail =
+                values?.thumbnailList?.[0]?.status === 'done'
+                    ? [values?.thumbnailList?.[0]?.name]
+                    : await uploadFileTrigger(
+                          values?.thumbnailList?.map(
+                              (item) => item.originFileObj as RcFile
+                          ) ?? []
+                      ).then((res) => res?.imageUrls);
+
+            const submitObj = {
+                title,
+                isShow,
+                description,
+                briefInfo,
+                categoryId,
                 thumbnail: newThumbnail?.[0] ?? '',
             };
 
@@ -250,7 +281,7 @@ const PostFormModal: React.FC<Props> = ({
                 title={title}
                 width={800}
             >
-                <Spin spinning={getListProductLoading || getPostInfoLoading}>
+                <Spin spinning={getListCategoryLoading || getPostInfoLoading}>
                     <div className="max-h-[75vh] overflow-auto px-5">
                         <Form
                             disabled={
@@ -284,8 +315,8 @@ const PostFormModal: React.FC<Props> = ({
                             </Form.Item>
                             <div className="grid grid-cols-2 gap-x-10">
                                 <Form.Item<FormType>
-                                    label="Product"
-                                    name="productId"
+                                    label="Category"
+                                    name="categoryId"
                                     rules={[
                                         {
                                             required: true,
@@ -297,8 +328,8 @@ const PostFormModal: React.FC<Props> = ({
                                     <Select
                                         allowClear
                                         filterOption={filterOption}
-                                        options={listProduct?.data?.map(
-                                            (item: Product) => ({
+                                        options={listCategory?.data?.map(
+                                            (item: Category) => ({
                                                 value: item.id,
                                                 label: item.name,
                                             })
