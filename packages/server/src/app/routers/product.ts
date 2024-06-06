@@ -5,6 +5,7 @@ import {
     createProduct,
     deleteProductById,
     getListProductManage,
+    getPaginatedProducts,
     getProductById,
     updateProduct,
     updateProductStatus,
@@ -47,4 +48,5 @@ export default (router: Router) => {
 
     // Public route
     router.get('/product/select', getListProductSelect);
+    router.get('/products', getPaginatedProducts);
 };

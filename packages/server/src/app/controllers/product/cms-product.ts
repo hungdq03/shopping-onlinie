@@ -9,6 +9,26 @@ type ProductFilter = {
     rating?: number;
     isShow?: boolean;
 };
+export interface Product {
+    id: string;
+    name: string;
+    thumbnail?: string;
+    description?: string; // brief information
+    original_price: number;
+    discount_price?: number;
+    updatedAt: Date;
+}
+
+export interface PaginatedProductsResponse {
+    isOk: boolean;
+    data: Product[];
+    meta: {
+        total: number;
+        page: number;
+        totalPages: number;
+    };
+    message: string;
+}
 
 type SortOrder = 'desc' | 'asc';
 
@@ -317,5 +337,63 @@ export const updateProductStatus = async (req: Request, res: Response) => {
         });
     } catch (error) {
         return res.sendStatus(500);
+    }
+};
+export const getPaginatedProducts = async (req: Request, res: Response) => {
+    const { page = 1, limit = PAGE_SIZE, search = '' } = req.query;
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    try {
+        const [products, total] = await Promise.all([
+            db.product.findMany({
+                where: {
+                    name: {
+                        contains: search as string,
+                    },
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    thumbnail: true,
+                    description: true,
+                    original_price: true,
+                    discount_price: true,
+                    updatedAt: true,
+                },
+                orderBy: {
+                    updatedAt: 'desc',
+                },
+                skip,
+                take,
+            }),
+            db.product.count({
+                where: {
+                    name: {
+                        contains: search as string,
+                    },
+                },
+            }),
+        ]);
+
+        const totalPages = Math.ceil(total / Number(limit));
+
+        const response: PaginatedProductsResponse = {
+            isOk: true,
+            data: products,
+            meta: {
+                total,
+                page: Number(page),
+                totalPages,
+            },
+            message: 'Get list product successfully!',
+        };
+
+        return res.status(200).json(response);
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: 'Internal server error', error });
     }
 };
