@@ -10,16 +10,17 @@ export const isAuthenticated = (
     req: Request,
     res: Response,
     next: NextFunction
+    // eslint-disable-next-line consistent-return
 ) => {
     const accessToken = getToken(req);
 
     if (!accessToken) {
-        res.sendStatus(401);
+        return res.sendStatus(401);
     }
 
     jwt.verify(accessToken, TOKEN_KEY, (err) => {
         if (err) res.sendStatus(403);
-        next();
+        return next();
     });
 };
 
@@ -32,7 +33,7 @@ export const isMarketer = async (
     const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
 
     if (!accessToken) {
-        res.sendStatus(401);
+        return res.sendStatus(401);
     }
 
     const user = await db.user.findUnique({
@@ -42,10 +43,10 @@ export const isMarketer = async (
     });
 
     if (!user || user.role !== 'MARKETER') {
-        res.sendStatus(403);
+        return res.sendStatus(403);
     }
 
-    next();
+    return next();
 };
 
 export const isSeller = async (
@@ -57,7 +58,7 @@ export const isSeller = async (
     const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
 
     if (!accessToken) {
-        res.sendStatus(401);
+        return res.sendStatus(401);
     }
 
     const user = await db.user.findUnique({
@@ -67,10 +68,10 @@ export const isSeller = async (
     });
 
     if (!user || user.role !== 'SELLER') {
-        res.sendStatus(403);
+        return res.sendStatus(403);
     }
 
-    next();
+    return next();
 };
 
 export const isAdmin = async (
@@ -82,7 +83,7 @@ export const isAdmin = async (
     const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
 
     if (!accessToken) {
-        res.sendStatus(401);
+        return res.sendStatus(401);
     }
 
     const user = await db.user.findUnique({
@@ -92,8 +93,8 @@ export const isAdmin = async (
     });
 
     if (!user || user.role !== 'ADMIN') {
-        res.sendStatus(403);
+        return res.sendStatus(403);
     }
 
-    next();
+    return next();
 };

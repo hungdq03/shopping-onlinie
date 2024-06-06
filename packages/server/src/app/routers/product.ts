@@ -15,8 +15,8 @@ export default (router: Router) => {
     // Auth route
     router.get(
         '/manage/product',
-        // isAuthenticated,
-        // isMarketer,
+        isAuthenticated,
+        isMarketer,
         getListProductManage
     );
     router.post('/product/create', isAuthenticated, isMarketer, createProduct);
