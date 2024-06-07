@@ -1,33 +1,36 @@
-import React, { useState } from 'react';
+/* eslint-disable max-lines */
+import { SearchOutlined, SyncOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
     Button,
-    Flex,
     Form,
     FormProps,
+    Image,
     Input,
     Pagination,
     Select,
-    Space,
     Spin,
+    Switch,
     Table,
+    TableColumnsType,
+    TableProps,
     Tag,
-    Tooltip,
 } from 'antd';
-import { useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import { PAGE_SIZE } from 'common/constant';
+import { getImageUrl } from 'common/utils/getImageUrl';
+import { getSortOrder } from 'common/utils/getSortOrder';
 import * as request from 'common/utils/http-request';
-import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
-import moment from 'moment';
-import Link from 'next/link';
-import { FILTER_LIST, PAGE_SIZE } from 'common/constant';
-import SliderModal from './slider-modal';
-import { Product, Slider } from '~/types/slider';
+import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import Header from '~/components/header';
-import DeleteSliderFormModal from './delete-slider-modal';
+import { Slider } from '~/types/slider';
+import DeleteSliderAlert from './delete-slider-alert';
+import SliderFormModal from './slider-form-modal';
 
 type FormType = {
-    search?: string;
-    sortBy?: string;
-    productId?: string;
+    searchByTitle?: string;
+    searchByBacklink?: string;
     isShow?: boolean;
 };
 
@@ -35,122 +38,169 @@ type SearchParams = FormType & {
     pageSize?: number;
     currentPage?: number;
 };
-const ListSlider: React.FC = () => {
+
+type OnChange = NonNullable<TableProps<FormType>['onChange']>;
+
+type GetSingle<T> = T extends (infer U)[] ? U : never;
+
+type Sorts = GetSingle<Parameters<OnChange>[2]>;
+
+const SliderList = () => {
+    const [form] = Form.useForm();
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
         currentPage: 1,
     });
-
-    const { data: products, isLoading: productLoading } = useQuery({
-        queryKey: ['product'],
-        queryFn: () => request.get('manage/product').then((res) => res.data),
-    });
+    const [sortedInfo, setSortedInfo] = useState<Sorts>({});
 
     const {
         data: listSlider,
-        isLoading: sliderLoading,
+        isLoading: listSliderLoading,
         refetch,
     } = useQuery({
-        queryKey: ['slider'],
+        queryKey: ['product'],
         queryFn: () =>
             request
-                .get('manage/slider', { params: { ...searchParams } })
+                .get('manage/listSlider', {
+                    params: {
+                        ...searchParams,
+                        orderName: sortedInfo?.field,
+                        order: getSortOrder(sortedInfo?.order),
+                    },
+                })
                 .then((res) => res.data),
     });
+    const {
+        mutate: updateSliderStatusTrigger,
+        isPending: updateSliderStatusIsPending,
+        isSuccess: updateSliderStatusIsSuccess,
+    } = useMutation({
+        mutationFn: ({
+            sliderId,
+            isShow,
+        }: {
+            sliderId: string;
+            isShow: boolean;
+        }) => {
+            return request
+                .put(`slider/updateStatus/${sliderId}`, { isShow })
+                .then((res) => res.data);
+        },
+        onSuccess: (res) => toast.success(res.message),
+        onError: (
+            error: AxiosError<{
+                isOk?: boolean | null;
+                message?: string | null;
+            }>
+        ) => toast.error(error.response?.data.message),
+    });
 
-    const columns = [
+    useEffect(() => {
+        if (updateSliderStatusIsSuccess) refetch();
+    }, [updateSliderStatusIsSuccess]);
+
+    const columns: TableColumnsType<Slider> = [
         {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
-            render: (id: string, record: Slider, index: number) => {
-                return (
-                    index +
-                    1 +
-                    ((searchParams?.currentPage ?? 1) - 1) *
-                        (searchParams?.pageSize ?? 0)
-                );
-            },
-        },
-        {
-            title: 'Product Name',
-            dataIndex: 'name',
-            key: 'name',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            render: (_: any, record: Slider) => <p>{record?.product?.name}</p>,
+            width: 180,
+            align: 'center',
+            sorter: true,
+            sortOrder: sortedInfo.columnKey === 'id' ? sortedInfo.order : null,
         },
         {
             title: 'Title',
             dataIndex: 'title',
             key: 'title',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            render: (_: any, record: Slider) => <p>{record.title}</p>,
+            width: 180,
+            align: 'center',
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'title' ? sortedInfo.order : null,
         },
         {
-            title: 'Show on Client',
+            title: 'Image',
+            dataIndex: 'image',
+            key: 'image',
+            width: 150,
+            align: 'center',
+            render: (value: string) => (
+                <Image height={80} src={getImageUrl(value)} width={80} />
+            ),
+        },
+        {
+            title: 'Backlink',
+            dataIndex: 'backlink',
+            align: 'center',
+            key: 'backlink',
+            width: 150,
+            sorter: true,
+            sortOrder:
+                sortedInfo.columnKey === 'backlink' ? sortedInfo.order : null,
+            render: (value: string) => (
+                <div className="w-full flex-wrap">
+                    <a href={value} rel="noreferrer" target="_blank">
+                        {value}
+                    </a>
+                </div>
+            ),
+        },
+        {
+            title: 'Status',
             dataIndex: 'isShow',
+            align: 'center',
             key: 'isShow',
-            render: (value: boolean) => {
+            render: (value: boolean, record: Slider) => {
                 return (
-                    <Tag color={value ? 'blue' : 'red'}>
-                        {value ? 'SHOW' : 'HIDE'}
-                    </Tag>
+                    <Switch
+                        checked={value}
+                        checkedChildren="Show"
+                        disabled={updateSliderStatusIsPending}
+                        onChange={(checked: boolean) => {
+                            updateSliderStatusTrigger({
+                                sliderId: record?.id || '',
+                                isShow: checked,
+                            });
+                        }}
+                        unCheckedChildren="Hide"
+                    />
                 );
             },
-        },
-        {
-            title: 'Create At',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            ellipsis: true,
-            render: (value: string) => (
-                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
-            ),
-        },
-        {
-            title: 'Update At',
-            dataIndex: 'updatedAt',
-            key: 'updatedAt',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ellipsis: true,
-            render: (value: string) => (
-                <p>{value && moment(value).format('YYYY-MM-DD')}</p>
-            ),
+            width: 120,
         },
         {
             title: 'Actions',
+            align: 'center',
             key: 'actions',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            render: (_: any, record: Slider) => (
-                <Flex align="start" gap="middle" vertical>
-                    <Space size="middle">
-                        <SliderModal
-                            reload={() => refetch()}
-                            sliderID={record?.id ?? ''}
-                            title="Update Slider"
-                            type="UPDATE"
-                        />
-                        <DeleteSliderFormModal
-                            reload={() => refetch()}
-                            sliderId={record?.id ?? ''}
-                            title="Delete slider"
-                            type="DELETE"
-                        />
-                        <Tooltip arrow={false} color="#108ee9" title="Detail">
-                            <Link href={`/marketer/slider/${record?.id}`}>
-                                <EyeOutlined className="text-lg text-blue-500 hover:text-blue-400" />
-                            </Link>
-                        </Tooltip>
-                    </Space>
-                </Flex>
+            width: 150,
+            render: (_: undefined, record: Slider) => (
+                <div className="flex w-full justify-center gap-1">
+                    <SliderFormModal
+                        content="View"
+                        reload={() => refetch()}
+                        sliderId={record?.id ?? ''}
+                        type="VIEW"
+                    />
+                    <SliderFormModal
+                        content="Create slider"
+                        reload={() => {
+                            refetch();
+                        }}
+                        sliderId={record?.id ?? ''}
+                        type="UPDATE"
+                    />
+                    <DeleteSliderAlert
+                        reload={() => {
+                            refetch();
+                        }}
+                        sliderId={record?.id ?? ''}
+                        sliderTitle={record?.title ?? ''}
+                    />
+                </div>
             ),
         },
     ];
-
-    const filterOption = (
-        input: string,
-        option?: { value: string; label: string }
-    ) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
     const onFinish: FormProps<FormType>['onFinish'] = (values) => {
         setSearchParams((prev) => ({ ...prev, ...values, currentPage: 1 }));
@@ -158,52 +208,56 @@ const ListSlider: React.FC = () => {
             refetch();
         });
     };
+
+    const handleTableChange: TableProps<Slider>['onChange'] = (
+        pagination,
+        filters,
+        sorter
+    ) => {
+        setSortedInfo(sorter as Sorts);
+        setTimeout(() => {
+            refetch();
+        }, 500);
+    };
+
     return (
-        <Spin spinning={productLoading || sliderLoading}>
+        <Spin spinning={listSliderLoading}>
             <Header title="Manage Slider" />
             <div>
                 <Form
                     className="flex gap-x-10"
+                    form={form}
                     labelCol={{ span: 6 }}
                     onFinish={onFinish}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            form.submit();
+                        }
+                    }}
                     wrapperCol={{ span: 18 }}
                 >
                     <div className="grid flex-1 grid-cols-2 justify-end gap-x-5 xl:grid-cols-3">
-                        <Form.Item<FormType> label="Product" name="productId">
-                            <Select
-                                allowClear
-                                filterOption={filterOption}
-                                options={products?.data?.map(
-                                    (item: Product) => ({
-                                        value: item?.id,
-                                        label: item?.name,
-                                    })
-                                )}
-                                placeholder="Select a product..."
-                                showSearch
-                            />
-                        </Form.Item>
-
-                        <Form.Item<FormType> label="Order by" name="sortBy">
-                            <Select allowClear>
-                                {FILTER_LIST.map((item) => (
-                                    <Select.Option
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item<FormType> label="Title" name="search">
-                            <Input />
+                        <Form.Item<FormType>
+                            label="Search by title"
+                            name="searchByTitle"
+                        >
+                            <Input placeholder="Enter slider title..." />
                         </Form.Item>
                         <Form.Item<FormType>
-                            label="Show on client: "
+                            label="Search by backlink"
+                            name="searchByBacklink"
+                        >
+                            <Input placeholder="Enter slider backlink..." />
+                        </Form.Item>
+                        <Form.Item<FormType>
+                            label="Show on client"
                             name="isShow"
                         >
-                            <Select allowClear>
+                            <Select
+                                allowClear
+                                placeholder="Choose show on client..."
+                            >
                                 <Select.Option value="true">
                                     <Tag color="blue">SHOW</Tag>
                                 </Select.Option>
@@ -213,30 +267,48 @@ const ListSlider: React.FC = () => {
                             </Select>
                         </Form.Item>
                     </div>
-                    <Form.Item>
-                        <Button
-                            htmlType="submit"
-                            icon={<SearchOutlined />}
-                            type="primary"
-                        >
-                            Search
-                        </Button>
-                    </Form.Item>
+                    <div className="flex-col">
+                        <Form.Item>
+                            <Button
+                                htmlType="submit"
+                                icon={<SearchOutlined />}
+                                type="primary"
+                            >
+                                Search
+                            </Button>
+                        </Form.Item>
+                        <Form.Item className="w-full">
+                            <Button
+                                htmlType="reset"
+                                icon={<SyncOutlined />}
+                                onClick={() => form.resetFields()}
+                                type="primary"
+                            >
+                                <span className="pr-2">Reset</span>
+                            </Button>
+                        </Form.Item>
+                        <Form.Item className="w-full">
+                            <SliderFormModal
+                                content="Create slider"
+                                reload={() => {
+                                    refetch();
+                                }}
+                                type="CREATE"
+                            />
+                        </Form.Item>
+                    </div>
                 </Form>
             </div>
-            <div className="mb-10 flex justify-end">
-                <SliderModal
-                    reload={() => {}}
-                    title="Create Slider"
-                    type="CREATE"
-                />
-            </div>
+
             <div>
                 <Table
+                    bordered
                     columns={columns}
                     dataSource={listSlider?.data}
+                    onChange={handleTableChange}
                     pagination={false}
                     rowKey="id"
+                    size="small"
                     tableLayout="fixed"
                 />
                 <div className="mt-5 flex justify-end">
@@ -266,4 +338,4 @@ const ListSlider: React.FC = () => {
     );
 };
 
-export default ListSlider;
+export default SliderList;
