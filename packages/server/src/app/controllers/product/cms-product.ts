@@ -9,17 +9,17 @@ type ProductFilter = {
     rating?: number;
     isShow?: boolean;
 };
-export interface Product {
+interface Product {
     id: string;
     name: string;
     thumbnail?: string;
-    description?: string; // brief information
+    description?: string;
     original_price: number;
     discount_price?: number;
-    updatedAt: Date;
+    updatedAt?: Date;
 }
 
-export interface PaginatedProductsResponse {
+interface PaginatedProductsResponse {
     isOk: boolean;
     data: Product[];
     meta: {
@@ -340,10 +340,10 @@ export const updateProductStatus = async (req: Request, res: Response) => {
     }
 };
 export const getPaginatedProducts = async (req: Request, res: Response) => {
-    const { page = 1, limit = PAGE_SIZE, search = '' } = req.query;
+    const { page = 1, pageSize = PAGE_SIZE, search = '' } = req.query;
 
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Number(limit);
+    const skip = (Number(page) - 1) * Number(pageSize);
+    const take = Number(pageSize);
 
     try {
         const [products, total] = await Promise.all([
@@ -362,9 +362,6 @@ export const getPaginatedProducts = async (req: Request, res: Response) => {
                     discount_price: true,
                     updatedAt: true,
                 },
-                orderBy: {
-                    updatedAt: 'desc',
-                },
                 skip,
                 take,
             }),
@@ -377,7 +374,7 @@ export const getPaginatedProducts = async (req: Request, res: Response) => {
             }),
         ]);
 
-        const totalPages = Math.ceil(total / Number(limit));
+        const totalPages = Math.ceil(total / Number(pageSize));
 
         const response: PaginatedProductsResponse = {
             isOk: true,
