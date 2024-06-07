@@ -1,36 +1,40 @@
 import { Router } from 'express';
-import { isAuthenticated, isMarketer } from '../../middlewares';
-import { getListSliderSelect, getSliderById } from '../controllers/slider';
 import {
     createSlider,
-    deleteSlider,
+    deleteSliderById,
     getListSliderManage,
+    getSliderById,
     updateSlider,
-} from '../controllers/slider/marketer-slider';
+    updateSliderStatus,
+} from '../controllers/slider';
+import { isAuthenticated, isMarketer } from '../../middlewares';
 
 export default (router: Router) => {
-    // Auth route
     router.get(
-        '/manage/slider',
+        '/manage/listSlider',
         isAuthenticated,
         isMarketer,
         getListSliderManage
     );
+
     router.post('/slider/create', isAuthenticated, isMarketer, createSlider);
     router.get(
         '/manage/slider/:id',
         isAuthenticated,
         isMarketer,
         getSliderById
-    ); // Fixed this line
+    );
     router.put('/slider/update/:id', isAuthenticated, isMarketer, updateSlider);
     router.delete(
         '/slider/delete/:id',
         isAuthenticated,
         isMarketer,
-        deleteSlider
+        deleteSliderById
     );
-
-    // Public route
-    router.get('/slider/select', getListSliderSelect);
+    router.put(
+        '/slider/updateStatus/:id',
+        isAuthenticated,
+        isMarketer,
+        updateSliderStatus
+    );
 };
