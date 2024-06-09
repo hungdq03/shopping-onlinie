@@ -8,8 +8,10 @@ import {
     updateSliderStatus,
 } from '../controllers/slider';
 import { isAuthenticated, isMarketer } from '../../middlewares';
+import { getListSliderClient } from '../controllers/slider/slider-public';
 
 export default (router: Router) => {
+    // Auth
     router.get(
         '/manage/listSlider',
         isAuthenticated,
@@ -37,4 +39,7 @@ export default (router: Router) => {
         isMarketer,
         updateSliderStatus
     );
+
+    // Public
+    router.get('/slider', getListSliderClient);
 };

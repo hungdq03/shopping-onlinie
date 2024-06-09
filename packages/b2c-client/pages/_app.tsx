@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '~/styles/globals.css';
-
+import 'swiper/css';
+import 'swiper/css/effect-fade';
 import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import { ReactElement, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Spin } from 'common/components/spin';
 import { ToastContainer } from 'react-toastify';
+import Head from 'next/head';
 import { DefaultLayout } from '~/components/layouts/default-layout';
 import LoginModal from '~/components/modals/login-modal';
 import RegisterModal from '~/components/modals/register-modal';
@@ -70,6 +72,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     return (
         <QueryClientProvider client={queryClient}>
             <Spin spinning={loading} />
+            <Head>
+                <title>
+                    {Component.title ? Component.title : 'Perfume Shop'}
+                </title>
+            </Head>
             <ToastContainer />
             <LoginModal />
             <RegisterModal />

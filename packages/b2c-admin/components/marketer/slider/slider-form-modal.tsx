@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import { EditOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
     Button,
     Checkbox,
+    ColorPicker,
     Form,
     FormProps,
     GetProp,
@@ -14,6 +16,7 @@ import {
     Upload,
     UploadFile,
 } from 'antd';
+import { Color } from 'antd/es/color-picker';
 import { RcFile, UploadProps } from 'antd/es/upload';
 import { getImageUrl } from 'common/utils/getImageUrl';
 import * as request from 'common/utils/http-request';
@@ -33,6 +36,9 @@ type FormType = {
     backlink: string;
     isShow: boolean;
     imageList: UploadFile[];
+    titleTextColor: string;
+    noteTextColor: string;
+    backgroundSliderColor: string;
 };
 
 type SliderRequestType = {
@@ -41,6 +47,9 @@ type SliderRequestType = {
     backlink: string | null;
     isShow: boolean | null;
     image: string | null;
+    titleTextColor: string;
+    noteTextColor: string;
+    backgroundSliderColor: string;
 };
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
@@ -217,7 +226,15 @@ const SliderFormModal: React.FC<Props> = ({
     };
 
     const onFinish: FormProps<FormType>['onFinish'] = async (values) => {
-        const { title, backlink, note, isShow } = values;
+        const {
+            title,
+            backlink,
+            note,
+            isShow,
+            backgroundSliderColor,
+            noteTextColor,
+            titleTextColor,
+        } = values;
 
         if (type === 'CREATE') {
             const imageList = values?.imageList?.map(
@@ -237,6 +254,9 @@ const SliderFormModal: React.FC<Props> = ({
                 backlink,
                 isShow,
                 image: imageRequest?.[0].url ?? '',
+                backgroundSliderColor,
+                noteTextColor,
+                titleTextColor,
             });
         }
 
@@ -256,6 +276,9 @@ const SliderFormModal: React.FC<Props> = ({
                 backlink,
                 isShow,
                 image: newImage?.[0] ?? '',
+                backgroundSliderColor,
+                noteTextColor,
+                titleTextColor,
             };
 
             updateSlider(submitObj);
@@ -351,36 +374,57 @@ const SliderFormModal: React.FC<Props> = ({
                             </div>
                             <div className="grid grid-cols-2 gap-x-10">
                                 <Form.Item<FormType> label="Title" name="title">
-                                    {type === 'VIEW' ? (
-                                        <Input readOnly size="large" />
-                                    ) : (
-                                        <Input size="large" />
-                                    )}
+                                    <Input
+                                        readOnly={type === 'VIEW' ?? false}
+                                        size="large"
+                                    />
                                 </Form.Item>
                                 <Form.Item label="Back link" name="backlink">
-                                    {type === 'VIEW' ? (
-                                        <Input readOnly size="large" />
-                                    ) : (
-                                        <Input size="large" />
-                                    )}
+                                    <Input
+                                        readOnly={type === 'VIEW' ?? false}
+                                        size="large"
+                                    />
                                 </Form.Item>
                             </div>
-                            <Form.Item label="Note" name="note">
-                                {type === 'VIEW' ? (
-                                    <Input.TextArea
-                                        readOnly
-                                        rows={5}
-                                        size="large"
-                                        style={{ resize: 'none' }}
-                                    />
-                                ) : (
-                                    <Input.TextArea
-                                        rows={5}
-                                        size="large"
-                                        style={{ resize: 'none' }}
-                                    />
-                                )}
+
+                            <Form.Item<FormType>
+                                getValueFromEvent={(color) => {
+                                    return color.toHexString();
+                                }}
+                                label="Title text color"
+                                name="titleTextColor"
+                            >
+                                <ColorPicker showText />
                             </Form.Item>
+
+                            <Form.Item label="Note" name="note">
+                                <Input.TextArea
+                                    readOnly={type === 'VIEW' ?? false}
+                                    rows={5}
+                                    size="large"
+                                    style={{ resize: 'none' }}
+                                />
+                            </Form.Item>
+                            <Form.Item<FormType>
+                                getValueFromEvent={(color) => {
+                                    return color.toHexString();
+                                }}
+                                label="Note text color"
+                                name="noteTextColor"
+                            >
+                                <ColorPicker showText />
+                            </Form.Item>
+
+                            <Form.Item<FormType>
+                                getValueFromEvent={(color: Color) => {
+                                    return color.toHexString();
+                                }}
+                                label="Back ground color"
+                                name="backgroundSliderColor"
+                            >
+                                <ColorPicker showText />
+                            </Form.Item>
+
                             <Form.Item name="isShow" valuePropName="checked">
                                 {type === 'VIEW' ? (
                                     <Checkbox

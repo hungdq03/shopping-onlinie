@@ -100,7 +100,16 @@ export const getListSliderManage = async (req: Request, res: Response) => {
 };
 
 export const createSlider = async (req: Request, res: Response) => {
-    const { title, image, backlink, note, isShow } = req.body;
+    const {
+        title,
+        image,
+        backlink,
+        note,
+        isShow,
+        backgroundSliderColor,
+        noteTextColor,
+        titleTextColor,
+    } = req.body;
 
     try {
         const slider = await db.slider.create({
@@ -110,6 +119,9 @@ export const createSlider = async (req: Request, res: Response) => {
                 backlink,
                 note,
                 isShow,
+                backgroundSliderColor,
+                noteTextColor,
+                titleTextColor,
             },
         });
 
@@ -125,7 +137,16 @@ export const createSlider = async (req: Request, res: Response) => {
 
 export const updateSlider = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { title, image, backlink, note, isShow } = req.body;
+    const {
+        title,
+        image,
+        backlink,
+        note,
+        isShow,
+        backgroundSliderColor,
+        noteTextColor,
+        titleTextColor,
+    } = req.body;
 
     try {
         const slider = await db.slider.update({
@@ -138,6 +159,9 @@ export const updateSlider = async (req: Request, res: Response) => {
                 backlink,
                 note,
                 isShow,
+                backgroundSliderColor,
+                noteTextColor,
+                titleTextColor,
             },
         });
 
