@@ -8,7 +8,7 @@ type Props = {
 export const DefaultLayout: React.FC<Props> = ({ children }) => {
     return (
         <div className="min-w-[1200px]">
-            <Header title="Logo" />
+            <Header />
             <div>{children}</div>
         </div>
     );
