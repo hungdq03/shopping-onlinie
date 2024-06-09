@@ -19,7 +19,7 @@ export const isAuthenticated = (
     }
 
     jwt.verify(accessToken, TOKEN_KEY, (err) => {
-        if (err) res.sendStatus(403);
+        if (err) return res.sendStatus(403);
         return next();
     });
 };
