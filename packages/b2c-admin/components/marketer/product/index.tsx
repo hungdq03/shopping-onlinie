@@ -32,6 +32,7 @@ import ProductFormModal from './product-form-modal';
 import { Brand, Category, Product } from '~/types/product';
 import Header from '~/components/header';
 import DeleteProductAlert from './delete-product-alert';
+import { Sorts } from '~/types';
 
 type FormType = {
     brandId?: string;
@@ -46,18 +47,12 @@ type SearchParams = FormType & {
     currentPage?: number;
 };
 
-type OnChange = NonNullable<TableProps<FormType>['onChange']>;
-
-type GetSingle<T> = T extends (infer U)[] ? U : never;
-
-type Sorts = GetSingle<Parameters<OnChange>[2]>;
-
 const ProductList = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>({
         pageSize: PAGE_SIZE,
         currentPage: 1,
     });
-    const [sortedInfo, setSortedInfo] = useState<Sorts>({});
+    const [sortedInfo, setSortedInfo] = useState<Sorts<FormType>>({});
 
     const { data: categories, isLoading: categoryLoading } = useQuery({
         queryKey: ['category'],
@@ -298,7 +293,7 @@ const ProductList = () => {
         filters,
         sorter
     ) => {
-        setSortedInfo(sorter as Sorts);
+        setSortedInfo(sorter as Sorts<FormType>);
         setTimeout(() => {
             refetch();
         }, 500);

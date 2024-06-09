@@ -138,8 +138,12 @@ model Slider {
   title String
   note String? @db.Text
   image String @db.Text
-  isShow Boolean @default(true)
+  isShow Boolean 
   backlink String @db.Text
+  titleTextColor String?
+  noteTextColor String?
+  backgroundSliderColor String?
+
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

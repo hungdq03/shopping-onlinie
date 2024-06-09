@@ -1,5 +1,14 @@
-import Header from '~/components/header';
+import MainBanner from '~/components/home-page/main-banner';
+import { NextPageWithLayout } from './_app';
 
-export default function Home() {
-    return <Header title="Home page" />;
-}
+const HomePage: NextPageWithLayout = () => {
+    return (
+        <div>
+            <MainBanner />
+        </div>
+    );
+};
+
+export default HomePage;
+
+HomePage.title = 'Trang chủ';

@@ -65,21 +65,23 @@ const Header: React.FC<Props> = ({ title }) => {
           ];
 
     return (
-        <div className="flex h-[76px] w-full items-center justify-between px-5 shadow-md">
-            <div className="text-2xl font-bold uppercase">{title}</div>
-            <div>
-                <Dropdown menu={{ items }} placement="bottomLeft">
-                    <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
-                        <Image
-                            alt="avatar"
-                            className="rounded-full"
-                            height={40}
-                            src="/images/placeholder.jpg"
-                            width={40}
-                        />
-                        <MenuOutlined />
-                    </div>
-                </Dropdown>
+        <div className="flex justify-center">
+            <div className="container flex h-[76px] w-full items-center justify-between px-5 shadow-md">
+                <div className="text-2xl font-bold uppercase">{title}</div>
+                <div>
+                    <Dropdown menu={{ items }} placement="bottomLeft">
+                        <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
+                            <Image
+                                alt="avatar"
+                                className="rounded-full"
+                                height={40}
+                                src="/images/placeholder.jpg"
+                                width={40}
+                            />
+                            <MenuOutlined />
+                        </div>
+                    </Dropdown>
+                </div>
             </div>
         </div>
     );

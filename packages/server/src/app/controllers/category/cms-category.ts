@@ -8,8 +8,8 @@ export const getListCategoryManage = async (req: Request, res: Response) => {
     const { search, pageSize, currentPage, sortBy, sortOrder } = req.query;
 
     const prismaQuery = {
-        skip: (Number(currentPage) - 1) * Number(pageSize || PAGE_SIZE),
-        take: Number(pageSize),
+        skip: (Number(currentPage ?? 1) - 1) * Number(pageSize ?? PAGE_SIZE),
+        take: Number(pageSize ?? PAGE_SIZE),
         where: {
             name: {
                 contains: search ? String(search) : undefined,
@@ -26,41 +26,12 @@ export const getListCategoryManage = async (req: Request, res: Response) => {
             },
         });
 
-        let listCategory;
-
-        switch (sortBy) {
-            case 'name':
-                listCategory = await db.category.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        name: (sortOrder as SortOrder) || 'desc',
-                    },
-                });
-                break;
-            case 'createAt':
-                listCategory = await db.category.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        createdAt: (sortOrder as SortOrder) || 'desc',
-                    },
-                });
-                break;
-            case 'updateAt':
-                listCategory = await db.category.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        updatedAt: (sortOrder as SortOrder) || 'desc',
-                    },
-                });
-                break;
-            default:
-                listCategory = await db.category.findMany({
-                    ...prismaQuery,
-                    orderBy: {
-                        createdAt: 'desc',
-                    },
-                });
-        }
+        const listCategory = await db.category.findMany({
+            ...prismaQuery,
+            orderBy: {
+                [String(sortBy)]: sortOrder as SortOrder,
+            },
+        });
 
         return res.status(200).json({
             isOk: true,

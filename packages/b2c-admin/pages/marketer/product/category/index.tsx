@@ -1,7 +1,12 @@
 import React from 'react';
+import ListCategory from '~/components/marketer/product/category';
 
-const ListCategory = () => {
-    return <div>ListCategory</div>;
+const CategoryPage = () => {
+    return (
+        <div>
+            <ListCategory />
+        </div>
+    );
 };
 
-export default ListCategory;
+export default CategoryPage;
