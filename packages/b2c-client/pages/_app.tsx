@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { Spin } from 'common/components/spin';
 import { ToastContainer } from 'react-toastify';
 import Head from 'next/head';
+import { ConfigProvider } from 'antd';
 import { DefaultLayout } from '~/components/layouts/default-layout';
 import LoginModal from '~/components/modals/login-modal';
 import RegisterModal from '~/components/modals/register-modal';
@@ -70,17 +71,28 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         ((page) => <DefaultLayout>{page}</DefaultLayout>);
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <Spin spinning={loading} />
-            <Head>
-                <title>
-                    {Component.title ? Component.title : 'Perfume Shop'}
-                </title>
-            </Head>
-            <ToastContainer />
-            <LoginModal />
-            <RegisterModal />
-            {getLayout(<Component {...pageProps} />)}
-        </QueryClientProvider>
+        <ConfigProvider
+            theme={{
+                components: {
+                    Button: {
+                        colorPrimary: '#F43F5E',
+                        algorithm: true,
+                    },
+                },
+            }}
+        >
+            <QueryClientProvider client={queryClient}>
+                <Spin spinning={loading} />
+                <Head>
+                    <title>
+                        {Component.title ? Component.title : 'Perfume Shop'}
+                    </title>
+                </Head>
+                <ToastContainer />
+                <LoginModal />
+                <RegisterModal />
+                {getLayout(<Component {...pageProps} />)}
+            </QueryClientProvider>
+        </ConfigProvider>
     );
 }
