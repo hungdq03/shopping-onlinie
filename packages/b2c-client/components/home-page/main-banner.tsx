@@ -9,16 +9,16 @@ import Image from 'next/image';
 import { cn } from 'common/utils';
 import { Autoplay, Controller, Navigation, Pagination } from 'swiper/modules';
 import type { Swiper as TypeSwiper } from 'swiper';
-import useWindowSize from 'common/utils/useDimensionScreen';
 import { ArrowLeftSquare, ArrowRightSquare } from 'common/icons';
+import { useRouter } from 'next/router';
 
 const MainBanner = () => {
+    const router = useRouter();
+
     const { data, isLoading } = useQuery<QueryResponseType<Slider>>({
         queryKey: ['slider'],
         queryFn: () => request.get('slider').then((res) => res.data),
     });
-
-    const size = useWindowSize();
 
     const [currentSlice, setCurrentSlice] = useState<number>(1);
     const [activeLeft, setActiveLeft] = useState<boolean>(false);
@@ -37,6 +37,14 @@ const MainBanner = () => {
             }
         }
     }, [data?.data]);
+
+    const redirectBackLink = (link: string) => {
+        if (link) {
+            if (link?.startsWith('https://') || link?.startsWith('http://')) {
+                window.open(link, '_blank', 'noopener');
+            } else router.push(link);
+        }
+    };
 
     return (
         <Spin spinning={isLoading}>
@@ -78,7 +86,12 @@ const MainBanner = () => {
                     style={{ minWidth: 1340 }}
                 >
                     {data?.data?.map((item) => (
-                        <SwiperSlide key={item?.id}>
+                        <SwiperSlide
+                            key={item?.id}
+                            onClick={() => {
+                                redirectBackLink(item?.backlink ?? '/');
+                            }}
+                        >
                             <div
                                 className="relative flex cursor-pointer justify-center"
                                 style={{
@@ -97,19 +110,7 @@ const MainBanner = () => {
                                             '#028267',
                                     }}
                                 >
-                                    <div
-                                        className="absolute right-[0] z-10 h-full shadow-[-10px_10px_15px_#1111112A]"
-                                        style={{
-                                            right:
-                                                ((size.widthBody || 0) - 1920) /
-                                                    2 >
-                                                0
-                                                    ? ((size.width || 0) -
-                                                          1920) /
-                                                      2
-                                                    : 0,
-                                        }}
-                                    >
+                                    <div className="absolute right-[0] z-10 h-full shadow-[-10px_10px_15px_#1111112A]">
                                         <div className="z-8 relative">
                                             <div
                                                 className="w-[100vw] !max-w-[1340px]"
@@ -120,7 +121,7 @@ const MainBanner = () => {
                                             >
                                                 <Image
                                                     alt={item.title ?? ''}
-                                                    className="shadow-xl"
+                                                    className="shadow-lg"
                                                     layout="fill"
                                                     objectFit="cover"
                                                     src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.image}`}
@@ -149,7 +150,12 @@ const MainBanner = () => {
                         speed={1000}
                     >
                         {data?.data?.map((item) => (
-                            <SwiperSlide key={item.id}>
+                            <SwiperSlide
+                                key={item.id}
+                                onClick={() => {
+                                    redirectBackLink(item?.backlink ?? '/');
+                                }}
+                            >
                                 <div className="animation-fade-in cursor-pointer">
                                     <div
                                         className="flex h-[540px] w-full items-center"
@@ -202,10 +208,7 @@ const MainBanner = () => {
                         </div>
 
                         <div
-                            className={`z-[10] h-[32px] w-[32px] cursor-pointer rounded-full border border-[#00454D] bg-[#00454D] ${
-                                true &&
-                                'hover:border-[#101010] hover:bg-[#101010] hover:bg-opacity-80'
-                            }`}
+                            className="z-[10] h-[32px] w-[32px] cursor-pointer rounded-full border border-[#00454D] bg-[#00454D] hover:border-[#101010] hover:bg-[#101010] hover:bg-opacity-80"
                             onClick={() => swiper1Ref.current?.slideNext()}
                             onKeyDown={() => swiper1Ref.current?.slideNext()}
                             onMouseEnter={() => setActiveRight(true)}
@@ -220,15 +223,9 @@ const MainBanner = () => {
                             />
                         </div>
                     </div>
-                    <div
-                        className={`text-[16px] leading-[19px] ${
-                            (useWindowSize().width as number) >= 1812
-                                ? 'text-[#000000]'
-                                : 'text-[#FFFFFF]'
-                        }`}
-                    >
+                    <div className="space-x-1.5 text-lg leading-[19px] text-black">
                         <span>{currentSlice}</span>
-                        <span>&nbsp;/&nbsp;</span>
+                        <span>/</span>
                         <span>{data?.data?.length}</span>
                     </div>
                 </div>
