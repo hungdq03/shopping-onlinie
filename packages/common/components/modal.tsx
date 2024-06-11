@@ -30,6 +30,29 @@ const Modal: React.FC<Props> = ({
 }) => {
     const [showModal, setShowModal] = useState<boolean | undefined>(isOpen);
 
+    const scrollBarWidth =
+        typeof window !== 'undefined'
+            ? window.innerWidth - document.body.clientWidth
+            : null;
+
+    const disableScroll = () => {
+        document.body.style.maxWidth = `calc(100vw - ${scrollBarWidth}px)`;
+        document.body.style.overflow = 'hidden';
+    };
+    const enableScroll = () => {
+        document.body.style.maxWidth = 'unset';
+        document.body.style.overflow = 'auto';
+    };
+
+    useEffect(() => {
+        if (showModal) {
+            disableScroll();
+        }
+        return () => {
+            enableScroll();
+        };
+    }, [showModal]);
+
     useEffect(() => {
         setShowModal(isOpen);
     }, [isOpen]);
@@ -39,9 +62,8 @@ const Modal: React.FC<Props> = ({
             return;
         }
         setShowModal(false);
-        setTimeout(() => {
-            onClose();
-        }, 300);
+
+        onClose();
     }, [disabled, onClose]);
 
     const handleSubmit = useCallback(() => {
@@ -67,7 +89,7 @@ const Modal: React.FC<Props> = ({
             <div className="relative mx-auto my-6 h-full w-full md:h-auto md:w-4/6 lg:h-auto lg:w-3/6 xl:w-2/5">
                 <div
                     className={cn(
-                        'translate h-full duration-300',
+                        'h-full',
                         showModal ? 'opacity-100' : 'opacity-0'
                     )}
                 >
@@ -77,6 +99,7 @@ const Modal: React.FC<Props> = ({
                             <button
                                 className="absolute left-9 border-0 p-1 transition hover:opacity-70"
                                 onClick={handleClose}
+                                type="button"
                             >
                                 <CloseOutlined size={18} />
                             </button>

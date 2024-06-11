@@ -9,7 +9,7 @@ export const getListBrandManage = async (req: Request, res: Response) => {
 
     const prismaQuery = {
         skip: (Number(currentPage) - 1) * Number(pageSize || PAGE_SIZE),
-        take: Number(pageSize),
+        take: Number(pageSize) ?? PAGE_SIZE,
         where: {
             name: {
                 contains: search ? String(search) : undefined,
@@ -33,7 +33,7 @@ export const getListBrandManage = async (req: Request, res: Response) => {
                 listBrand = await db.brand.findMany({
                     ...prismaQuery,
                     orderBy: {
-                        name: (sortOrder as SortOrder) || 'desc',
+                        name: sortOrder ? (sortOrder as SortOrder) : 'desc',
                     },
                 });
                 break;
@@ -41,7 +41,9 @@ export const getListBrandManage = async (req: Request, res: Response) => {
                 listBrand = await db.brand.findMany({
                     ...prismaQuery,
                     orderBy: {
-                        createdAt: (sortOrder as SortOrder) || 'desc',
+                        createdAt: sortOrder
+                            ? (sortOrder as SortOrder)
+                            : 'desc',
                     },
                 });
                 break;
@@ -49,7 +51,9 @@ export const getListBrandManage = async (req: Request, res: Response) => {
                 listBrand = await db.brand.findMany({
                     ...prismaQuery,
                     orderBy: {
-                        updatedAt: (sortOrder as SortOrder) || 'desc',
+                        updatedAt: sortOrder
+                            ? (sortOrder as SortOrder)
+                            : 'desc',
                     },
                 });
                 break;

@@ -2,8 +2,10 @@ import { Router } from 'express';
 import {
     createPost,
     deletePost,
+    getListMaketer,
     getListPostManage,
     updatePost,
+    updatePostStatus,
 } from '../controllers/post/marketer-post';
 import { getListPost, getPostById } from '../controllers/post';
 
@@ -15,4 +17,6 @@ export default (router: Router) => {
     router.put('/post/update/:id', updatePost);
     router.delete('/post/delete/:id', deletePost);
     router.get('/post', getListPost);
+    router.put('/post/updateStatus/:id', updatePostStatus);
+    router.get('/marketers', getListMaketer);
 };

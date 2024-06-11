@@ -45,9 +45,13 @@ const PostDetailAll: React.FC<Props> = ({ data }) => {
             <InfoItem title="Post ID" value={data?.id} />
             <InfoItem title="User" value={data?.user?.name} />
             <InfoItem title="Title" value={data?.title} />
-            <InfoItem title="Product" value={data?.product?.name} />
+            <InfoItem title="Category" value={data?.category?.name} />
             <InfoItem title="Brief Infomation" value={data?.briefInfo} />
             <InfoItem title="Description" value={data?.description} />
+            <InfoItem
+                title="Show on Client"
+                value={data?.isShow ? 'SHOW' : 'HIDE'}
+            />
             <InfoItem
                 render="IMAGE"
                 title="Thumbnail"
