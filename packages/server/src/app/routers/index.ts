@@ -7,6 +7,7 @@ import category from './category';
 import product from './product';
 import post from './post';
 import slider from './slider';
+import cart from './cart';
 
 const router = Router();
 
@@ -19,5 +20,6 @@ export default (): Router => {
     product(router);
     post(router);
     slider(router);
+    cart(router);
     return router;
 };
