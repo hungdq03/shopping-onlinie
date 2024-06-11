@@ -11,5 +11,6 @@
     },
     "cSpell.words": ["hagtag", "lowestpriceperweek", "tailwindcss"],
 
-    "explorer.compactFolders": false
+    "explorer.compactFolders": false,
+    "compile-hero.disable-compile-files-on-did-save-code": false
 }

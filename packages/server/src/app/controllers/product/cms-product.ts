@@ -9,40 +9,17 @@ type ProductFilter = {
     rating?: number;
     isShow?: boolean;
 };
-interface Product {
-    id: string;
-    name: string;
-    thumbnail?: string;
-    description?: string;
-    original_price: number;
-    discount_price?: number;
-    updatedAt?: Date;
-}
-
-interface PaginatedProductsResponse {
-    isOk: boolean;
-    data: Product[];
-    meta: {
-        total: number;
-        page: number;
-        totalPages: number;
-    };
-    message: string;
-}
-
-type SortOrder = 'desc' | 'asc';
 
 export const getListProductManage = async (req: Request, res: Response) => {
     const {
         search,
         pageSize,
         currentPage,
+        sortBy,
         brandId,
         categoryId,
         rating,
         isShow,
-        orderName,
-        order,
     } = req.query;
 
     const pagination = {
@@ -53,23 +30,6 @@ export const getListProductManage = async (req: Request, res: Response) => {
     try {
         const whereClause: ProductFilter = {};
 
-        let orderBy:
-            | Record<string, SortOrder | Record<string, SortOrder>>
-            | undefined;
-
-        if (orderName && order) {
-            if (orderName === 'category' || orderName === 'brand') {
-                orderBy = {
-                    [String(orderName)]: {
-                        name: order as SortOrder,
-                    },
-                };
-            } else {
-                orderBy = {
-                    [String(orderName)]: order as SortOrder,
-                };
-            }
-        }
         if (brandId) {
             whereClause.brandId = String(brandId);
         }
@@ -102,8 +62,6 @@ export const getListProductManage = async (req: Request, res: Response) => {
             size: true,
             sold_quantity: true,
             discount_price: true,
-            thumbnail: true,
-            description: true,
         };
 
         const total = await db.product.count({
@@ -115,19 +73,234 @@ export const getListProductManage = async (req: Request, res: Response) => {
             },
         });
 
-        const listProduct = await db.product.findMany({
-            ...pagination,
-            where: {
-                name: {
-                    contains: search ? String(search) : undefined,
-                },
-                ...whereClause,
-            },
-            orderBy: orderBy ?? {
-                createdAt: 'desc',
-            },
-            select,
-        });
+        let listProduct;
+
+        switch (sortBy) {
+            case 'LATEST':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'OLDEST':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        createdAt: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'NAME_A_TO_Z':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        name: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'NAME_Z_TO_A':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        name: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'RATE_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        rating: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'RATE_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        rating: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'PRICE_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        original_price: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'PRICE_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        original_price: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'DISCOUNT_PRICE_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        discount_price: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'DISCOUNT_PRICE_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        discount_price: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'QUANTITY_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        quantity: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'QUANTITY_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        quantity: 'desc',
+                    },
+                    select,
+                });
+                break;
+            case 'SOLD_QUANTITY_LOW_TO_HIGHT':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        sold_quantity: 'asc',
+                    },
+                    select,
+                });
+                break;
+            case 'SOLD_QUANTITY_HIGHT_TO_LOW':
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        sold_quantity: 'desc',
+                    },
+                    select,
+                });
+                break;
+            default:
+                listProduct = await db.product.findMany({
+                    ...pagination,
+                    where: {
+                        name: {
+                            contains: search ? String(search) : undefined,
+                        },
+                        ...whereClause,
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                    select,
+                });
+        }
 
         return res.status(200).json({
             isOk: true,
@@ -313,84 +486,5 @@ export const deleteProductById = async (req: Request, res: Response) => {
         });
     } catch (error) {
         return res.sendStatus(500);
-    }
-};
-
-export const updateProductStatus = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { isShow } = req.body;
-
-    try {
-        const product = await db.product.update({
-            where: {
-                id,
-            },
-            data: {
-                isShow,
-            },
-        });
-
-        return res.status(200).json({
-            isOk: true,
-            data: product,
-            message: 'Change product status successfully!',
-        });
-    } catch (error) {
-        return res.sendStatus(500);
-    }
-};
-export const getPaginatedProducts = async (req: Request, res: Response) => {
-    const { page = 1, pageSize = PAGE_SIZE, search = '' } = req.query;
-
-    const skip = (Number(page) - 1) * Number(pageSize);
-    const take = Number(pageSize);
-
-    try {
-        const [products, total] = await Promise.all([
-            db.product.findMany({
-                where: {
-                    name: {
-                        contains: search as string,
-                    },
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    thumbnail: true,
-                    description: true,
-                    original_price: true,
-                    discount_price: true,
-                    updatedAt: true,
-                },
-                skip,
-                take,
-            }),
-            db.product.count({
-                where: {
-                    name: {
-                        contains: search as string,
-                    },
-                },
-            }),
-        ]);
-
-        const totalPages = Math.ceil(total / Number(pageSize));
-
-        const response: PaginatedProductsResponse = {
-            isOk: true,
-            data: products,
-            meta: {
-                total,
-                page: Number(page),
-                totalPages,
-            },
-            message: 'Get list product successfully!',
-        };
-
-        return res.status(200).json(response);
-    } catch (error) {
-        return res
-            .status(500)
-            .json({ message: 'Internal server error', error });
     }
 };

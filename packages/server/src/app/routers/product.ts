@@ -5,19 +5,21 @@ import {
     createProduct,
     deleteProductById,
     getListProductManage,
-    getPaginatedProducts,
     getProductById,
     updateProduct,
-    updateProductStatus,
 } from '../controllers/product/cms-product';
-import { getListProductSelect } from '../controllers/product';
+import {
+    getLatestProducts,
+    getListProductSelect,
+    searchProducts,
+} from '../controllers/product';
 
 export default (router: Router) => {
     // Auth route
     router.get(
         '/manage/product',
-        // isAuthenticated,
-        // isMarketer,
+        isAuthenticated,
+        isMarketer,
         getListProductManage
     );
     router.post('/product/create', isAuthenticated, isMarketer, createProduct);
@@ -39,14 +41,8 @@ export default (router: Router) => {
         isMarketer,
         deleteProductById
     );
-    router.put(
-        '/product/updateStatus/:id',
-        isAuthenticated,
-        isMarketer,
-        updateProductStatus
-    );
-
     // Public route
     router.get('/product/select', getListProductSelect);
-    router.get('/products', getPaginatedProducts);
+    router.get('/product/search', searchProducts);
+    router.get('/product/latest', getLatestProducts);
 };

@@ -1,11 +1,13 @@
+import Link from 'next/link';
 import Header from '~/components/header';
-import ProductList from '~/components/ProductList';
 
 export default function Home() {
     return (
-        <>
+        <div>
             <Header title="Home page" />
-            <ProductList />
-        </>
+            <Link href="/products" legacyBehavior>
+                Go to Products
+            </Link>
+        </div>
     );
 }
