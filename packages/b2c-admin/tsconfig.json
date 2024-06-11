@@ -21,7 +21,7 @@
         "**/*.ts",
         "**/*.tsx",
         "components/marketer/post/post-detail",
-        "../b2c-client/types/cart.tsx"
+        "../common/types/cart.ts"
     ],
     "exclude": ["node_modules"]
 }

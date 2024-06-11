@@ -7,13 +7,7 @@ export const getListCart = async (req: Request, res: Response) => {
             select: {
                 id: true,
                 quantity: true,
-                product: {
-                    select: {
-                        id: true,
-                        name: true,
-                        discount_price: true,
-                    },
-                },
+                product: true,
             },
             orderBy: {
                 productId: 'asc',
