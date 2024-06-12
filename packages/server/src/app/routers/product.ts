@@ -7,6 +7,7 @@ import {
     getListProductManage,
     getProductById,
     updateProduct,
+    updateProductStatus,
 } from '../controllers/product/cms-product';
 import {
     getLatestProducts,
@@ -41,6 +42,13 @@ export default (router: Router) => {
         isMarketer,
         deleteProductById
     );
+    router.put(
+        '/product/updateStatus/:id',
+        isAuthenticated,
+        isMarketer,
+        updateProductStatus
+    );
+
     // Public route
     router.get('/product/select', getListProductSelect);
     router.get('/product/search', searchProducts);
