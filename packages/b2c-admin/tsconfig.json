@@ -20,8 +20,7 @@
         "next-env.d.ts",
         "**/*.ts",
         "**/*.tsx",
-        "components/marketer/post/post-detail",
-        "../common/types/cart.ts"
+        "components/marketer/post/post-detail"
     ],
     "exclude": ["node_modules"]
 }
