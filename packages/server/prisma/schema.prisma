@@ -84,7 +84,8 @@ model Product {
   categoryId String
   thumbnail String? @db.Text
   rating Float @default(0)
-  isShow Boolean @default(true)  
+  isShow Boolean @default(true)
+  isFeatured Boolean @default(false)  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -153,20 +154,20 @@ model Post {
   id String @id @default(uuid())
   title String
   description String? @db.Text
-  briefInfo String? @db.Text
-  //productId String
+  briefInfo String? @db.Text  
   thumbnail String? @db.Text
   isShow Boolean @default(true)
   userId String 
   categoryId String
+  isFeatured Boolean @default(false)  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  //product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) 
-  //@@index([productId])
+ 
   @@index([categoryId])
 }
 
@@ -180,7 +181,7 @@ model Feedback {
   description String? @db.Text
   userId String
   productId String
-  rating Int? @default(5)
+  rating Int? 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
