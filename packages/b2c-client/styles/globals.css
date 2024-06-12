@@ -24,3 +24,9 @@ body,
         opacity: 1;
     }
 }
+
+@layer base {
+    html {
+        @apply text-sm text-slate-700;
+    }
+}

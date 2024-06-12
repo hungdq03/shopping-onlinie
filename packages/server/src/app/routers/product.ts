@@ -11,6 +11,7 @@ import {
 } from '../controllers/product/cms-product';
 import {
     getLatestProducts,
+    getListProductFeatured,
     getListProductSelect,
     searchProducts,
 } from '../controllers/product';
@@ -51,6 +52,7 @@ export default (router: Router) => {
 
     // Public route
     router.get('/product/select', getListProductSelect);
+    router.get('/product-featured', getListProductFeatured);
     router.get('/product/search', searchProducts);
     router.get('/product/latest', getLatestProducts);
 };

@@ -9,8 +9,9 @@ import Link from 'next/link';
 import { useAuth } from '~/hooks/useAuth';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
+import Search from './search';
 
-const Header: React.FC = () => {
+const Header = () => {
     const auth = useAuth('client');
     const router = useRouter();
     const { onOpen: openLoginModal } = useLoginModal();
@@ -43,8 +44,8 @@ const Header: React.FC = () => {
     ];
 
     return (
-        <div className="flex flex-col items-center border-b-2">
-            <div className="container flex h-[76px] w-full items-center justify-between px-5">
+        <div>
+            <div className="container flex h-[76px] w-full items-center justify-between">
                 <Link href="/">
                     <div className="flex select-none flex-col items-center gap-0 uppercase">
                         <div className="text-lg leading-4 text-rose-600">
@@ -53,6 +54,9 @@ const Header: React.FC = () => {
                         <div className="text-2xl font-bold">Perfume</div>
                     </div>
                 </Link>
+                <div>
+                    <Search />
+                </div>
                 {auth ? (
                     <div>
                         <Dropdown
