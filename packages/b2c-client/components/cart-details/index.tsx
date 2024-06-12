@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Col, Layout, Row, Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import * as request from 'common/utils/http-request';
@@ -36,17 +36,34 @@ const CartDetails = () => {
                                             <Layout>
                                                 <Card
                                                     bordered={false}
-                                                    extra={<DeleteOutlined />}
+                                                    extra={
+                                                        <Button
+                                                            danger
+                                                            icon={
+                                                                <DeleteOutlined />
+                                                            }
+                                                            type="text"
+                                                        />
+                                                    }
                                                     style={{
                                                         marginBottom: 10,
                                                         marginLeft: 10,
                                                     }}
-                                                    title={item.product?.id}
+                                                    title={
+                                                        <div>
+                                                            Product ID:
+                                                            {item.product?.id}
+                                                        </div>
+                                                    }
                                                 >
                                                     <Content>
                                                         <Row gutter={16}>
                                                             <Col span={6}>
-                                                                <div>
+                                                                <div
+                                                                    style={{
+                                                                        height: 150,
+                                                                    }}
+                                                                >
                                                                     <Image
                                                                         alt={
                                                                             item.id ??
@@ -59,36 +76,65 @@ const CartDetails = () => {
                                                                     />
                                                                 </div>
                                                             </Col>
-                                                            <Col span={10}>
-                                                                <div>
-                                                                    <p>
-                                                                        {
-                                                                            item
-                                                                                .product
-                                                                                ?.name
-                                                                        }
-                                                                    </p>
+                                                            <Col span={8}>
+                                                                <div className="relative flex justify-center text-xl font-semibold">
+                                                                    {
+                                                                        item
+                                                                            .product
+                                                                            ?.name
+                                                                    }
                                                                 </div>
-                                                                <div>
-                                                                    <p>
-                                                                        {
-                                                                            item
-                                                                                .product
-                                                                                ?.quantity
-                                                                        }
-                                                                    </p>
+                                                                <div className="relative top-2 flex justify-center">
+                                                                    <div>
+                                                                        <div className="text-center">
+                                                                            <p>
+                                                                                Quantity
+                                                                            </p>
+                                                                        </div>
+                                                                        <div
+                                                                            className="max-sm: relative top-1 flex border-spacing-2 justify-evenly backdrop-brightness-90"
+                                                                            style={{
+                                                                                borderRadius: 10,
+                                                                                width: 100,
+                                                                            }}
+                                                                        >
+                                                                            <Button
+                                                                                icon={
+                                                                                    <MinusOutlined />
+                                                                                }
+                                                                            />
+
+                                                                            {
+                                                                                item.quantity
+                                                                            }
+                                                                            <Button
+                                                                                icon={
+                                                                                    <PlusOutlined />
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </Col>
                                                             <Col span={8}>
-                                                                <div>
-                                                                    <p>
-                                                                        Price:{' '}
-                                                                        {
-                                                                            item
-                                                                                .product
-                                                                                ?.discount_price
-                                                                        }
-                                                                    </p>
+                                                                <div
+                                                                    style={{
+                                                                        marginTop: 38,
+                                                                    }}
+                                                                >
+                                                                    <div>
+                                                                        <div>
+                                                                            Price
+                                                                        </div>
+                                                                        <div className="text-lg font-semibold">
+                                                                            {
+                                                                                item
+                                                                                    .product
+                                                                                    ?.discount_price
+                                                                            }
+                                                                            $
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </Col>
                                                         </Row>

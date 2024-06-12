@@ -5,6 +5,7 @@ import {
     getListMaketer,
     getListPostManage,
     updatePost,
+    updatePostFeatured,
     updatePostStatus,
 } from '../controllers/post/marketer-post';
 import { getListPost, getPostById } from '../controllers/post';
@@ -18,5 +19,6 @@ export default (router: Router) => {
     router.delete('/post/delete/:id', deletePost);
     router.get('/post', getListPost);
     router.put('/post/updateStatus/:id', updatePostStatus);
+    router.put('/post/updateFeatured/:id', updatePostFeatured);
     router.get('/marketers', getListMaketer);
 };
