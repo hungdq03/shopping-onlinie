@@ -305,7 +305,7 @@ const PostList = () => {
                         </Form.Item>
 
                         <Form.Item<FormType> label="Search" name="search">
-                            <Input.Search placeholder="Enter post title..." />
+                            <Input placeholder="Enter post title..." />
                         </Form.Item>
                         <Form.Item<FormType> label="Status" name="isShow">
                             <Select allowClear>
