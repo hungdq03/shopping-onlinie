@@ -2,6 +2,7 @@
 import '~/styles/globals.css';
 import 'swiper/css';
 import 'swiper/css/effect-fade';
+import 'swiper/css/navigation';
 import 'react-toastify/dist/ReactToastify.css';
 import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -78,6 +79,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                         colorPrimary: '#F43F5E',
                         algorithm: true,
                     },
+                    Spin: {
+                        colorPrimary: '#F43F5E',
+                    },
+                },
+                token: {
+                    fontSize: 12,
                 },
             }}
         >

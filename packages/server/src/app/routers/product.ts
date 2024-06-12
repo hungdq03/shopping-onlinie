@@ -9,7 +9,10 @@ import {
     updateProduct,
     updateProductStatus,
 } from '../controllers/product/cms-product';
-import { getListProductSelect } from '../controllers/product';
+import {
+    getListProductFeatured,
+    getListProductSelect,
+} from '../controllers/product';
 
 export default (router: Router) => {
     // Auth route
@@ -47,4 +50,5 @@ export default (router: Router) => {
 
     // Public route
     router.get('/product/select', getListProductSelect);
+    router.get('/product-featured', getListProductFeatured);
 };

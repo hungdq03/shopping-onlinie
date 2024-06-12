@@ -84,7 +84,7 @@ model Product {
   categoryId String
   thumbnail String? @db.Text
   rating Float @default(0)
-  isShow Boolean @default(true)
+  isShow Boolean @default(true)  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
