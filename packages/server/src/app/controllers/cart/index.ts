@@ -22,6 +22,7 @@ export const getListCart = async (req: Request, res: Response) => {
         const listCart = await db.cart.findMany({
             select: {
                 id: true,
+                userId: true,
                 quantity: true,
                 product: true,
             },
@@ -29,8 +30,7 @@ export const getListCart = async (req: Request, res: Response) => {
                 productId: 'asc',
             },
         });
-
-        return res.status(201).json({
+        return res.status(200).json({
             isOk: true,
             data: listCart,
             message: 'Get list cart successfully!',
