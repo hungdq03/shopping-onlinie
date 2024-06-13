@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ProductFeatured } from 'common/types/product';
-import { getImageLink } from 'common/utils/getImageLink';
+import { getImageUrl } from 'common/utils/getImageUrl';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -17,7 +17,7 @@ const ProductCardItem: React.FC<Props> = ({ data }) => {
                     className="rounded-t-2xl"
                     height={270}
                     objectFit="cover"
-                    src={getImageLink(data?.thumbnail ?? '')}
+                    src={getImageUrl(data?.thumbnail ?? '')}
                     style={{
                         height: 270,
                         objectFit: 'cover',

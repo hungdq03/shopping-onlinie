@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { jwtDecode } from 'jwt-decode';
 import { TokenDecoded } from 'types';
+import { getToken } from '../../../lib/utils';
 import { db } from '../../../lib/db';
 
 type CreateCartData = {
@@ -18,8 +19,20 @@ type CartItem = {
 };
 
 export const getListCart = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+
     try {
+        const user = await db.user.findUnique({
+            where: {
+                id: tokenDecoded.id,
+            },
+        });
+
         const listCart = await db.cart.findMany({
+            where: {
+                userId: user.id,
+            },
             select: {
                 id: true,
                 quantity: true,
@@ -30,7 +43,7 @@ export const getListCart = async (req: Request, res: Response) => {
             },
         });
 
-        return res.status(201).json({
+        return res.status(200).json({
             isOk: true,
             data: listCart,
             message: 'Get list cart successfully!',
