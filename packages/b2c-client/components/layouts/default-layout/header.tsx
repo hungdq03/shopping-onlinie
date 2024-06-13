@@ -81,10 +81,10 @@ const Header = () => {
                 ) : (
                     <div className="flex space-x-3">
                         <Button onClick={openLoginModal} type="primary">
-                            Login
+                            Đăng nhập
                         </Button>
                         <Button onClick={openRegisterModal} type="default">
-                            Register
+                            Đăng ký
                         </Button>
                     </div>
                 )}

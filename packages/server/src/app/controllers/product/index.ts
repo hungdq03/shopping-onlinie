@@ -26,6 +26,9 @@ export const getListProductSelect = async (req: Request, res: Response) => {
 export const getListProductFeatured = async (req: Request, res: Response) => {
     try {
         const listProduct = await db.product.findMany({
+            where: {
+                isShow: true,
+            },
             select: {
                 id: true,
                 name: true,
