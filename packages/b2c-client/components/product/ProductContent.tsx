@@ -1,25 +1,14 @@
 import React from 'react';
 import { Layout, Pagination } from 'antd';
 import ProductCard from './ProductCard';
-import styles from '../styles/ProductContent.module.css';
+import styles from '../../styles/ProductContent.module.css';
 import { Product } from '~/types/product';
 
 const { Content } = Layout;
 
-// type Product = {
-//     id: string;
-//     name: string;
-//     discount_price: number;
-//     original_price: number;
-//     description: string;
-//     thumbnail: string;
-//     updatedAt: string;
-// };
-
 type ProductContentProps = {
     products: Product[];
     currentPage: number;
-    totalPages: number;
     total: number;
     onPageChange: (page: number, pageSize?: number) => void;
     pageSize: number;
@@ -28,7 +17,6 @@ type ProductContentProps = {
 const ProductContent: React.FC<ProductContentProps> = ({
     products = [],
     currentPage,
-    // totalPages,
     total,
     onPageChange,
     pageSize,
@@ -44,17 +32,18 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     ))}
                 </div>
                 <div className="mt-5 flex justify-end">
-                    {total ? (
+                    {total > 0 && (
                         <Pagination
                             current={currentPage}
                             defaultCurrent={1}
+                            hideOnSinglePage
                             onChange={onPageChange}
                             pageSize={pageSize}
-                            pageSizeOptions={[5, 10, 20, 50]}
-                            showSizeChanger
+                            pageSizeOptions={[pageSize]}
+                            showSizeChanger={false}
                             total={total}
                         />
-                    ) : null}
+                    )}
                 </div>
             </Content>
         </Layout>

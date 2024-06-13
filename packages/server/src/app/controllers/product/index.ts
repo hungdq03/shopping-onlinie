@@ -52,6 +52,7 @@ type ProductConditions = {
     name?: {
         contains: string;
     };
+    isShow?: boolean; // Đảm bảo rằng cả hai truy vấn đều sử dụng điều kiện này
 };
 
 type SortCondition = {
@@ -67,7 +68,7 @@ export const searchProducts = async (req: Request, res: Response) => {
 
     try {
         // Xây dựng điều kiện tìm kiếm
-        const conditions: ProductConditions = {};
+        const conditions: ProductConditions = { isShow: true };
         if (categoryId) {
             conditions.categoryId = String(categoryId);
         }
@@ -97,7 +98,7 @@ export const searchProducts = async (req: Request, res: Response) => {
 
         // Truy vấn cơ sở dữ liệu với các điều kiện và phân trang
         const products = await db.product.findMany({
-            where: { ...conditions, isShow: true },
+            where: conditions,
             orderBy: orderBy.length ? orderBy : undefined,
             skip,
             take: pageSize,
