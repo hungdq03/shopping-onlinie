@@ -48,7 +48,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
 
     const user = cmsUser ? JSON.parse(cmsUser) : null;
 
-    const role = user?.data?.role ?? null;
+    const role = user?.role ?? null;
 
     const router = useRouter();
 
