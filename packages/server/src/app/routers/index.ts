@@ -8,6 +8,7 @@ import product from './product';
 import post from './post';
 import slider from './slider';
 import cart from './cart';
+import order from './order';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ export default (): Router => {
     post(router);
     slider(router);
     cart(router);
+    order(router);
     return router;
 };
