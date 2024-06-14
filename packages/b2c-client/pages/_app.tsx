@@ -82,6 +82,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                     Spin: {
                         colorPrimary: '#F43F5E',
                     },
+                    Pagination: {
+                        colorPrimary: '#F43F5E',
+                        algorithm: true,
+                    },
                 },
                 token: {
                     fontSize: 12,

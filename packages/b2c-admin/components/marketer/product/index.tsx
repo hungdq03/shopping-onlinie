@@ -229,7 +229,6 @@ const ProductList = () => {
                 return (
                     <Switch
                         checkedChildren="Show"
-                        defaultChecked={value}
                         onChange={(checked: boolean) => {
                             updateProductStatusTrigger({
                                 productId: record?.id || '',
@@ -237,6 +236,7 @@ const ProductList = () => {
                             });
                         }}
                         unCheckedChildren="Hide"
+                        value={value}
                     />
                 );
             },
