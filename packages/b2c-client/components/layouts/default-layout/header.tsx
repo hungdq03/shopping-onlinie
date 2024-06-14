@@ -30,6 +30,10 @@ const Header = () => {
             label: <div>Profile</div>,
         },
         {
+            key: 'myOrder',
+            label: <Link href="my-page/my-order/">My order</Link>,
+        },
+        {
             key: '4',
             label: (
                 <div
