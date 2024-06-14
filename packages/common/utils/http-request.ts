@@ -13,7 +13,7 @@ if (process.env.NEXT_PUBLIC_SITE === 'CLIENT') {
 if (process.env.NEXT_PUBLIC_SITE === 'CMS') {
     const userString = Cookies.get('cmsUser');
     const user = userString ? JSON.parse(userString) : null;
-    token = user?.data?.access_token;
+    token = user?.access_token;
 }
 
 const request = axios.create({
