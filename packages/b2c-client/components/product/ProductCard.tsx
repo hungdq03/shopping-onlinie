@@ -32,13 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 throw new Error('No access token available');
             }
 
-            const token = (auth as { access_token: string }).access_token;
-
-            return request.post('/cart/add', data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            return request.post('/cart/add', data);
         },
         onSuccess: () => {
             toast.success('Product added to cart successfully!');
