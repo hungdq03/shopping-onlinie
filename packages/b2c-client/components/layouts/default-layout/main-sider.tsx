@@ -42,6 +42,7 @@ const MainSider = () => {
                         />
                     ))}
                     <SiderItem href="/blog" title="Blog" />
+                    <SiderItem href="/blog" title="Liên hệ" />
                 </div>
             </div>
         </div>
