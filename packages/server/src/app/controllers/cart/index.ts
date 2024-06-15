@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { jwtDecode } from 'jwt-decode';
 import { TokenDecoded } from 'types';
+import { getToken } from '../../../lib/utils';
 import { db } from '../../../lib/db';
 
 type CreateCartData = {
@@ -18,8 +19,14 @@ type CartItem = {
 };
 
 export const getListCart = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+
     try {
         const listCart = await db.cart.findMany({
+            where: {
+                userId: tokenDecoded.id,
+            },
             select: {
                 id: true,
                 userId: true,
@@ -95,5 +102,49 @@ export const addToCart = async (req: Request, res: Response) => {
         return res
             .status(500)
             .json({ error: 'Internal Server Error', details: error });
+    }
+};
+
+export const deleteCartProduct = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const cart = await db.cart.delete({
+            where: {
+                id,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: cart,
+            message: 'Delete cart product successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const updateQuantity = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    try {
+        const post = await db.cart.update({
+            where: {
+                id,
+            },
+            data: {
+                quantity,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: post,
+            message: 'Change quantity successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
     }
 };
