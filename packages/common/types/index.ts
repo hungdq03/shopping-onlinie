@@ -6,7 +6,7 @@ type PaginationResponse = {
 
 export type QueryResponseType<T> = {
     isOk?: boolean | null;
-    data?: Partial<T>;
+    data?: Partial<T>[];
     message?: string | null;
     pagination?: PaginationResponse;
 };
