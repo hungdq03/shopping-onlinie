@@ -1,4 +1,4 @@
-import { MenuOutlined } from '@ant-design/icons';
+import { MenuOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown } from 'antd';
 import Image from 'next/image';
@@ -61,37 +61,45 @@ const Header = () => {
                 <div>
                     <Search />
                 </div>
-                {auth ? (
+                <div className="flex items-center gap-4">
                     <div>
-                        <Dropdown
-                            menu={{ items }}
-                            overlayStyle={{
-                                width: 250,
-                            }}
-                            placement="bottomRight"
-                        >
-                            <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
-                                <Image
-                                    alt="avatar"
-                                    className="rounded-full"
-                                    height={40}
-                                    src="/images/placeholder.jpg"
-                                    width={40}
-                                />
-                                <MenuOutlined />
-                            </div>
-                        </Dropdown>
+                        <ShoppingCartOutlined
+                            className="cursor-pointer text-3xl text-slate-600"
+                            onClick={() => router.push('/my-page/cart-details')}
+                        />
                     </div>
-                ) : (
-                    <div className="flex space-x-3">
-                        <Button onClick={openLoginModal} type="primary">
-                            Đăng nhập
-                        </Button>
-                        <Button onClick={openRegisterModal} type="default">
-                            Đăng ký
-                        </Button>
-                    </div>
-                )}
+                    {auth ? (
+                        <div>
+                            <Dropdown
+                                menu={{ items }}
+                                overlayStyle={{
+                                    width: 250,
+                                }}
+                                placement="bottomRight"
+                            >
+                                <div className="flex cursor-pointer space-x-3 rounded-full border px-3 py-1">
+                                    <Image
+                                        alt="avatar"
+                                        className="rounded-full"
+                                        height={40}
+                                        src="/images/placeholder.jpg"
+                                        width={40}
+                                    />
+                                    <MenuOutlined />
+                                </div>
+                            </Dropdown>
+                        </div>
+                    ) : (
+                        <div className="flex space-x-3">
+                            <Button onClick={openLoginModal} type="primary">
+                                Đăng nhập
+                            </Button>
+                            <Button onClick={openRegisterModal} type="default">
+                                Đăng ký
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -11,11 +11,11 @@ const ListLatestPost = () => {
         queryFn: () => request.get('/post-latest').then((res) => res.data),
     });
     return (
-        <div className="customScroll space-y- h-full w-full">
+        <div className="customScroll space-y- h-full w-full px-2">
             <div className="sticky top-0 z-20 bg-white py-2 text-xl font-bold">
                 Bài viết mới
             </div>
-            <div className=" flex flex-col gap-5 px-10 py-2">
+            <div className=" flex flex-col gap-5 py-2">
                 {data?.data?.map((item) => (
                     <FeaturedPostItem data={item} key={item.id} />
                 ))}

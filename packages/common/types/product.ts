@@ -3,6 +3,8 @@ export type ProductFeatured = {
     thumbnail: string | null;
     name: string | null;
     description: string | null;
+    original_price: number | null;
+    discount_price: number | null;
 };
 
 export type Brand = {

@@ -21,7 +21,11 @@ const LatestPostItem: React.FC<Props> = ({ data }) => {
                         className="object-cover"
                         height={300}
                         src={getImageUrl(data?.thumbnail ?? '')}
-                        width={300}
+                        style={{
+                            width: '100%',
+                            height: 300,
+                        }}
+                        width={350}
                     />
                 </div>
                 <div className="space-y-2 p-4">
