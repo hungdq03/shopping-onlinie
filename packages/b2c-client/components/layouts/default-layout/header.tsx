@@ -27,11 +27,18 @@ const Header = () => {
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: <div>Profile</div>,
+            label: <div>Thông tin</div>,
         },
         {
             key: 'myOrder',
-            label: <Link href="my-page/my-order/">My order</Link>,
+            label: (
+                <div
+                    onClick={() => router.push('/my-page/my-order')}
+                    role="presentation"
+                >
+                    Đơn mua
+                </div>
+            ),
         },
         {
             key: '4',
@@ -41,7 +48,7 @@ const Header = () => {
                     onClick={logOut}
                     role="presentation"
                 >
-                    Log out
+                    Đăng xuất
                 </div>
             ),
         },
