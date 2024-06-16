@@ -1,4 +1,5 @@
 export type OrderDetail = {
+    id: string | null;
     quantity: number | null;
     originalPrice: number | null;
     discountPrice: number | null;
@@ -20,6 +21,12 @@ export type Order = {
     status: string | null;
     totalAmount: string | null;
     paymentMethod: string | null;
+    address: string | null;
+    name: string | null;
+    gender: string | null;
+    email: string | null;
+    phoneNumber: string | null;
+    notes: string | null;
     createdAt: string | null;
     orderDetail: OrderDetail[] | null;
     count: number | null;
@@ -31,4 +38,14 @@ export const orderStatus = {
     DELIVERING: 'Đang vận chuyển',
     DELIVERED: 'Giao hàng thành công',
     CANCELED: 'Đã huỷ',
+};
+
+export const orderPaymentMethod = {
+    BANK_TRANSFER: 'Chuyển khoản',
+    CASH_ON_DELIVERY: 'Thanh toán khi nhận hàng',
+};
+
+export const gender = {
+    MALE: 'Nam',
+    FEMALE: 'Nữ',
 };

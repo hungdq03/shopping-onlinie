@@ -96,3 +96,32 @@ export const getListOrder = async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 };
+
+export const getOrderDetail = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const orderDetail = await db.order.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                orderDetail: true,
+            },
+        });
+
+        if (!orderDetail) {
+            return res.status(403).json({
+                message: 'Order information not founded!',
+            });
+        }
+
+        return res.status(201).json({
+            isOk: true,
+            data: orderDetail,
+            message: 'Get order detail successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
