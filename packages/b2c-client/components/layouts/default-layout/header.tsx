@@ -1,4 +1,4 @@
-import { MenuOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { MenuOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Button, Dropdown } from 'antd';
 import Image from 'next/image';
@@ -10,9 +10,10 @@ import { useAuth } from '~/hooks/useAuth';
 import useLoginModal from '~/hooks/useLoginModal';
 import useRegisterModal from '~/hooks/useRegisterModal';
 import Search from './search';
+import CartIcon from './cart-icon';
 
 const Header = () => {
-    const auth = useAuth('client');
+    const auth = useAuth();
     const router = useRouter();
     const { onOpen: openLoginModal } = useLoginModal();
     const { onOpen: openRegisterModal } = useRegisterModal();
@@ -61,13 +62,8 @@ const Header = () => {
                 <div>
                     <Search />
                 </div>
-                <div className="flex items-center gap-4">
-                    <div>
-                        <ShoppingCartOutlined
-                            className="cursor-pointer text-3xl text-slate-600"
-                            onClick={() => router.push('/my-page/cart-details')}
-                        />
-                    </div>
+                <div className="flex items-center gap-8">
+                    <CartIcon />
                     {auth ? (
                         <div>
                             <Dropdown
