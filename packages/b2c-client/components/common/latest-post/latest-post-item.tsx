@@ -23,7 +23,7 @@ const LatestPostItem: React.FC<Props> = ({ data }) => {
                         src={getImageUrl(data?.thumbnail ?? '')}
                         style={{
                             width: '100%',
-                            height: 300,
+                            height: 270,
                         }}
                         width={350}
                     />

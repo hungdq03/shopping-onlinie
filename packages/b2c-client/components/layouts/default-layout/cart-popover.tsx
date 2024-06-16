@@ -31,7 +31,7 @@ const CartPopover: React.FC<Props> = ({ children, data, total }) => {
                         className="cursor-pointer"
                         key={item.id}
                         onClick={() =>
-                            router.push(`/product/${item?.productId}`)
+                            router.push(`/product/${item?.product?.id}`)
                         }
                         role="presentation"
                     >
