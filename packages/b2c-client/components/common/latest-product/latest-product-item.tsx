@@ -20,7 +20,7 @@ const LatestProductItem: React.FC<Props> = ({ data }) => {
                 <div>
                     <Image
                         alt={data?.thumbnail ?? ''}
-                        className="object-cover"
+                        className="rounded-t-lg object-cover"
                         height={300}
                         src={getImageUrl(data?.thumbnail)}
                         width={300}

@@ -10,7 +10,7 @@ type Props = {
 
 const LatestPostItem: React.FC<Props> = ({ data }) => {
     return (
-        <Link href={`/product/${data?.id}`}>
+        <Link href={`/blog/${data?.id}`}>
             <div className="relative cursor-pointer rounded-lg border shadow-md">
                 <div className="bg-primary absolute right-2 top-2 rounded-full px-4 py-1 text-white">
                     New
@@ -18,12 +18,12 @@ const LatestPostItem: React.FC<Props> = ({ data }) => {
                 <div>
                     <Image
                         alt={data?.thumbnail ?? ''}
-                        className="object-cover"
+                        className="rounded-t-lg object-cover"
                         height={300}
                         src={getImageUrl(data?.thumbnail ?? '')}
                         style={{
                             width: '100%',
-                            height: 300,
+                            height: 270,
                         }}
                         width={350}
                     />

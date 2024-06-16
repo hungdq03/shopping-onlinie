@@ -11,7 +11,7 @@ const ListLatestPost = () => {
         queryFn: () => request.get('/post-latest').then((res) => res.data),
     });
     return (
-        <div className="customScroll space-y- h-full w-full px-2">
+        <div className="customScroll h-full w-full space-y-4 px-4">
             <div className="sticky top-0 z-20 bg-white py-2 text-xl font-bold">
                 Bài viết mới
             </div>

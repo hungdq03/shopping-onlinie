@@ -18,7 +18,11 @@ const CartPopover: React.FC<Props> = ({ children, data, total }) => {
 
     const content = useMemo(() => {
         if (!total) {
-            return <div>Chưa có sản phẩm</div>;
+            return (
+                <div className="text-primary py-5 text-center text-lg">
+                    Chưa có sản phẩm!
+                </div>
+            );
         }
         return (
             <div className="mt-5 grid grid-cols-1 gap-2">
@@ -27,7 +31,7 @@ const CartPopover: React.FC<Props> = ({ children, data, total }) => {
                         className="cursor-pointer"
                         key={item.id}
                         onClick={() =>
-                            router.push(`/product/${item?.productId}`)
+                            router.push(`/product/${item?.product?.id}`)
                         }
                         role="presentation"
                     >
