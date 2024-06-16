@@ -1,27 +1,25 @@
 import { Button, Card, Image } from 'antd';
-import { Order, orderStatus } from 'common/types/order';
+import { Order, orderPaymentMethod, orderStatus } from 'common/types/order';
 import { currencyFormatter } from 'common/utils/formatter';
 import { getImageUrl } from 'common/utils/getImageUrl';
 import moment from 'moment';
+import { useRouter } from 'next/router';
 import React from 'react';
 
 interface OrderCardProps {
     order: Order;
 }
 
-const orderPaymentMethod = {
-    BANK_TRANSFER: 'Chuyển khoản',
-    CASH_ON_DELIVERY: 'Thanh toán khi nhận hàng',
-};
-
 export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     const { id, status, createdAt, totalAmount, orderDetail, paymentMethod } =
         order;
 
+    const { push } = useRouter();
+
     return (
-        <div className="my-8">
-            <Card hoverable>
-                <div className="text-lg">
+        <div className="my-4">
+            <Card hoverable onClick={() => push(`/my-page/my-order/${id}`)}>
+                <div className="text-base">
                     <div className="flex items-center justify-between border-b-2  border-b-gray-200 pb-4">
                         <div>
                             <button type="button">Mã đơn hàng: {id}</button>
