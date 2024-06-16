@@ -84,6 +84,7 @@ export const getListProductManage = async (req: Request, res: Response) => {
             discount_price: true,
             thumbnail: true,
             description: true,
+            isFeatured: true,
         };
 
         const total = await db.product.count({
@@ -138,6 +139,7 @@ export const createProduct = async (req: Request, res: Response) => {
         isShow,
         // eslint-disable-next-line @typescript-eslint/naming-convention
         product_image,
+        isFeatured,
     } = req.body;
 
     try {
@@ -153,6 +155,7 @@ export const createProduct = async (req: Request, res: Response) => {
                 categoryId,
                 thumbnail,
                 isShow,
+                isFeatured,
                 product_image: {
                     createMany: {
                         data: product_image,
@@ -188,6 +191,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         isShow,
         // eslint-disable-next-line @typescript-eslint/naming-convention
         product_image,
+        isFeatured,
     } = req.body;
 
     try {
@@ -212,6 +216,7 @@ export const updateProduct = async (req: Request, res: Response) => {
                 categoryId,
                 thumbnail,
                 isShow,
+                isFeatured,
                 product_image: {
                     createMany: {
                         data: product_image,
@@ -314,6 +319,30 @@ export const updateProductStatus = async (req: Request, res: Response) => {
             isOk: true,
             data: product,
             message: 'Change product status successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
+
+export const updateProductFeatured = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { isFeatured } = req.body;
+
+    try {
+        const product = await db.product.update({
+            where: {
+                id,
+            },
+            data: {
+                isFeatured,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: product,
+            message: 'Change product featured successfully!',
         });
     } catch (error) {
         return res.sendStatus(500);

@@ -148,3 +148,47 @@ export const updateQuantity = async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 };
+
+export const getListCartLatest = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+
+    try {
+        const total = await db.cart.count({
+            where: {
+                userId: tokenDecoded.id,
+            },
+        });
+        const listCart = await db.cart.findMany({
+            take: 5,
+            where: {
+                userId: tokenDecoded.id,
+            },
+            select: {
+                id: true,
+                product: {
+                    select: {
+                        id: true,
+                        name: true,
+                        thumbnail: true,
+                        original_price: true,
+                        discount_price: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        return res.status(200).json({
+            isOk: true,
+            data: listCart,
+            pagination: {
+                total,
+            },
+            message: 'Get list cart successfully!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
+    }
+};
