@@ -18,7 +18,7 @@ import DeleteOrderAlert from './delete-order-alert';
 const OrderDetail = () => {
     const { query, back } = useRouter();
     const { data: orderDetail, isLoading } = useQuery<Order>({
-        queryKey: ['order-deta  il'],
+        queryKey: ['order-detail'],
         queryFn: () =>
             request
                 .get(`/order-detail/${query.id}`)

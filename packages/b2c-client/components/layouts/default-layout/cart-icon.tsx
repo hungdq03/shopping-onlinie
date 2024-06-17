@@ -1,23 +1,16 @@
 import { ShoppingCartOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import React from 'react';
-import * as request from 'common/utils/http-request';
 import { Badge } from 'antd';
-import { QueryResponseType } from 'common/types';
-import { Cart } from 'common/types/cart';
 import { useAuth } from '~/hooks/useAuth';
 import CartPopover from './cart-popover';
+import { useCartQuery } from '~/hooks/useCartQuery';
 
 const CartIcon = () => {
     const router = useRouter();
     const auth = useAuth();
 
-    const { data } = useQuery<QueryResponseType<Cart>>({
-        queryKey: ['cart-latest'],
-        queryFn: () => request.get('cart-latest').then((res) => res.data),
-        enabled: !!auth,
-    });
+    const { data } = useCartQuery();
 
     return (
         <div>
