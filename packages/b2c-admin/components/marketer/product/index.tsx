@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
@@ -91,7 +92,34 @@ const ProductList = () => {
                 .put(`product/updateStatus/${productId}`, { isShow })
                 .then((res) => res.data);
         },
-        onSuccess: (res) => toast.success(res.message),
+        onSuccess: (res) => {
+            toast.success(res.message);
+            refetch();
+        },
+        onError: (
+            error: AxiosError<{
+                isOk?: boolean | null;
+                message?: string | null;
+            }>
+        ) => toast.error(error.response?.data.message),
+    });
+
+    const { mutate: updateProductFeaturedTrigger } = useMutation({
+        mutationFn: ({
+            productId,
+            isFeatured,
+        }: {
+            productId: string;
+            isFeatured: boolean;
+        }) => {
+            return request
+                .put(`product-updateFeatured/${productId}`, { isFeatured })
+                .then((res) => res.data);
+        },
+        onSuccess: (res) => {
+            toast.success(res.message);
+            refetch();
+        },
         onError: (
             error: AxiosError<{
                 isOk?: boolean | null;
@@ -219,6 +247,28 @@ const ProductList = () => {
             render: (value: string) => (
                 <div className="line-clamp-3">{value}</div>
             ),
+        },
+        {
+            title: 'Featured',
+            dataIndex: 'isFeatured',
+            key: 'isFeatured',
+            fixed: 'right',
+            render: (value: boolean, record: Product) => {
+                return (
+                    <Switch
+                        checkedChildren="True"
+                        onChange={(checked: boolean) => {
+                            updateProductFeaturedTrigger({
+                                productId: record?.id ?? '',
+                                isFeatured: checked,
+                            });
+                        }}
+                        unCheckedChildren="False"
+                        value={value}
+                    />
+                );
+            },
+            width: 120,
         },
         {
             title: 'Status',
