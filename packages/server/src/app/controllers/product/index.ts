@@ -60,6 +60,7 @@ type ProductConditions = {
         contains: string;
     };
     isShow?: boolean; // Đảm bảo rằng cả hai truy vấn đều sử dụng điều kiện này
+    brandId?: string;
 };
 
 type SortCondition = {
@@ -67,7 +68,7 @@ type SortCondition = {
 };
 
 export const searchProducts = async (req: Request, res: Response) => {
-    const { categoryId, search, sortBy, sortOrder } = req.query;
+    const { categoryId, search, sortBy, sortOrder, brandId } = req.query;
     const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
     const pageSize = req.query.pageSize
         ? parseInt(req.query.pageSize as string, 10)
@@ -83,6 +84,9 @@ export const searchProducts = async (req: Request, res: Response) => {
             conditions.name = {
                 contains: String(search),
             };
+        }
+        if (brandId) {
+            conditions.brandId = String(brandId);
         }
 
         // Xây dựng điều kiện sắp xếp
