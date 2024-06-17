@@ -8,11 +8,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { currencyFormatter } from 'common/utils/formatter';
+import { useRouter } from 'next/router';
 import DeleteCartProductFormModal from './delete-cart-product';
+import { useAuth } from '~/hooks/useAuth';
 
 const { Content, Sider } = Layout;
 
 const CartDetails = () => {
+    const auth = useAuth('client');
+    const router = useRouter();
+
     const { data, isLoading, refetch } = useQuery<QueryResponseType<Cart>>({
         queryKey: ['cart'],
         queryFn: () => request.get('cart').then((res) => res.data),
@@ -30,8 +35,13 @@ const CartDetails = () => {
     const [cartItems, setCartItems] = useState<Cart[]>([]);
 
     useEffect(() => {
-        if (data?.data) {
-            setCartItems(data.data);
+        if (auth) {
+            if (data?.data) {
+                setCartItems(data.data);
+            }
+        } else {
+            const storedCartItems = localStorage.getItem('cart');
+            setCartItems(storedCartItems ? JSON.parse(storedCartItems) : []);
         }
     }, [data]);
 
@@ -57,6 +67,31 @@ const CartDetails = () => {
         setCartItems(updatedCartItems); // Update state
         // localStorage.setItem('cartItems', JSON.stringify(updatedCartItems)); // Update localStorage
     };
+
+    // const updateCartQuantity = (id: string, type: 'plus' | 'minus') => {
+    //     const updatedCartItems = cartItems.map((item) => {
+    //         if (item.id === id) {
+    //             let newQuantity =
+    //                 type === 'plus'
+    //                     ? (item.quantity ?? 0) + 1
+    //                     : (item.quantity ?? 0) - 1;
+    //             // Ensure quantity doesn't go below 1
+    //             newQuantity = Math.max(newQuantity, 1);
+    //             updateCartTrigger({
+    //                 id: id || '',
+    //                 quantity: newQuantity,
+    //             });
+
+    //             return { ...item, quantity: newQuantity };
+    //         }
+
+    //         return item;
+    //     });
+    //     if (auth) {
+    //         setCartItems(updatedCartItems); // Update state
+    //     }
+    //     localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+    // };
 
     const totalPrice = cartItems.reduce(
         (total, item) =>
@@ -238,6 +273,11 @@ const CartDetails = () => {
                                         </Link>
                                         <Button
                                             block
+                                            onClick={() =>
+                                                router.push(
+                                                    '/my-page/cart-contact'
+                                                )
+                                            }
                                             size="large"
                                             type="primary"
                                         >
