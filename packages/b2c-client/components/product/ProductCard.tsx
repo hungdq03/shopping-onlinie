@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Card, Typography } from 'antd';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/router'; // Import useRouter từ Next.js
+import { useRouter } from 'next/router';
 import * as request from 'common/utils/http-request';
 import styles from '../../styles/ProductCard.module.css';
 import useLoginModal from '~/hooks/useLoginModal';
@@ -24,7 +24,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const { onOpen } = useLoginModal();
     const auth = useAuth('client');
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
-    const router = useRouter(); // Sử dụng useRouter từ Next.js
+    const router = useRouter();
 
     const addToCart = useMutation({
         mutationFn: async (data: { productId: string; quantity: number }) => {
@@ -32,13 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 throw new Error('No access token available');
             }
 
-            const token = (auth as { access_token: string }).access_token;
-
-            return request.post('/cart/add', data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            return request.post('/cart/add', data);
         },
         onSuccess: () => {
             toast.success('Product added to cart successfully!');
@@ -50,14 +44,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
     const handleBuy = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
-        if (!auth) {
-            onOpen();
-        } else {
-            addToCart.mutate({
-                productId: id,
-                quantity: 1,
-            });
+        const productData = { productId: id, quantity: 1 };
+
+        // Check if user is authenticated
+        if (auth && (auth as { access_token: string }).access_token) {
+            addToCart.mutate(productData);
         }
+
+        // Save to localStorage
+        const now = new Date().toISOString();
+        const localProductData = {
+            ...productData,
+            createdAt: now,
+            updatedAt: now,
+        };
+
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingProductIndex = cart.findIndex(
+            (item: { productId: string }) => item.productId === id
+        );
+        if (existingProductIndex > -1) {
+            cart[existingProductIndex].quantity += 1;
+            cart[existingProductIndex].updatedAt = now;
+        } else {
+            cart.push(localProductData);
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        toast.success('Product added to cart!');
     };
 
     const handleFeedback = (event: React.MouseEvent<HTMLButtonElement>) => {
