@@ -1,3 +1,5 @@
+import { ORDER_STATUS } from '@prisma/client';
+
 export type OrderDetail = {
     id: string | null;
     quantity: number | null;
@@ -18,7 +20,7 @@ export type OrderDetail = {
 
 export type Order = {
     id: string | null;
-    status: string | null;
+    status: ORDER_STATUS;
     totalAmount: string | null;
     paymentMethod: string | null;
     address: string | null;

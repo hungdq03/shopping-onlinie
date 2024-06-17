@@ -31,17 +31,23 @@ const DeleteOrderAlert: React.FC<Props> = ({ orderId, productName }) => {
     return (
         <div>
             <Button
-                onClick={() => setIsOpenModal(true)}
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsOpenModal(true);
+                }}
                 size="large"
-                style={{ width: '200px' }}
-                type="primary"
+                style={{ width: '200px', zIndex: '20' }}
+                type="default"
             >
                 Huỷ đơn hàng
             </Button>
             <Modal
+                cancelText="Hủy"
                 centered
                 closable={!isPending}
                 maskClosable={false}
+                okText="Xác nhận"
                 onCancel={() => setIsOpenModal(false)}
                 onOk={() => mutate()}
                 open={isOpenModal}
