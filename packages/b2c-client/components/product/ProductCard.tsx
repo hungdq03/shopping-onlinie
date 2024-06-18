@@ -4,6 +4,8 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import * as request from 'common/utils/http-request';
+import { getImageUrl } from '~/../common/utils/getImageUrl';
+import { currencyFormatter } from '~/../common/utils/formatter';
 import styles from '../../styles/ProductCard.module.css';
 import useLoginModal from '~/hooks/useLoginModal';
 import { useAuth } from '~/hooks/useAuth';
@@ -22,7 +24,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     thumbnail,
 }) => {
     const { onOpen } = useLoginModal();
-    const auth = useAuth('client');
+    const auth = useAuth();
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
     const router = useRouter();
 
@@ -49,28 +51,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
         // Check if user is authenticated
         if (auth && (auth as { access_token: string }).access_token) {
             addToCart.mutate(productData);
-        }
-
-        // Save to localStorage
-        const now = new Date().toISOString();
-        const localProductData = {
-            ...productData,
-            createdAt: now,
-            updatedAt: now,
-        };
-
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const existingProductIndex = cart.findIndex(
-            (item: { productId: string }) => item.productId === id
-        );
-        if (existingProductIndex > -1) {
-            cart[existingProductIndex].quantity += 1;
-            cart[existingProductIndex].updatedAt = now;
         } else {
-            cart.push(localProductData);
+            // Save to localStorage
+            const now = new Date().toISOString();
+            const localProductData = {
+                ...productData,
+                createdAt: now,
+                updatedAt: now,
+            };
+
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const existingProductIndex = cart.findIndex(
+                (item: { productId: string }) => item.productId === id
+            );
+            if (existingProductIndex > -1) {
+                cart[existingProductIndex].quantity += 1;
+                cart[existingProductIndex].updatedAt = now;
+            } else {
+                cart.push(localProductData);
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            toast.success('Product added to cart!');
         }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        toast.success('Product added to cart!');
     };
 
     const handleFeedback = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -86,8 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         router.push(`/product/${id}`);
     };
 
-    const imageUrl = thumbnail ? `/images/${thumbnail}` : '/images/sp1.jpg';
-
+    const imageUrl = thumbnail ? getImageUrl(thumbnail) : '/images/sp1.jpg';
     return (
         <>
             <Card
@@ -111,10 +112,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     title={<div className={styles.metaTitle}>{name}</div>}
                 />
                 <Typography.Paragraph className={styles.originalPrice}>
-                    <del>{original_price}đ</del>
+                    <del>{currencyFormatter(original_price)}</del>
                 </Typography.Paragraph>
                 <Typography.Paragraph className={styles.discountPrice}>
-                    {discount_price}đ
+                    {currencyFormatter(
+                        discount_price !== null
+                            ? discount_price
+                            : original_price
+                    )}
+                    {/* {discount_price !== null ? discount_price : original_price}đ */}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
                     <Button

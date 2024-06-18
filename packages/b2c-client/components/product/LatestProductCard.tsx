@@ -1,4 +1,5 @@
 import React from 'react';
+import { getImageUrl } from '~/../common/utils/getImageUrl';
 import styles from '../../styles/LatestProductCard.module.css';
 
 type LatestProductCardProps = {
@@ -12,7 +13,7 @@ const LatestProductCard: React.FC<LatestProductCardProps> = ({
     discount_price,
     thumbnail,
 }) => {
-    const imageUrl = thumbnail ? `/images/${thumbnail}` : '/images/sp1.jpg';
+    const imageUrl = thumbnail ? getImageUrl(thumbnail) : '/images/sp1.jpg';
 
     return (
         <div className={styles.latestProductCard}>
