@@ -4,16 +4,20 @@ import { currencyFormatter } from 'common/utils/formatter';
 import { getImageUrl } from 'common/utils/getImageUrl';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useState } from 'react';
 import DeleteOrderAlert from './delete-order-alert';
+import FeedbackModal from '../modals/feedback-modal';
+import ReviewModal from '../modals/review-modal';
 
 interface OrderCardProps {
     order: Order;
+    reload: () => void;
 }
 
-export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
+export const OrderCard: React.FC<OrderCardProps> = ({ order, reload }) => {
     const { id, status, createdAt, totalAmount, orderDetail, paymentMethod } =
         order;
+    const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
 
     const { push } = useRouter();
 
@@ -22,7 +26,6 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
             <Card
                 hoverable
                 onClick={(e) => {
-                    e.preventDefault();
                     e.stopPropagation();
                     push(`/my-page/my-order/${id}`);
                 }}
@@ -125,20 +128,76 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                                     )}
                             </div>
                             <div className="flex items-center">
-                                <div className="flex gap-4">
-                                    {order.count === 0 && (
-                                        <Button
-                                            size="large"
-                                            style={{
-                                                width: '100px',
-                                            }}
-                                            type="primary"
-                                        >
-                                            Đánh giá
-                                        </Button>
-                                    )}
+                                <div
+                                    className="flex gap-4"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                    role="presentation"
+                                >
+                                    {order?.orderDetail &&
+                                        order.count === 0 &&
+                                        (order.status === 'DELIVERED' ? (
+                                            <ReviewModal
+                                                category={
+                                                    order.orderDetail[0]
+                                                        .category ?? ''
+                                                }
+                                                productId={
+                                                    order?.orderDetail[0]
+                                                        ?.productId ?? ''
+                                                }
+                                                productName={
+                                                    order.orderDetail[0]
+                                                        .productName ?? ''
+                                                }
+                                                size={
+                                                    order.orderDetail[0].size ??
+                                                    ''
+                                                }
+                                                thumnail={
+                                                    order.orderDetail[0]
+                                                        .thumbnail ?? ''
+                                                }
+                                            />
+                                        ) : (
+                                            <Button
+                                                onClick={() =>
+                                                    setFeedbackModalVisible(
+                                                        true
+                                                    )
+                                                }
+                                                size="large"
+                                                type="primary"
+                                            >
+                                                Phản hồi
+                                            </Button>
+                                        ))}
+
+                                    <FeedbackModal
+                                        onClose={() =>
+                                            setFeedbackModalVisible(false)
+                                        }
+                                        productId={
+                                            orderDetail[0].productId ?? ''
+                                        }
+                                        productName={
+                                            orderDetail[0].productName ?? ''
+                                        }
+                                        visible={isFeedbackModalVisible}
+                                    />
+
                                     {order.status === 'DELIVERED' && (
                                         <Button
+                                            onClick={() => {
+                                                const productIdList =
+                                                    order.orderDetail?.map(
+                                                        (e) => e.productId
+                                                    );
+                                                push(
+                                                    `/my-page/cart-details?itemKeys=${productIdList}`
+                                                );
+                                            }}
                                             size="large"
                                             style={{
                                                 width: '100px',
@@ -151,7 +210,6 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
                                     <div
                                         onClick={(e) => {
-                                            e.preventDefault();
                                             e.stopPropagation();
                                         }}
                                         role="presentation"
@@ -172,6 +230,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                                                                     null
                                                             ) as string[]
                                                     }
+                                                    reload={() => reload()}
                                                 />
                                             )}
                                     </div>
