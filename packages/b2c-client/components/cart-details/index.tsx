@@ -15,7 +15,7 @@ import { useAuth } from '~/hooks/useAuth';
 const { Content, Sider } = Layout;
 
 const CartDetails = () => {
-    const auth = useAuth('client');
+    const auth = useAuth();
     const router = useRouter();
 
     const { data, isLoading, refetch } = useQuery<QueryResponseType<Cart>>({
@@ -68,34 +68,13 @@ const CartDetails = () => {
         // localStorage.setItem('cartItems', JSON.stringify(updatedCartItems)); // Update localStorage
     };
 
-    // const updateCartQuantity = (id: string, type: 'plus' | 'minus') => {
-    //     const updatedCartItems = cartItems.map((item) => {
-    //         if (item.id === id) {
-    //             let newQuantity =
-    //                 type === 'plus'
-    //                     ? (item.quantity ?? 0) + 1
-    //                     : (item.quantity ?? 0) - 1;
-    //             // Ensure quantity doesn't go below 1
-    //             newQuantity = Math.max(newQuantity, 1);
-    //             updateCartTrigger({
-    //                 id: id || '',
-    //                 quantity: newQuantity,
-    //             });
-
-    //             return { ...item, quantity: newQuantity };
-    //         }
-
-    //         return item;
-    //     });
-    //     if (auth) {
-    //         setCartItems(updatedCartItems); // Update state
-    //     }
-    //     localStorage.setItem('cart', JSON.stringify(updatedCartItems));
-    // };
-
     const totalPrice = cartItems.reduce(
         (total, item) =>
-            total + (item.quantity ?? 0) * (item.product?.discount_price ?? 0),
+            total +
+            (item.quantity ?? 0) *
+                (item.product?.discount_price ??
+                    item.product?.original_price ??
+                    0),
         0
     );
 
@@ -219,6 +198,9 @@ const CartDetails = () => {
                                                                                 item
                                                                                     .product
                                                                                     ?.discount_price ??
+                                                                                    item
+                                                                                        .product
+                                                                                        ?.original_price ??
                                                                                     0
                                                                             )}
                                                                         </div>
@@ -234,6 +216,9 @@ const CartDetails = () => {
                                                                                     (item
                                                                                         .product
                                                                                         ?.discount_price ??
+                                                                                        item
+                                                                                            .product
+                                                                                            ?.original_price ??
                                                                                         0)
                                                                             )}
                                                                         </div>
@@ -274,9 +259,7 @@ const CartDetails = () => {
                                         <Button
                                             block
                                             onClick={() =>
-                                                router.push(
-                                                    '/my-page/cart-contact'
-                                                )
+                                                router.push('/cart-contact')
                                             }
                                             size="large"
                                             type="primary"

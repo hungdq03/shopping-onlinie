@@ -1,32 +1,18 @@
-import {
-    Button,
-    Card,
-    Col,
-    Form,
-    Input,
-    Layout,
-    Radio,
-    Row,
-    Select,
-    Space,
-} from 'antd';
+import { Button, Card, Col, Layout, Radio, Row, Space } from 'antd';
 import Link from 'next/link';
 import type { RadioChangeEvent } from 'antd';
 import { useState } from 'react';
+import UserDetailAll from './user-contact';
 
 const { Content, Sider } = Layout;
 
 const CartContact = () => {
-    const genderOptions = {
-        MALE: 'Male',
-        FEMALE: 'Female',
-    };
-
     const [value, setValue] = useState(1);
 
     const onChange = (e: RadioChangeEvent) => {
         setValue(e.target.value);
     };
+
     return (
         <Layout>
             <Content style={{ padding: '0 48px' }}>
@@ -37,130 +23,7 @@ const CartContact = () => {
                     <Content>
                         <Row gutter={16}>
                             <Col span={10}>
-                                <Card
-                                    bordered={false}
-                                    title={
-                                        <div className="font-bold">
-                                            Thông tin mua hàng
-                                        </div>
-                                    }
-                                >
-                                    <div className="max-h-[75vh] overflow-auto px-5">
-                                        <Form>
-                                            <Form.Item
-                                                name="name"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message:
-                                                            'Họ và tên không được để trống!',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="Họ và tên" />
-                                            </Form.Item>
-
-                                            <Form.Item
-                                                name="email"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message:
-                                                            'Email không được để trống!',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="Email" />
-                                            </Form.Item>
-                                            <Form.Item name="gender">
-                                                <Select
-                                                    placeholder="Giới tính"
-                                                    size="large"
-                                                >
-                                                    {Object.values(
-                                                        genderOptions
-                                                    ).map((item: string) => (
-                                                        <Select.Option
-                                                            key={Object.values(
-                                                                genderOptions
-                                                            ).indexOf(item)}
-                                                            value={
-                                                                Object.keys(
-                                                                    genderOptions
-                                                                )[
-                                                                    Object.values(
-                                                                        genderOptions
-                                                                    ).indexOf(
-                                                                        item
-                                                                    )
-                                                                ]
-                                                            }
-                                                        >
-                                                            {item}
-                                                        </Select.Option>
-                                                    ))}
-                                                </Select>
-                                            </Form.Item>
-                                            <Form.Item
-                                                name="phone"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message:
-                                                            'Please input your phone number!',
-                                                    },
-                                                    {
-                                                        pattern:
-                                                            /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/,
-                                                        message:
-                                                            'Please enter a valid phone number!',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input
-                                                    placeholder="Số điện thoại"
-                                                    size="large"
-                                                />
-                                            </Form.Item>
-                                            <Form.Item
-                                                name="address"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message:
-                                                            'Địa chỉ không được để trống!',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="Địa chỉ" />
-                                            </Form.Item>
-                                            <Form.Item
-                                                name="Note"
-                                                rules={[
-                                                    {
-                                                        max: 1000,
-                                                        message:
-                                                            'Brief Infomation must be less than 100 characters!',
-                                                    },
-                                                ]}
-                                            >
-                                                <Input.TextArea
-                                                    placeholder="Ghi chú"
-                                                    rows={5}
-                                                />
-                                            </Form.Item>
-
-                                            <Form.Item>
-                                                <Button
-                                                    htmlType="submit"
-                                                    type="primary"
-                                                >
-                                                    Submit
-                                                </Button>
-                                            </Form.Item>
-                                        </Form>
-                                    </div>
-                                </Card>
+                                <UserDetailAll />
                             </Col>
                             <Col span={6}>
                                 <Card
@@ -251,7 +114,9 @@ const CartContact = () => {
                                                 <Button
                                                     block
                                                     size="large"
-                                                    style={{ marginBottom: 20 }}
+                                                    style={{
+                                                        marginBottom: 20,
+                                                    }}
                                                     type="primary"
                                                 >
                                                     Continue
