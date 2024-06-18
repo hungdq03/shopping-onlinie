@@ -8,17 +8,25 @@ import { toast } from 'react-toastify';
 type Props = {
     orderId: string;
     productName: string[] | null;
+    reload: () => void;
+    width?: number;
 };
 
-const DeleteOrderAlert: React.FC<Props> = ({ orderId, productName }) => {
+const DeleteOrderAlert: React.FC<Props> = ({
+    orderId,
+    productName,
+    width,
+    reload,
+}) => {
     const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
     const { push } = useRouter();
     const { mutate, isPending } = useMutation({
         mutationFn: () =>
-            request.del(`product/delete/${orderId}`).then((res) => res.data),
+            request.del(`/my-order/delete/${orderId}`).then((res) => res.data),
         onSuccess: (res) => {
             toast.success(res?.message);
             setTimeout(() => {
+                reload();
                 push('/my-page/my-order');
                 setIsOpenModal(false);
             }, 500);
@@ -32,12 +40,11 @@ const DeleteOrderAlert: React.FC<Props> = ({ orderId, productName }) => {
         <div>
             <Button
                 onClick={(e) => {
-                    e.preventDefault();
                     e.stopPropagation();
                     setIsOpenModal(true);
                 }}
                 size="large"
-                style={{ width: '200px', zIndex: '20' }}
+                style={{ width: `${width}px` }}
                 type="default"
             >
                 Huỷ đơn hàng
@@ -75,5 +82,7 @@ const DeleteOrderAlert: React.FC<Props> = ({ orderId, productName }) => {
         </div>
     );
 };
-
+DeleteOrderAlert.defaultProps = {
+    width: 200,
+};
 export default DeleteOrderAlert;
