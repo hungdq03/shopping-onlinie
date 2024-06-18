@@ -1,34 +1,65 @@
+/* eslint-disable max-lines-per-function */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable max-lines */
 import { LeftOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Card, Image, Layout, Spin } from 'antd';
 import {
-    gender,
+    genderType,
     Order,
     orderPaymentMethod,
     orderStatus,
 } from 'common/types/order';
 import { currencyFormatter } from 'common/utils/formatter';
 import { getImageUrl } from 'common/utils/getImageUrl';
-import request from 'common/utils/http-request';
+import request, { get } from 'common/utils/http-request';
 import moment from 'moment';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
+import Sider from 'antd/es/layout/Sider';
+import { PAGE_SIZE_CLIENT_PRODUCT } from 'common/constant';
 import styles from '~/styles/Products.module.css';
+import EditOrderModal from './edit-order-modal';
 import DeleteOrderAlert from './delete-order-alert';
+import FeedbackModal from '../modals/feedback-modal';
+import ReviewModal from '../modals/review-modal';
+import Sidebar from '../product/Sidebar';
+
+type SearchParams = {
+    page: number;
+    pageSize: number;
+    sortBy?: string;
+    sortOrder?: string;
+    categoryId?: string;
+    search?: string;
+    brandId?: string;
+};
 
 const OrderDetail = () => {
-    const { query, back } = useRouter();
-    const { data: orderDetail, isLoading } = useQuery<Order>({
+    const { query: routerQuery, back, push, pathname } = useRouter();
+
+    const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
+
+    const [products, setProducts] = useState([]);
+    const [totalProducts, setTotalProducts] = useState(0);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const {
+        data: orderDetail,
+        isLoading: isLoadingOrder,
+        refetch,
+    } = useQuery<Order>({
         queryKey: ['order-detail'],
         queryFn: () =>
             request
-                .get(`/order-detail/${query.id}`)
+                .get(`/order-detail/${routerQuery.id}`)
                 .then((res) => res.data)
                 .then((res) => res.data),
     });
 
     return (
         <Layout className={styles.container}>
-            <Spin spinning={isLoading}>
+            <Spin spinning={isLoadingOrder}>
                 <div className="flex w-full justify-center">
                     <div className="m-4 flex w-[1000px] flex-col gap-6 rounded-lg bg-white px-4 text-base">
                         <div className="flex w-full justify-between border-b-2 border-solid border-slate-200 py-4 text-lg">
@@ -37,8 +68,13 @@ const OrderDetail = () => {
                                 onClick={() => back()}
                                 role="presentation"
                             >
-                                <LeftOutlined style={{ scale: '1.5' }} />
-                                <span>Trở lại</span>
+                                <Button
+                                    className="flex items-center"
+                                    type="link"
+                                >
+                                    <LeftOutlined style={{ scale: '1.5' }} />
+                                    <span>Trở lại</span>
+                                </Button>
                             </div>
                             <div className="flex items-center gap-4 ">
                                 <span>
@@ -83,14 +119,6 @@ const OrderDetail = () => {
                                         >
                                             Chỉnh sửa đơn hàng
                                         </Button>
-                                        {/* <Button
-                                            size="large"
-                                            style={{
-                                                width: '200px',
-                                            }}
-                                        >
-                                            Huỷ đơn hàng
-                                        </Button> */}
                                         {orderDetail &&
                                             orderDetail.orderDetail && (
                                                 <DeleteOrderAlert
@@ -109,6 +137,8 @@ const OrderDetail = () => {
                                                                     null
                                                             ) as string[]
                                                     }
+                                                    reload={() => {}}
+                                                    width={200}
                                                 />
                                             )}
                                     </>
@@ -121,44 +151,58 @@ const OrderDetail = () => {
                             <span className="text-xl font-bold">
                                 Thông tin nhận hàng
                             </span>
-                            <div className="border-l-2 border-solid border-slate-500 px-8 text-lg">
-                                <p>
-                                    Người nhận:{' '}
-                                    <span className=" ml-1">
-                                        {orderDetail?.name}
-                                    </span>
-                                </p>
-                                <p>
-                                    Giới tính:{' '}
-                                    <span className=" ml-1">
-                                        {
-                                            gender[
-                                                orderDetail?.gender as keyof typeof gender
-                                            ]
-                                        }
-                                    </span>
-                                </p>
-                                <p>
-                                    Email:{' '}
-                                    <span className=" ml-1">
-                                        {orderDetail?.email}
-                                    </span>
-                                </p>
-                                <p>
-                                    Số điện thoại:{' '}
-                                    <span className=" ml-1">
-                                        {orderDetail?.phoneNumber}
-                                    </span>
-                                </p>
-                                <p>
-                                    Địa chỉ:{' '}
-                                    <span className=" ml-1">
-                                        {orderDetail?.address}
-                                    </span>
-                                </p>
-                            </div>
-                            <div>
-                                <Button type="link">Sửa</Button>
+                            <div className="flex border-l-2 border-solid border-slate-500 px-8 text-lg">
+                                <div>
+                                    <p>
+                                        Người nhận:{' '}
+                                        <span className=" ml-1">
+                                            {orderDetail?.name}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        Giới tính:{' '}
+                                        <span className=" ml-1">
+                                            {
+                                                genderType[
+                                                    orderDetail?.gender as keyof typeof genderType
+                                                ]
+                                            }
+                                        </span>
+                                    </p>
+                                    <p>
+                                        Email:{' '}
+                                        <span className=" ml-1">
+                                            {orderDetail?.email}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        Số điện thoại:{' '}
+                                        <span className=" ml-1">
+                                            {orderDetail?.phoneNumber}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        Địa chỉ:{' '}
+                                        <span className=" ml-1">
+                                            {orderDetail?.address}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    {orderDetail?.status === 'PENDING' && (
+                                        <EditOrderModal
+                                            address={orderDetail?.address ?? ''}
+                                            email={orderDetail?.email ?? ''}
+                                            gender={orderDetail?.gender ?? ''}
+                                            name={orderDetail?.name ?? ''}
+                                            orderId={orderDetail?.id ?? ''}
+                                            phoneNumber={
+                                                orderDetail?.phoneNumber ?? ''
+                                            }
+                                            reload={() => refetch()}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -169,6 +213,9 @@ const OrderDetail = () => {
                                     className="my-2"
                                     hoverable
                                     key={detail.id}
+                                    onClick={() =>
+                                        push(`/product/${detail.id}`)
+                                    }
                                 >
                                     <div className=" flex h-full items-center">
                                         <Image
@@ -221,17 +268,71 @@ const OrderDetail = () => {
                                                             )}
                                                     </span>
                                                 </div>
+                                                <div
+                                                    className="flex flex-col gap-4"
+                                                    onClick={(e) =>
+                                                        e.stopPropagation()
+                                                    }
+                                                    role="presentation"
+                                                >
+                                                    {orderDetail.status ===
+                                                    'DELIVERED' ? (
+                                                        <ReviewModal
+                                                            category={
+                                                                detail.category ??
+                                                                ''
+                                                            }
+                                                            productId={
+                                                                detail?.productId ??
+                                                                ''
+                                                            }
+                                                            productName={
+                                                                detail.productName ??
+                                                                ''
+                                                            }
+                                                            size={
+                                                                detail.size ??
+                                                                ''
+                                                            }
+                                                            thumnail={
+                                                                detail.thumbnail ??
+                                                                ''
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <>
+                                                            <Button
+                                                                onClick={() =>
+                                                                    setFeedbackModalVisible(
+                                                                        true
+                                                                    )
+                                                                }
+                                                                size="large"
+                                                                type="primary"
+                                                            >
+                                                                Phản hồi
+                                                            </Button>
 
-                                                <div className="flex flex-col gap-4">
-                                                    <Button
-                                                        size="large"
-                                                        style={{
-                                                            width: '140px',
-                                                        }}
-                                                        type="primary"
-                                                    >
-                                                        Đánh giá
-                                                    </Button>
+                                                            <FeedbackModal
+                                                                onClose={() =>
+                                                                    setFeedbackModalVisible(
+                                                                        false
+                                                                    )
+                                                                }
+                                                                productId={
+                                                                    detail.productId ??
+                                                                    ''
+                                                                }
+                                                                productName={
+                                                                    detail.productName ??
+                                                                    ''
+                                                                }
+                                                                visible={
+                                                                    isFeedbackModalVisible
+                                                                }
+                                                            />
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
