@@ -64,7 +64,6 @@ export const getListOrder = async (req: Request, res: Response) => {
                     select: { orderDetail: true },
                 },
                 orderDetail: {
-                    take: 1,
                     orderBy: {
                         totalPrice: 'asc',
                     },
@@ -125,3 +124,72 @@ export const getOrderDetail = async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 };
+
+export const deleteOrder = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const accessToken = getToken(req);
+
+    if (!accessToken) {
+        return res.sendStatus(401);
+    }
+
+    const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
+
+    try {
+        const orderDeleted = await db.order.delete({
+            where: {
+                id,
+                userId: tokenDecoded.id,
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: orderDeleted,
+            message: 'Huỷ đơn hàng thành công',
+        });
+    } catch (e) {
+        return res.sendStatus(500);
+    }
+};
+
+export const updateOrderInformation = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { name, gender, email, phoneNumber, address } = req.body;
+    const accessToken = getToken(req);
+
+    if (!accessToken) {
+        return res.sendStatus(401);
+    }
+
+    const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
+
+    try {
+        const orderUpdated = await db.order.update({
+            where: {
+                id,
+                userId: tokenDecoded.id,
+            },
+            data: {
+                address,
+                email,
+                gender,
+                name,
+                phoneNumber,
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            data: orderUpdated,
+            message: 'Cập nhật thông tin nhận hàng thành công',
+        });
+    } catch (e) {
+        return res.sendStatus(500);
+    }
+};
+
+// export const updateOrderProduct = async (req: Request, res: Response) => {
+//     const { id } = req.params;
+//     const { name, gender, email, phoneNumber, address } = req.body;
+// };
