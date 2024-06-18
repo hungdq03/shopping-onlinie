@@ -15,6 +15,7 @@ import {
     getListHotSearchProduct,
     getListProductFeatured,
     getListProductSelect,
+    getProductPublicInfoById,
     searchProducts,
 } from '../controllers/product';
 
@@ -64,4 +65,5 @@ export default (router: Router) => {
     router.get('/product/search', searchProducts);
     router.get('/product/latest', getLatestProducts);
     router.get('/product-hot-search', getListHotSearchProduct);
+    router.get('/productPublicInfo/:id', getProductPublicInfoById);
 };

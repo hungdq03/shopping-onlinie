@@ -203,3 +203,61 @@ export const getListHotSearchProduct = async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 };
+
+export const getProductPublicInfoById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const product = await db.product.findUnique({
+            where: {
+                id,
+                isShow: true,
+            },
+            select: {
+                id: true,
+                brand: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+                original_price: true,
+                discount_price: true,
+                rating: true,
+                product_image: {
+                    select: {
+                        id: true,
+                        url: true,
+                    },
+                },
+                name: true,
+                quantity: true,
+                size: true,
+                sold_quantity: true,
+                description: true,
+            },
+        });
+
+        if (!product) {
+            return res.status(400).json({
+                isOk: false,
+                data: null,
+                message: 'This product does not exist!',
+            });
+        }
+
+        return res.status(200).json({
+            isOk: true,
+            data: product,
+            message: 'Get product successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
