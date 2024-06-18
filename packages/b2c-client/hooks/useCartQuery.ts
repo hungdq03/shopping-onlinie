@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import * as request from 'common/utils/http-request';
 import { QueryResponseType } from 'common/types';
 import { useEffect } from 'react';
+import { useAuth } from './useAuth';
 
 type CartQueryState = {
     data: QueryResponseType<Cart> | null | undefined;
@@ -19,12 +20,14 @@ const useCartQueryStore = create<CartQueryState>((set) => {
 });
 
 export const useCartQuery = () => {
+    const auth = useAuth();
     const { data, setData } = useCartQueryStore();
 
     const { data: cartLatestData, refetch } = useQuery<QueryResponseType<Cart>>(
         {
             queryKey: ['cart-latest-global'],
             queryFn: () => request.get('cart-latest').then((res) => res.data),
+            enabled: !!auth,
         }
     );
 
