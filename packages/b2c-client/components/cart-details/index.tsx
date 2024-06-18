@@ -1,6 +1,6 @@
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Card, Col, Layout, Row, Spin } from 'antd';
+import { Button, Card, Checkbox, Col, Layout, Row, Spin } from 'antd';
 import { QueryResponseType } from 'common/types';
 import { Cart } from 'common/types/cart';
 import * as request from 'common/utils/http-request';
@@ -8,11 +8,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { currencyFormatter } from 'common/utils/formatter';
+import { useRouter } from 'next/router';
 import DeleteCartProductFormModal from './delete-cart-product';
 
 const { Content, Sider } = Layout;
 
 const CartDetails = () => {
+    const { query } = useRouter();
+
+    const itemKeysQuery = query.itemKeys as string;
+    const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
     const { data, isLoading, refetch } = useQuery<QueryResponseType<Cart>>({
         queryKey: ['cart'],
         queryFn: () => request.get('cart').then((res) => res.data),
@@ -64,6 +70,21 @@ const CartDetails = () => {
         0
     );
 
+    useEffect(() => {
+        if (itemKeysQuery) {
+            const ids = itemKeysQuery.split(',');
+            setSelectedItems(ids);
+        }
+    }, [itemKeysQuery]);
+
+    const handleCheckboxChange = (id: string, checked: boolean) => {
+        setSelectedItems((prevSelectedItems) =>
+            checked
+                ? [...prevSelectedItems, id]
+                : prevSelectedItems.filter((itemId) => itemId !== id)
+        );
+    };
+
     return (
         <Spin spinning={isLoading}>
             <Layout>
@@ -93,7 +114,31 @@ const CartDetails = () => {
                                                     marginBottom: 10,
                                                     marginLeft: 10,
                                                 }}
-                                                title={`Product ID: ${item.product?.id}`}
+                                                title={
+                                                    <div className="flex items-center gap-2">
+                                                        <Checkbox
+                                                            checked={selectedItems.some(
+                                                                (e) =>
+                                                                    e ===
+                                                                    item.product
+                                                                        ?.id
+                                                            )}
+                                                            onChange={(e) =>
+                                                                handleCheckboxChange(
+                                                                    item.product
+                                                                        ?.id ??
+                                                                        '',
+                                                                    e.target
+                                                                        .checked
+                                                                )
+                                                            }
+                                                            value={
+                                                                item.product?.id
+                                                            }
+                                                        />
+                                                        {` Product ID: ${item.product?.id}`}
+                                                    </div>
+                                                }
                                             >
                                                 <Content>
                                                     <Row gutter={16}>
