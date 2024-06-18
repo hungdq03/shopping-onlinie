@@ -12,6 +12,7 @@ import { useAuth } from '~/hooks/useAuth';
 import { Product } from '~/types/product';
 
 import FeedbackModal from '../modals/feedback-modal';
+import { useCartQuery } from '~/hooks/useCartQuery';
 
 type ProductCardProps = Omit<Product, 'updatedAt'>;
 
@@ -25,8 +26,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
     const { onOpen } = useLoginModal();
     const auth = useAuth();
-    const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
     const router = useRouter();
+    const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
+
+    const { reload } = useCartQuery();
 
     const addToCart = useMutation({
         mutationFn: async (data: { productId: string; quantity: number }) => {
@@ -38,6 +41,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
         },
         onSuccess: () => {
             toast.success('Product added to cart successfully!');
+            setTimeout(() => {
+                reload();
+            }, 200);
         },
         onError: () => {
             toast.error('Failed to add product to cart.');

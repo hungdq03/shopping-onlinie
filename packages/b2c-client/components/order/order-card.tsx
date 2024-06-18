@@ -5,6 +5,7 @@ import { getImageUrl } from 'common/utils/getImageUrl';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import React from 'react';
+import DeleteOrderAlert from './delete-order-alert';
 
 interface OrderCardProps {
     order: Order;
@@ -18,7 +19,14 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
     return (
         <div className="my-4">
-            <Card hoverable onClick={() => push(`/my-page/my-order/${id}`)}>
+            <Card
+                hoverable
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    push(`/my-page/my-order/${id}`);
+                }}
+            >
                 <div className="text-base">
                     <div className="flex items-center justify-between border-b-2  border-b-gray-200 pb-4">
                         <div>
@@ -73,34 +81,36 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                                                 x {orderDetail[0]?.quantity}
                                             </p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span
-                                                className={
-                                                    orderDetail[0]
-                                                        ?.discountPrice
-                                                        ? 'text-gray-400 line-through'
-                                                        : ''
-                                                }
-                                            >
-                                                {orderDetail[0]
-                                                    ?.originalPrice &&
-                                                    currencyFormatter(
-                                                        Number(
-                                                            orderDetail[0]
-                                                                ?.originalPrice
-                                                        )
-                                                    )}
-                                            </span>
-                                            <span>
-                                                {orderDetail[0]
-                                                    ?.discountPrice &&
-                                                    currencyFormatter(
-                                                        Number(
-                                                            orderDetail[0]
-                                                                ?.discountPrice
-                                                        )
-                                                    )}
-                                            </span>
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex gap-2">
+                                                <span
+                                                    className={
+                                                        orderDetail[0]
+                                                            ?.discountPrice
+                                                            ? 'text-gray-400 line-through'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {orderDetail[0]
+                                                        ?.originalPrice &&
+                                                        currencyFormatter(
+                                                            Number(
+                                                                orderDetail[0]
+                                                                    ?.originalPrice
+                                                            )
+                                                        )}
+                                                </span>
+                                                <span>
+                                                    {orderDetail[0]
+                                                        ?.discountPrice &&
+                                                        currencyFormatter(
+                                                            Number(
+                                                                orderDetail[0]
+                                                                    ?.discountPrice
+                                                            )
+                                                        )}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -115,11 +125,57 @@ export const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                                     )}
                             </div>
                             <div className="flex items-center">
-                                {order.count === 0 && (
-                                    <Button size="large" type="primary">
-                                        Đánh giá
-                                    </Button>
-                                )}
+                                <div className="flex gap-4">
+                                    {order.count === 0 && (
+                                        <Button
+                                            size="large"
+                                            style={{
+                                                width: '100px',
+                                            }}
+                                            type="primary"
+                                        >
+                                            Đánh giá
+                                        </Button>
+                                    )}
+                                    {order.status === 'DELIVERED' && (
+                                        <Button
+                                            size="large"
+                                            style={{
+                                                width: '100px',
+                                            }}
+                                            type="primary"
+                                        >
+                                            Mua lại
+                                        </Button>
+                                    )}
+
+                                    <div
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                        }}
+                                        role="presentation"
+                                    >
+                                        {order &&
+                                            order.status === 'PENDING' && (
+                                                <DeleteOrderAlert
+                                                    orderId={order.id ?? ''}
+                                                    productName={
+                                                        order.orderDetail
+                                                            ?.map(
+                                                                (e) =>
+                                                                    e.productName
+                                                            )
+                                                            .filter(
+                                                                (name) =>
+                                                                    name !==
+                                                                    null
+                                                            ) as string[]
+                                                    }
+                                                />
+                                            )}
+                                    </div>
+                                </div>
                                 <div className="w-full flex-col">
                                     <p className="mt-2 flex w-full justify-end ">
                                         Thành tiền:

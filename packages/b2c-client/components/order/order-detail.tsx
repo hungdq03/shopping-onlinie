@@ -18,7 +18,7 @@ import DeleteOrderAlert from './delete-order-alert';
 const OrderDetail = () => {
     const { query, back } = useRouter();
     const { data: orderDetail, isLoading } = useQuery<Order>({
-        queryKey: ['order-deta  il'],
+        queryKey: ['order-detail'],
         queryFn: () =>
             request
                 .get(`/order-detail/${query.id}`)
@@ -81,7 +81,7 @@ const OrderDetail = () => {
                                             }}
                                             type="primary"
                                         >
-                                            Cập nhật đơn hàng
+                                            Chỉnh sửa đơn hàng
                                         </Button>
                                         {/* <Button
                                             size="large"
@@ -117,11 +117,11 @@ const OrderDetail = () => {
                         </div>
 
                         {/* Thông tin nhận hàng */}
-                        <div className="flex items-center justify-center gap-20 divide-x-2 divide-solid divide-slate-500">
+                        <div className="flex items-center justify-center gap-20 ">
                             <span className="text-xl font-bold">
                                 Thông tin nhận hàng
                             </span>
-                            <div className="px-8 text-lg">
+                            <div className="border-l-2 border-solid border-slate-500 px-8 text-lg">
                                 <p>
                                     Người nhận:{' '}
                                     <span className=" ml-1">
@@ -156,6 +156,9 @@ const OrderDetail = () => {
                                         {orderDetail?.address}
                                     </span>
                                 </p>
+                            </div>
+                            <div>
+                                <Button type="link">Sửa</Button>
                             </div>
                         </div>
 
@@ -220,15 +223,6 @@ const OrderDetail = () => {
                                                 </div>
 
                                                 <div className="flex flex-col gap-4">
-                                                    <Button
-                                                        size="large"
-                                                        style={{
-                                                            width: '140px',
-                                                        }}
-                                                        type="primary"
-                                                    >
-                                                        Mua lại
-                                                    </Button>
                                                     <Button
                                                         size="large"
                                                         style={{
