@@ -34,7 +34,7 @@ export const getListCart = async (req: Request, res: Response) => {
                 product: true,
             },
             orderBy: {
-                productId: 'asc',
+                createdAt: 'desc',
             },
         });
         return res.status(200).json({
