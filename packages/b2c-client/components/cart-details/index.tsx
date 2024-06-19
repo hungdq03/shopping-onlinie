@@ -1,4 +1,4 @@
-import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Card, Checkbox, Col, Layout, Row, Spin } from 'antd';
 import { QueryResponseType } from 'common/types';
@@ -10,10 +10,14 @@ import { useEffect, useState } from 'react';
 import { currencyFormatter } from 'common/utils/formatter';
 import { useRouter } from 'next/router';
 import DeleteCartProductFormModal from './delete-cart-product';
+import { useAuth } from '~/hooks/useAuth';
+import useCartStore from '~/hooks/useCartStore';
 
 const { Content, Sider } = Layout;
 
 const CartDetails = () => {
+    const auth = useAuth();
+    const router = useRouter();
     const { query } = useRouter();
 
     const itemKeysQuery = query.itemKeys as string;
@@ -24,9 +28,19 @@ const CartDetails = () => {
         }[]
     >([]);
 
-    const { data, isLoading, refetch } = useQuery<QueryResponseType<Cart>>({
+    const {
+        data: cartData,
+        isLoading: isCartLoading,
+        refetch: refetchCart,
+    } = useQuery<QueryResponseType<Cart>>({
         queryKey: ['cart'],
-        queryFn: () => request.get('cart').then((res) => res.data),
+        queryFn: () => {
+            if (auth) {
+                return request.get('cart').then((res) => res.data);
+            }
+            return Promise.resolve({ data: null }); // Return a dummy response or handle as needed
+        },
+        enabled: !!auth, // Only fetch data when auth is true
     });
 
     const { mutate: updateCartTrigger } = useMutation({
@@ -71,12 +85,21 @@ const CartDetails = () => {
 
     // Initialize cartItems from localStorage or default to empty array
     const [cartItems, setCartItems] = useState<Cart[]>([]);
+    const {
+        data: cartStorage,
+        deleteProduct,
+        updateProductQuantity,
+    } = useCartStore();
 
     useEffect(() => {
-        if (data?.data) {
-            setCartItems(data.data);
+        if (auth) {
+            if (cartData?.data) {
+                setCartItems(cartData.data);
+            }
+        } else {
+            setCartItems(cartStorage);
         }
-    }, [data]);
+    }, [cartData, cartStorage, auth]);
 
     const updateCartQuantity = (id: string, type: 'plus' | 'minus') => {
         const updatedCartItems = cartItems.map((item) => {
@@ -103,7 +126,11 @@ const CartDetails = () => {
 
     const totalPrice = cartItems.reduce(
         (total, item) =>
-            total + (item.quantity ?? 0) * (item.product?.discount_price ?? 0),
+            total +
+            (item.quantity ?? 0) *
+                (item.product?.discount_price ??
+                    item.product?.original_price ??
+                    0),
         0
     );
 
@@ -160,7 +187,7 @@ const CartDetails = () => {
     // };
 
     return (
-        <Spin spinning={isLoading}>
+        <Spin spinning={isCartLoading}>
             <Layout>
                 <Content style={{ padding: '0 48px' }}>
                     <Layout style={{ padding: '24px 0' }}>
@@ -175,14 +202,31 @@ const CartDetails = () => {
                                             <Card
                                                 bordered={false}
                                                 extra={
-                                                    <DeleteCartProductFormModal
-                                                        cartId={item.id ?? ''}
-                                                        productId={
-                                                            item.product?.id ??
-                                                            ''
-                                                        }
-                                                        reload={refetch}
-                                                    />
+                                                    auth ? (
+                                                        <DeleteCartProductFormModal
+                                                            cartId={
+                                                                item.id ?? ''
+                                                            }
+                                                            productId={
+                                                                item.product
+                                                                    ?.id ?? ''
+                                                            }
+                                                            reload={refetchCart}
+                                                        />
+                                                    ) : (
+                                                        <Button
+                                                            danger
+                                                            icon={
+                                                                <DeleteOutlined />
+                                                            }
+                                                            onClick={() =>
+                                                                deleteProduct(
+                                                                    item.productId ??
+                                                                        ''
+                                                                )
+                                                            }
+                                                        />
+                                                    )
                                                 }
                                                 style={{
                                                     marginBottom: 10,
@@ -210,7 +254,7 @@ const CartDetails = () => {
                                                                 item.product?.id
                                                             }
                                                         />
-                                                        {` Product ID: ${item.product?.id}`}
+                                                        {` Mã sản phẩm: ${auth ? item.product?.id : item.productId}`}
                                                     </div>
                                                 }
                                             >
@@ -259,11 +303,23 @@ const CartDetails = () => {
                                                                                 <MinusOutlined />
                                                                             }
                                                                             onClick={() =>
-                                                                                updateCartQuantity(
-                                                                                    item.id ??
-                                                                                        '',
-                                                                                    'minus'
-                                                                                )
+                                                                                auth
+                                                                                    ? updateCartQuantity(
+                                                                                          item.id ??
+                                                                                              '',
+                                                                                          'plus'
+                                                                                      )
+                                                                                    : updateProductQuantity(
+                                                                                          {
+                                                                                              productId:
+                                                                                                  item.productId ??
+                                                                                                  '',
+                                                                                              quantity:
+                                                                                                  (item.quantity ??
+                                                                                                      0) -
+                                                                                                  1,
+                                                                                          }
+                                                                                      )
                                                                             }
                                                                         />
                                                                         <span className="mx-2 flex items-center">
@@ -275,12 +331,31 @@ const CartDetails = () => {
                                                                             icon={
                                                                                 <PlusOutlined />
                                                                             }
+                                                                            // onClick={() =>
+                                                                            //     updateCartQuantity(
+                                                                            //         item.id ??
+                                                                            //             '',
+                                                                            //         'plus'
+                                                                            //     )
+                                                                            // }
                                                                             onClick={() =>
-                                                                                updateCartQuantity(
-                                                                                    item.id ??
-                                                                                        '',
-                                                                                    'plus'
-                                                                                )
+                                                                                auth
+                                                                                    ? updateCartQuantity(
+                                                                                          item.id ??
+                                                                                              '',
+                                                                                          'plus'
+                                                                                      )
+                                                                                    : updateProductQuantity(
+                                                                                          {
+                                                                                              productId:
+                                                                                                  item.productId ??
+                                                                                                  '',
+                                                                                              quantity:
+                                                                                                  (item.quantity ??
+                                                                                                      0) +
+                                                                                                  1,
+                                                                                          }
+                                                                                      )
                                                                             }
                                                                         />
                                                                     </div>
@@ -303,6 +378,9 @@ const CartDetails = () => {
                                                                                 item
                                                                                     .product
                                                                                     ?.discount_price ??
+                                                                                    item
+                                                                                        .product
+                                                                                        ?.original_price ??
                                                                                     0
                                                                             )}
                                                                         </div>
@@ -318,6 +396,9 @@ const CartDetails = () => {
                                                                                     (item
                                                                                         .product
                                                                                         ?.discount_price ??
+                                                                                        item
+                                                                                            .product
+                                                                                            ?.original_price ??
                                                                                         0)
                                                                             )}
                                                                         </div>
@@ -357,7 +438,9 @@ const CartDetails = () => {
                                         </Link>
                                         <Button
                                             block
-                                            // onClick={handleCheckout}
+                                            onClick={() =>
+                                                router.push('/cart-contact')
+                                            }
                                             size="large"
                                             type="primary"
                                         >

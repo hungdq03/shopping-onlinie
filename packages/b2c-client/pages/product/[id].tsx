@@ -21,8 +21,8 @@ const ProductDetailPage: NextPageWithLayout = () => {
         enabled: !!query?.id,
     });
     return (
-        <div className="mt-20 flex space-x-32 px-10">
-            <div className="sticky top-10 h-[90vh] w-[350px] min-w-[350px]">
+        <div className="mt-20 flex px-10">
+            <div className="sticky top-10 hidden h-[90vh] w-[350px] min-w-[350px] xl:block">
                 <LatestProductList />
             </div>
             <div className="flex-1">

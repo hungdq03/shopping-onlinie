@@ -46,6 +46,26 @@ export const getListCart = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Internal server error!' });
     }
 };
+
+export const getContactUser = async (req: Request, res: Response) => {
+    const accessToken = getToken(req);
+    const tokenDecoded = (await jwtDecode(accessToken)) as TokenDecoded;
+
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                id: tokenDecoded.id,
+            },
+        });
+        return res.status(200).json({
+            isOk: true,
+            data: user,
+            message: 'Get user  successfully!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
+    }
+};
 export const addToCart = async (req: Request, res: Response) => {
     const { productId, quantity }: CreateCartData = req.body;
     const accessToken = req.headers.authorization?.split(' ')[1];
