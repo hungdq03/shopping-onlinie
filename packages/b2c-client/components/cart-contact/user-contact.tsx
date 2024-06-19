@@ -3,12 +3,14 @@ import { Button, Card, Form, Input, Select } from 'antd';
 import { User } from 'common/types/cart';
 import { useQuery } from '@tanstack/react-query';
 import request from 'common/utils/http-request';
+import { useAuth } from '~/hooks/useAuth';
 
 type Props = {
     data?: User;
 };
 
 const UserDetailAll: React.FC<Props> = () => {
+    const auth = useAuth();
     const genderOptions = {
         MALE: 'Male',
         FEMALE: 'Female',
@@ -17,6 +19,7 @@ const UserDetailAll: React.FC<Props> = () => {
     const { data } = useQuery({
         queryKey: ['userContact'],
         queryFn: () => request.get('userContact').then((res) => res.data),
+        enabled: !!auth, // Only fetch data when auth is true
     });
 
     const [form] = Form.useForm();
@@ -121,7 +124,7 @@ const UserDetailAll: React.FC<Props> = () => {
 
                         <Form.Item>
                             <Button htmlType="submit" type="primary">
-                                Submit
+                                Lưu
                             </Button>
                         </Form.Item>
                     </Form>

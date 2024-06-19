@@ -1,10 +1,10 @@
-import React from 'react';
-import { Button, Form, Input, Modal } from 'antd';
 import { useMutation } from '@tanstack/react-query';
-import { toast } from 'react-toastify';
+import { Button, Form, Input, Modal } from 'antd';
 import * as request from 'common/utils/http-request';
-import styles from '../../styles/feedback-modal.module.css';
+import React from 'react';
+import { toast } from 'react-toastify';
 import { useAuth } from '~/hooks/useAuth';
+import styles from '../../styles/feedback-modal.module.css';
 
 type FeedbackModalProps = {
     visible: boolean;
@@ -20,7 +20,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
     productName,
 }) => {
     const [form] = Form.useForm();
-    const auth = useAuth('client');
+    const auth = useAuth();
 
     const addFeedback = useMutation({
         mutationFn: async (data: {
@@ -40,11 +40,12 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
             });
         },
         onSuccess: () => {
-            toast.success('Feedback added successfully!');
+            toast.success('Phản hồi sản phẩm thành công!');
+            form.resetFields();
             onClose();
         },
         onError: () => {
-            toast.error('Failed to add feedback.');
+            toast.error('Đã có lỗi xảy ra.');
         },
     });
 
@@ -59,7 +60,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
         <Modal
             footer={null}
             onCancel={onClose}
-            title="Submit Feedback"
+            title="Phản hồi sản phẩm"
             visible={visible}
         >
             <Form
@@ -68,26 +69,26 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                 layout="vertical"
                 onFinish={handleFinish}
             >
-                <Form.Item label="Product">
+                <Form.Item label="Sản phẩm">
                     <Input
                         className={styles.productNameInput}
-                        // disabled
                         value={productName}
                     />
                 </Form.Item>
                 <Form.Item
-                    label="Feedback"
+                    label="Phản hồi"
                     name="description"
                     rules={[
                         {
                             required: true,
-                            message: 'Please enter your feedback',
+                            message: 'Hãy thêm phản hồi của bạn về sản phẩm',
                         },
                     ]}
                 >
                     <Input.TextArea
-                        placeholder="Enter your feedback"
+                        placeholder="Phản hồi sản phẩm"
                         rows={4}
+                        style={{ resize: 'none' }}
                     />
                 </Form.Item>
                 <Form.Item>
@@ -96,7 +97,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                         htmlType="submit"
                         type="primary"
                     >
-                        Submit
+                        Phản hồi
                     </Button>
                 </Form.Item>
             </Form>
