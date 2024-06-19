@@ -88,6 +88,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                         colorPrimary: '#F43F5E',
                         algorithm: true,
                     },
+                    Radio: {
+                        colorPrimary: '#F43F5E',
+                        algorithm: true,
+                    },
                 },
                 token: {
                     fontSize: 12,
