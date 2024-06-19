@@ -47,7 +47,7 @@ export const orderPaymentMethod = {
     CASH_ON_DELIVERY: 'Thanh toán khi nhận hàng',
 };
 
-export const gender = {
+export const genderType = {
     MALE: 'Nam',
     FEMALE: 'Nữ',
 };

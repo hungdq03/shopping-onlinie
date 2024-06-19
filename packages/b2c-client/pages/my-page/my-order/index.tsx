@@ -83,7 +83,10 @@ const MyOrder: NextPage = () => {
                     <div className="flex w-full justify-center">
                         <div className=" w-[1000px]">
                             {listOrder?.data?.map((order) => (
-                                <OrderCard order={order as Order} />
+                                <OrderCard
+                                    order={order as Order}
+                                    reload={() => refetch()}
+                                />
                             ))}
 
                             <div className="mb-8 flex w-full justify-end">

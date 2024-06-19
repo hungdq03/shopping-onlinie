@@ -127,19 +127,11 @@ export const getOrderDetail = async (req: Request, res: Response) => {
 
 export const deleteOrder = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const accessToken = getToken(req);
-
-    if (!accessToken) {
-        return res.sendStatus(401);
-    }
-
-    const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
 
     try {
         const orderDeleted = await db.order.delete({
             where: {
                 id,
-                userId: tokenDecoded.id,
             },
         });
 
@@ -153,22 +145,14 @@ export const deleteOrder = async (req: Request, res: Response) => {
     }
 };
 
-export const updateOrderInformation = async (req: Request, res: Response) => {
+export const editOrderInformation = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, gender, email, phoneNumber, address } = req.body;
-    const accessToken = getToken(req);
-
-    if (!accessToken) {
-        return res.sendStatus(401);
-    }
-
-    const tokenDecoded = jwtDecode(accessToken) as TokenDecoded;
 
     try {
         const orderUpdated = await db.order.update({
             where: {
                 id,
-                userId: tokenDecoded.id,
             },
             data: {
                 address,

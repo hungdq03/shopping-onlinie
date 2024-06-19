@@ -21,7 +21,7 @@ const CartIcon = () => {
                 <Badge count={data?.pagination?.total}>
                     <ShoppingCartOutlined
                         className="cursor-pointer text-3xl text-slate-500"
-                        onClick={() => router.push('/my-page/cart-details')}
+                        onClick={() => router.push('/cart-details')}
                     />
                 </Badge>
             </CartPopover>
