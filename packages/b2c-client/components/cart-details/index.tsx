@@ -17,7 +17,12 @@ const CartDetails = () => {
     const { query } = useRouter();
 
     const itemKeysQuery = query.itemKeys as string;
-    const [selectedItems, setSelectedItems] = useState<string[]>([]);
+    const [selectedItems, setSelectedItems] = useState<
+        {
+            id: string;
+            quantity: string;
+        }[]
+    >([]);
 
     const { data, isLoading, refetch } = useQuery<QueryResponseType<Cart>>({
         queryKey: ['cart'],
@@ -31,6 +36,38 @@ const CartDetails = () => {
                 .then((res) => res.data);
         },
     });
+
+    const { mutate: addCart } = useMutation({
+        mutationFn: async (dataAddCart: {
+            productId: string;
+            quantity: number;
+        }) => {
+            return request.post('/cart/add', dataAddCart);
+        },
+        onSuccess: () => {
+            refetch();
+        },
+    });
+
+    // const { mutate: updateOrder } = useMutation({
+    //     mutationFn: async (dataOrder: {
+    //         quantity: number;
+    //         originalPrice: number;
+    //         discountPrice: number;
+    //         totalPrice: number;
+    //         thumbnail: string;
+    //         brand: string;
+    //         size: number;
+    //         category: string;
+    //         productId: string;
+    //         productName: string;
+    //     }) => {
+    //         return request.post(`/my-order/update/${query.orderId}`, dataOrder);
+    //     },
+    //     onSuccess: () => {
+    //         push('/my-page/my-order');
+    //     },
+    // });
 
     // Initialize cartItems from localStorage or default to empty array
     const [cartItems, setCartItems] = useState<Cart[]>([]);
@@ -72,18 +109,55 @@ const CartDetails = () => {
 
     useEffect(() => {
         if (itemKeysQuery) {
-            const ids = itemKeysQuery.split(',');
-            setSelectedItems(ids);
+            const product = itemKeysQuery.split(',');
+            product.forEach((e: string) => {
+                const [id, quantity] = e.split(':');
+
+                if (!cartItems.some((item) => item.product?.id === id)) {
+                    addCart({
+                        productId: id,
+                        quantity: Number(quantity),
+                    });
+                    refetch();
+                }
+
+                setSelectedItems((prevSelectedItems) => [
+                    ...prevSelectedItems,
+                    { id, quantity },
+                ]);
+            });
         }
     }, [itemKeysQuery]);
 
     const handleCheckboxChange = (id: string, checked: boolean) => {
-        setSelectedItems((prevSelectedItems) =>
-            checked
-                ? [...prevSelectedItems, id]
-                : prevSelectedItems.filter((itemId) => itemId !== id)
-        );
+        setSelectedItems((prevSelectedItems) => {
+            if (checked) {
+                return [...prevSelectedItems, { id, quantity: '1' }];
+            }
+            return prevSelectedItems.filter((item) => item.id !== id);
+        });
     };
+
+    // const handleCheckout = () => {
+    //     selectedItems.forEach((item) => {
+    //         cartItems.map((cart) => {
+    //             if (cart.product?.id === item.id) {
+    //                 updateOrder({
+    //                     quantity: Number(cart.quantity),
+    //                     originalPrice: cart.product?.original_price ?? 0,
+    //                     discountPrice: cart.product?.discount_price ?? 0,
+    //                     totalPrice: cart.product?.discount_price ?? 0,
+    //                     thumbnail: cart.product?.thumbnail ?? '',
+    //                     brand: cart.product?.brand?.name ?? '',
+    //                     size: cart.product?.size ?? 0,
+    //                     category: cart.product?.category?.name ?? '',
+    //                     productId: cart.product?.id ?? '',
+    //                     productName: cart.product?.name ?? '',
+    //                 });
+    //             }
+    //         });
+    //     });
+    // };
 
     return (
         <Spin spinning={isLoading}>
@@ -119,7 +193,7 @@ const CartDetails = () => {
                                                         <Checkbox
                                                             checked={selectedItems.some(
                                                                 (e) =>
-                                                                    e ===
+                                                                    e.id ===
                                                                     item.product
                                                                         ?.id
                                                             )}
@@ -283,6 +357,7 @@ const CartDetails = () => {
                                         </Link>
                                         <Button
                                             block
+                                            // onClick={handleCheckout}
                                             size="large"
                                             type="primary"
                                         >
