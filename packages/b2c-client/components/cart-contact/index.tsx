@@ -12,7 +12,7 @@ import UserDetailAll from './user-contact';
 import { useAuth } from '~/hooks/useAuth';
 import useCartStore from '~/hooks/useCartStore';
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 
 const CartContact = () => {
     const auth = useAuth();
@@ -61,9 +61,6 @@ const CartContact = () => {
         <Layout>
             <Content style={{ padding: '0 48px' }}>
                 <Layout style={{ padding: '24px 0' }}>
-                    <Sider width={200}>
-                        <p>Sider</p>
-                    </Sider>
                     <Content>
                         <Row gutter={16}>
                             <Col span={10}>

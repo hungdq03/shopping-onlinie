@@ -13,7 +13,7 @@ import DeleteCartProductFormModal from './delete-cart-product';
 import { useAuth } from '~/hooks/useAuth';
 import useCartStore from '~/hooks/useCartStore';
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 
 const CartDetails = () => {
     const auth = useAuth();
@@ -117,9 +117,6 @@ const CartDetails = () => {
             <Layout>
                 <Content style={{ padding: '0 48px' }}>
                     <Layout style={{ padding: '24px 0' }}>
-                        <Sider width={200}>
-                            <p>Sider</p>
-                        </Sider>
                         <Content>
                             <Row gutter={16}>
                                 <Col span={16}>

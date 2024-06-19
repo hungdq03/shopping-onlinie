@@ -87,7 +87,7 @@ const CartPopover: React.FC<Props> = ({ children, data, total }) => {
                         />
                     ))}
                     <div className="flex justify-end py-2">
-                        <Link href="/my-page/cart-details">
+                        <Link href="/cart-details">
                             <Button type="primary">Xem giỏ hàng</Button>
                         </Link>
                     </div>
@@ -131,7 +131,7 @@ const CartPopover: React.FC<Props> = ({ children, data, total }) => {
                     </div>
                 ))}
                 <div className="flex justify-end py-2">
-                    <Link href="/my-page/cart-details">
+                    <Link href="/cart-details">
                         <Button type="primary">Xem giỏ hàng</Button>
                     </Link>
                 </div>
