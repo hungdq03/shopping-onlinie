@@ -101,7 +101,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                         {Component.title ? Component.title : 'Perfume Shop'}
                     </title>
                 </Head>
-                <ToastContainer />
+                <ToastContainer autoClose={1000} />
                 <LoginModal />
                 <RegisterModal />
                 {getLayout(<Component {...pageProps} />)}

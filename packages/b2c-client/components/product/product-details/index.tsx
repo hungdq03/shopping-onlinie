@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useState } from 'react';
 import { Product } from 'common/types/product';
 import { Button, Rate, Space } from 'antd';
 import { currencyFormatter } from 'common/utils/formatter';
@@ -76,6 +76,13 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
         }
     }, [buyQuantity, data?.quantity]);
 
+    const disable = useMemo(() => {
+        if (!data?.quantity) {
+            return true;
+        }
+        return false;
+    }, [data?.quantity]);
+
     const handleAddToCard = async () => {
         if (data?.id) {
             if (!auth) {
@@ -97,6 +104,7 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
         if (data?.id) {
             if (!auth) {
                 addProduct({ productId: data?.id, quantity: buyQuantity });
+                router.push('/cart-details');
             } else {
                 const response = await addToCartTrigger({
                     productId: data?.id,
@@ -106,7 +114,7 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                 if (response?.isOk) {
                     toast.success('Thêm sản phẩm vào giỏ hàng thành công.');
                     reload();
-                    router.push('/my-page/cart-details');
+                    router.push('/cart-details');
                 }
             }
         }
@@ -126,18 +134,25 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                             {data?.name}
                         </div>
                         <div className="mt-3 flex items-center gap-8">
-                            <div className="text-primary flex items-center gap-2">
-                                <span className="text-xl underline underline-offset-4">
-                                    {data?.rating}
-                                </span>
-                                <span>
-                                    <Rate
-                                        className="text-primary"
-                                        disabled
-                                        value={data?.rating ?? 0}
-                                    />
-                                </span>
-                            </div>
+                            {data?.rating ? (
+                                <div className="text-primary flex items-center gap-2">
+                                    <span className="text-xl underline underline-offset-4">
+                                        {data?.rating}
+                                    </span>
+                                    <span>
+                                        <Rate
+                                            className="text-primary"
+                                            disabled
+                                            value={data?.rating ?? 0}
+                                        />
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="text-lg text-slate-500">
+                                    Chưa có đánh giá
+                                </div>
+                            )}
+
                             <div className="flex items-center gap-2">
                                 <span className="text-xl">
                                     {data?.sold_quantity}
@@ -169,19 +184,27 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                         <p className="text-slate-500">Số lượng</p>
                         <div className="flex border border-slate-300">
                             <div
-                                className="flex h-[30px] w-[30px] cursor-pointer select-none items-center justify-center border-r border-r-slate-300"
+                                className={cn(
+                                    'flex h-[30px] w-[30px] cursor-pointer select-none items-center justify-center border-r border-r-slate-300',
+                                    disable && 'cursor-not-allowed'
+                                )}
                                 onClick={() =>
-                                    setByQuantity((prev) => prev - 1)
+                                    disable
+                                        ? null
+                                        : setByQuantity((prev) => prev - 1)
                                 }
                                 role="presentation"
                             >
                                 <MinusOutlined />
                             </div>
-                            <div className="flex w-[70px] items-center justify-center">
+                            <div className="flex w-[60px] items-center justify-center">
                                 {buyQuantity}
                             </div>
                             <div
-                                className="flex h-[30px] w-[30px] cursor-pointer select-none items-center justify-center border-l border-l-slate-300"
+                                className={cn(
+                                    'flex h-[30px] w-[30px] cursor-pointer select-none items-center justify-center border-l border-l-slate-300',
+                                    disable && 'cursor-not-allowed'
+                                )}
                                 onClick={() =>
                                     setByQuantity((prev) => prev + 1)
                                 }
@@ -198,6 +221,7 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                         <Space size="large">
                             <Button
                                 className="border-primary text-primary"
+                                disabled={disable}
                                 icon={<ShoppingCartOutlined />}
                                 onClick={handleAddToCard}
                                 size="large"
@@ -205,6 +229,7 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                                 Thêm vào giỏ hàng
                             </Button>
                             <Button
+                                disabled={disable}
                                 onClick={handleBuyNow}
                                 size="large"
                                 type="primary"

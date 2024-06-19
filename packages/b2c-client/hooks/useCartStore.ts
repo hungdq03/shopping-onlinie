@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-type CartLocalItem = {
+export type CartLocalItem = {
     productId: string;
     quantity: number;
 };
