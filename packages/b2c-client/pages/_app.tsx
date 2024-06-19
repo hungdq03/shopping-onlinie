@@ -89,6 +89,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                         colorPrimary: '#F43F5E',
                         algorithm: true,
                     },
+                    Radio: {
+                        colorPrimary: '#F43F5E',
+                        algorithm: true,
+                    },
                 },
                 token: {
                     fontSize: 12,
@@ -108,7 +112,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                         type="image/png"
                     />
                 </Head>
-                <ToastContainer />
+                <ToastContainer autoClose={1000} />
                 <LoginModal />
                 <RegisterModal />
                 {getLayout(<Component {...pageProps} />)}
