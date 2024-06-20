@@ -75,8 +75,8 @@ const ResetPasswordForm: React.FC = () => {
     return (
         <div className="flex h-screen w-full items-center justify-center bg-gray-100">
             {isTokenValid ? (
-                <div className="max-w-lg rounded-lg bg-white p-8 text-center shadow-md">
-                    <h2 className="mb-8 text-3xl font-bold">
+                <div className="max-w-lg rounded-lg bg-white p-8 shadow-md">
+                    <h2 className="mb-8 text-center text-3xl font-bold">
                         Đặt lại mật khẩu
                     </h2>
                     <Form
@@ -94,6 +94,11 @@ const ResetPasswordForm: React.FC = () => {
                                 {
                                     required: true,
                                     message: 'Hãy nhập mật khẩu mới!',
+                                },
+                                {
+                                    min: 6,
+                                    message:
+                                        'Mật khẩu có độ dài tối thiểu 6 kí tự',
                                 },
                             ]}
                         >

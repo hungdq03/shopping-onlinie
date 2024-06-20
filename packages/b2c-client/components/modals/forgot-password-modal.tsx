@@ -97,14 +97,14 @@ const ForgotPasswordModal: React.FC = () => {
                 Quên mật khẩu?
             </Button>
             <Modal
-                actionLabel="Send email"
+                actionLabel="Gửi thư xác nhận"
                 body={bodyContent}
                 disabled={loading || verifyEmailIsPending}
                 footer={footerContent}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={onSubmit}
-                title="Forgot password?"
+                title="Quên mật khẩu?"
             />
         </>
     );
