@@ -7,12 +7,12 @@ import {
 } from '@ant-design/icons';
 import styles from '../../styles/Footer.module.css';
 
-const { Footer } = Layout;
+const { Footer: LayoutFooter } = Layout;
 const { Title, Text, Link } = Typography;
 
-const AppFooter = () => {
+const Footer = () => {
     return (
-        <Footer className={styles.footer}>
+        <LayoutFooter className={styles.footer}>
             <div className={styles.container}>
                 <Row gutter={[32, 32]}>
                     <Col md={8} sm={12} xs={24}>
@@ -87,8 +87,8 @@ const AppFooter = () => {
                     </Text>
                 </Row>
             </div>
-        </Footer>
+        </LayoutFooter>
     );
 };
 
-export default AppFooter;
+export default Footer;
