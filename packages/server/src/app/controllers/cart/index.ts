@@ -150,7 +150,7 @@ export const updateQuantity = async (req: Request, res: Response) => {
     const { quantity } = req.body;
 
     try {
-        const post = await db.cart.update({
+        const cart = await db.cart.update({
             where: {
                 id,
             },
@@ -161,7 +161,7 @@ export const updateQuantity = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             isOk: true,
-            data: post,
+            data: cart,
             message: 'Change quantity successfully!',
         });
     } catch (error) {
