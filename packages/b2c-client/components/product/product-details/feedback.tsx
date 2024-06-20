@@ -41,7 +41,7 @@ const Feedback: React.FC<Props> = ({ productId, productRate }) => {
             <div className="text-xl uppercase underline underline-offset-4">
                 Bình luận và đánh giá
             </div>
-            <div className="mt-5 grid grid-cols-5 rounded-md border bg-rose-50 py-8">
+            <div className="mt-5 grid grid-cols-5 rounded-md border border-rose-50 bg-rose-50 py-8">
                 <div className="flex flex-col items-center gap-4">
                     <div className="text-primary">
                         <span className="mr-1.5 text-xl">{productRate}</span>
@@ -56,7 +56,11 @@ const Feedback: React.FC<Props> = ({ productId, productRate }) => {
                     </div>
                 </div>
                 <div className="col-span-4">
-                    <Radio.Group onChange={onChange} value={rateValue}>
+                    <Radio.Group
+                        buttonStyle="solid"
+                        onChange={onChange}
+                        value={rateValue}
+                    >
                         <Radio.Button value={undefined}>Tất Cả</Radio.Button>
                         {RATING_LIST_CLIENT.map((item) => (
                             <Radio.Button value={item.value}>
@@ -100,6 +104,7 @@ const Feedback: React.FC<Props> = ({ productId, productRate }) => {
                                                 <Rate
                                                     className="text-primary text-sm"
                                                     defaultValue={item?.rating}
+                                                    disabled
                                                 />
                                             </div>
                                         )}
