@@ -1,18 +1,21 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import { currencyFormatter } from '~/../common/utils/formatter';
 import { getImageUrl } from '~/../common/utils/getImageUrl';
 import styles from '../../styles/LatestProductCard.module.css';
 
 type LatestProductCardProps = {
     id: string;
     name: string;
-    discount_price: number;
+    original_price: number;
+    discount_price: number | null;
     thumbnail: string;
 };
 
 const LatestProductCard: React.FC<LatestProductCardProps> = ({
     id,
     name,
+    original_price,
     discount_price,
     thumbnail,
 }) => {
@@ -28,7 +31,8 @@ const LatestProductCard: React.FC<LatestProductCardProps> = ({
             handleCardClick();
         }
     };
-
+    const finalDiscountPrice =
+        discount_price !== null && discount_price !== original_price;
     return (
         <div
             className={styles.latestProductCard}
@@ -46,7 +50,19 @@ const LatestProductCard: React.FC<LatestProductCardProps> = ({
             </div>
             <div className={styles.productInfo}>
                 <span className={styles.productName}>{name}</span>
-                <span className={styles.discountPrice}>{discount_price}đ</span>
+                <span
+                    className={styles.originalPrice}
+                    style={{
+                        visibility: finalDiscountPrice ? 'visible' : 'hidden',
+                    }}
+                >
+                    <del>{currencyFormatter(original_price)}</del>
+                </span>
+                <span className={styles.discountPrice}>
+                    {currencyFormatter(
+                        finalDiscountPrice ? discount_price : original_price
+                    )}
+                </span>
             </div>
         </div>
     );
