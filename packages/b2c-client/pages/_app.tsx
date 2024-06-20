@@ -16,6 +16,7 @@ import { ToastContainer } from 'react-toastify';
 import Head from 'next/head';
 import { ConfigProvider } from 'antd';
 import { getImageUrl } from 'common/utils/getImageUrl';
+import ScrollToTopButton from 'common/components/scroll-to-top';
 import { DefaultLayout } from '~/components/layouts/default-layout';
 import LoginModal from '~/components/modals/login-modal';
 import RegisterModal from '~/components/modals/register-modal';
@@ -116,6 +117,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                 <LoginModal />
                 <RegisterModal />
                 {getLayout(<Component {...pageProps} />)}
+                <div className="fixed bottom-[40px] right-[40px] cursor-pointer">
+                    <ScrollToTopButton />
+                </div>
             </QueryClientProvider>
         </ConfigProvider>
     );

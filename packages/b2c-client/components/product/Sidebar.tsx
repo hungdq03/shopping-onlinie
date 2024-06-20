@@ -143,12 +143,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
 
     return (
-        <Sider className={styles.sidebar} width={240}>
+        <Sider className={styles.sidebar} width={300}>
             <div className={styles.searchSection}>
                 <Search
                     enterButton
                     onSearch={onSearch}
-                    placeholder="Tìm kiếm..."
+                    placeholder="Nhập tên sản phẩm để tìm kiếm..."
                 />
             </div>
             <div className={styles.menuSection}>
