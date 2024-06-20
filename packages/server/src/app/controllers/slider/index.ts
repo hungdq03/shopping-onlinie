@@ -11,20 +11,14 @@ type SliderFilter = {
     backlink?: {
         contains: string;
     };
+    OR?: SliderFilter[];
 };
 
 type SortOrder = 'desc' | 'asc';
 
 export const getListSliderManage = async (req: Request, res: Response) => {
-    const {
-        searchByTitle,
-        searchByBacklink,
-        pageSize,
-        currentPage,
-        isShow,
-        orderName,
-        order,
-    } = req.query;
+    const { search, pageSize, currentPage, isShow, orderName, order } =
+        req.query;
 
     const pagination = {
         skip: (Number(currentPage ?? 1) - 1) * Number(pageSize ?? PAGE_SIZE),
@@ -47,16 +41,11 @@ export const getListSliderManage = async (req: Request, res: Response) => {
             whereClause.isShow = isShow === 'true';
         }
 
-        if (searchByTitle) {
-            whereClause.title = {
-                contains: String(searchByTitle),
-            };
-        }
-
-        if (searchByBacklink) {
-            whereClause.backlink = {
-                contains: String(searchByBacklink),
-            };
+        if (search) {
+            whereClause.OR = [
+                { title: { contains: String(search) } },
+                { backlink: { contains: String(search) } },
+            ];
         }
 
         const select = {
