@@ -4,17 +4,16 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Card, Checkbox, Col, Layout, Row } from 'antd';
 import { QueryResponseType } from 'common/types';
 import { Cart } from 'common/types/cart';
+import { currencyFormatter } from 'common/utils/formatter';
 import * as request from 'common/utils/http-request';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useEffect, useMemo, useState } from 'react';
-import { currencyFormatter } from 'common/utils/formatter';
 import { useRouter } from 'next/router';
-import DeleteCartProductFormModal from './delete-cart-product';
+import { useEffect, useState } from 'react';
 import { useAuth } from '~/hooks/useAuth';
 import useCartStore from '~/hooks/useCartStore';
 import CartStoreItem from './cart-list';
-import TotalCartPrice from './total-cart-price';
+import DeleteCartProductFormModal from './delete-cart-product';
 
 const { Content } = Layout;
 
@@ -24,6 +23,11 @@ const CartDetails = () => {
     const router = useRouter();
     const { query } = useRouter();
 
+    // Initialize cartItems from localStorage or default to empty array
+    const [cartItems, setCartItems] = useState<Cart[]>([]);
+
+    const { data: cartStorage } = useCartStore();
+
     const itemKeysQuery = query.itemKeys as string;
     const [selectedItems, setSelectedItems] = useState<
         {
@@ -31,6 +35,31 @@ const CartDetails = () => {
             quantity: string;
         }[]
     >([]);
+
+    const [totalCartPrice, setTotalCartPrice] = useState(0);
+
+    const { data: listProductCart, isLoading: isLoadingListProductCart } =
+        useQuery<
+            QueryResponseType<{
+                id: string;
+                discount_price: number;
+                original_price: number;
+            }>
+        >({
+            queryKey: ['list_product_cart'],
+            queryFn: async () => {
+                return request
+                    .get('/list-product-cart', {
+                        params: {
+                            listProductId: cartStorage.map(
+                                (cart) => cart.productId
+                            ),
+                        },
+                    })
+                    .then((res) => res.data);
+            },
+            enabled: cartStorage.length > 0,
+        });
 
     const { data: cartData, refetch: refetchCart } = useQuery<
         QueryResponseType<Cart>
@@ -65,10 +94,24 @@ const CartDetails = () => {
         },
     });
 
-    // Initialize cartItems from localStorage or default to empty array
-    const [cartItems, setCartItems] = useState<Cart[]>([]);
-
-    const { data: cartStorage } = useCartStore();
+    useEffect(() => {
+        if (listProductCart?.data) {
+            const total = listProductCart.data.reduce((acc, cur) => {
+                const cartItem = cartStorage.find(
+                    (item) => item.productId === cur.id
+                );
+                if (cartItem) {
+                    const price = cur.discount_price ?? cur.original_price ?? 0;
+                    // eslint-disable-next-line no-param-reassign
+                    acc += price * cartItem.quantity;
+                }
+                return acc;
+            }, 0);
+            setTotalCartPrice(total);
+        } else {
+            setTotalCartPrice(0);
+        }
+    }, [listProductCart, cartStorage, isLoadingListProductCart]);
 
     useEffect(() => {
         if (auth) {
@@ -147,80 +190,7 @@ const CartDetails = () => {
         });
     };
 
-    const content = useMemo(() => {
-        if (!auth) {
-            return (
-                <Layout>
-                    <Content style={{ padding: '0 48px' }}>
-                        <Layout style={{ padding: '24px 0' }}>
-                            <Content>
-                                <Row gutter={16}>
-                                    <Col span={16}>
-                                        {cartItems?.map((item) => (
-                                            <CartStoreItem
-                                                key={item?.productId}
-                                                productId={item.productId ?? ''}
-                                                quantity={item.quantity ?? 0}
-                                            />
-                                        ))}
-                                    </Col>
-                                    <Col span={8}>
-                                        <Card
-                                            bordered={false}
-                                            title={
-                                                <div>
-                                                    Tổng đơn hàng:
-                                                    <span>
-                                                        {cartItems?.map(
-                                                            (item) => (
-                                                                <TotalCartPrice
-                                                                    key={
-                                                                        item.productId
-                                                                    }
-                                                                    productId={
-                                                                        item.productId ??
-                                                                        ''
-                                                                    }
-                                                                    quantity={
-                                                                        item.quantity ??
-                                                                        0
-                                                                    }
-                                                                />
-                                                            )
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            }
-                                        >
-                                            <Link href="/product">
-                                                <Button
-                                                    block
-                                                    size="large"
-                                                    style={{ marginBottom: 20 }}
-                                                    type="primary"
-                                                >
-                                                    Tiếp tục mua sắm
-                                                </Button>
-                                            </Link>
-                                            <Button
-                                                block
-                                                onClick={() =>
-                                                    router.push('/cart-contact')
-                                                }
-                                                size="large"
-                                                type="primary"
-                                            >
-                                                Thanh toán đơn hàng
-                                            </Button>
-                                        </Card>
-                                    </Col>
-                                </Row>
-                            </Content>
-                        </Layout>
-                    </Content>
-                </Layout>
-            );
-        }
+    if (!auth) {
         return (
             <Layout>
                 <Content style={{ padding: '0 48px' }}>
@@ -229,170 +199,11 @@ const CartDetails = () => {
                             <Row gutter={16}>
                                 <Col span={16}>
                                     {cartItems?.map((item) => (
-                                        <Layout key={item.id}>
-                                            <Card
-                                                bordered={false}
-                                                extra={
-                                                    <DeleteCartProductFormModal
-                                                        cartId={item.id ?? ''}
-                                                        productId={
-                                                            item.product?.id ??
-                                                            ''
-                                                        }
-                                                        reload={refetchCart}
-                                                    />
-                                                }
-                                                style={{
-                                                    marginBottom: 10,
-                                                    marginLeft: 10,
-                                                }}
-                                                title={
-                                                    <div className="flex items-center gap-2">
-                                                        <Checkbox
-                                                            checked={selectedItems.some(
-                                                                (e) =>
-                                                                    e.id ===
-                                                                    item.product
-                                                                        ?.id
-                                                            )}
-                                                            onChange={(e) =>
-                                                                handleCheckboxChange(
-                                                                    item.product
-                                                                        ?.id ??
-                                                                        '',
-                                                                    e.target
-                                                                        .checked
-                                                                )
-                                                            }
-                                                            value={
-                                                                item.product?.id
-                                                            }
-                                                        />
-                                                        {` Mã sản phẩm: ${auth ? item.product?.id : item.productId}`}
-                                                    </div>
-                                                }
-                                            >
-                                                <Content>
-                                                    <Row gutter={16}>
-                                                        <Col span={6}>
-                                                            <div
-                                                                style={{
-                                                                    height: 150,
-                                                                }}
-                                                            >
-                                                                <Image
-                                                                    alt={
-                                                                        item.id ??
-                                                                        ''
-                                                                    }
-                                                                    className="shadow-lg"
-                                                                    layout="fill"
-                                                                    objectFit="cover"
-                                                                    src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.product?.thumbnail}`}
-                                                                />
-                                                            </div>
-                                                        </Col>
-                                                        <Col span={8}>
-                                                            <div className="relative flex justify-center text-xl font-semibold">
-                                                                {
-                                                                    item.product
-                                                                        ?.name
-                                                                }
-                                                            </div>
-                                                            <div className="relative top-2 flex justify-center">
-                                                                <div>
-                                                                    <div className="text-center">
-                                                                        Số lượng
-                                                                    </div>
-                                                                    <div
-                                                                        className="max-sm: relative top-1 flex border-spacing-2 justify-evenly backdrop-brightness-90"
-                                                                        style={{
-                                                                            borderRadius: 10,
-                                                                            width: 100,
-                                                                        }}
-                                                                    >
-                                                                        <Button
-                                                                            block
-                                                                            icon={
-                                                                                <MinusOutlined />
-                                                                            }
-                                                                            onClick={() =>
-                                                                                updateCartQuantity(
-                                                                                    item.id ??
-                                                                                        '',
-                                                                                    'minus'
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                        <span className="mx-2 flex items-center">
-                                                                            {item.quantity ??
-                                                                                0}
-                                                                        </span>
-                                                                        <Button
-                                                                            block
-                                                                            icon={
-                                                                                <PlusOutlined />
-                                                                            }
-                                                                            onClick={() =>
-                                                                                updateCartQuantity(
-                                                                                    item.id ??
-                                                                                        '',
-                                                                                    'plus'
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </Col>
-                                                        <Col span={8}>
-                                                            <div
-                                                                style={{
-                                                                    marginTop: 38,
-                                                                }}
-                                                            >
-                                                                <div className="flex justify-evenly">
-                                                                    <div>
-                                                                        <div>
-                                                                            Giá
-                                                                        </div>
-                                                                        <div className="text-lg font-semibold">
-                                                                            {currencyFormatter(
-                                                                                item
-                                                                                    .product
-                                                                                    ?.discount_price ??
-                                                                                    item
-                                                                                        .product
-                                                                                        ?.original_price ??
-                                                                                    0
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                    <div>
-                                                                        <div>
-                                                                            Tổng
-                                                                        </div>
-                                                                        <div className="text-lg font-semibold">
-                                                                            {currencyFormatter(
-                                                                                (item.quantity ??
-                                                                                    0) *
-                                                                                    (item
-                                                                                        .product
-                                                                                        ?.discount_price ??
-                                                                                        item
-                                                                                            .product
-                                                                                            ?.original_price ??
-                                                                                        0)
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </Col>
-                                                    </Row>
-                                                </Content>
-                                            </Card>
-                                        </Layout>
+                                        <CartStoreItem
+                                            key={item?.productId}
+                                            productId={item.productId ?? ''}
+                                            quantity={item.quantity ?? 0}
+                                        />
                                     ))}
                                 </Col>
                                 <Col span={8}>
@@ -400,10 +211,10 @@ const CartDetails = () => {
                                         bordered={false}
                                         title={
                                             <div>
-                                                Tổng đơn hàng:
+                                                Tổng đơn hàng:{' '}
                                                 <span>
                                                     {currencyFormatter(
-                                                        totalPrice
+                                                        totalCartPrice
                                                     )}
                                                 </span>
                                             </div>
@@ -413,10 +224,12 @@ const CartDetails = () => {
                                             <Button
                                                 block
                                                 size="large"
-                                                style={{ marginBottom: 20 }}
+                                                style={{
+                                                    marginBottom: 20,
+                                                }}
                                                 type="primary"
                                             >
-                                                Tiêp tục mua sắm
+                                                Tiếp tục mua sắm
                                             </Button>
                                         </Link>
                                         <Button
@@ -437,9 +250,212 @@ const CartDetails = () => {
                 </Content>
             </Layout>
         );
-    }, [auth, cartItems, cartStorage]);
-
-    return <div>{content}</div>;
+    }
+    return (
+        <Layout>
+            <Content style={{ padding: '0 48px' }}>
+                <Layout style={{ padding: '24px 0' }}>
+                    <Content>
+                        <Row gutter={16}>
+                            <Col span={16}>
+                                {cartItems?.map((item) => (
+                                    <Layout key={item.id}>
+                                        <Card
+                                            bordered={false}
+                                            extra={
+                                                <DeleteCartProductFormModal
+                                                    cartId={item.id ?? ''}
+                                                    productId={
+                                                        item.product?.id ?? ''
+                                                    }
+                                                    reload={refetchCart}
+                                                />
+                                            }
+                                            style={{
+                                                marginBottom: 10,
+                                                marginLeft: 10,
+                                            }}
+                                            title={
+                                                <div className="flex items-center gap-2">
+                                                    <Checkbox
+                                                        checked={selectedItems.some(
+                                                            (e) =>
+                                                                e.id ===
+                                                                item.product?.id
+                                                        )}
+                                                        onChange={(e) =>
+                                                            handleCheckboxChange(
+                                                                item.product
+                                                                    ?.id ?? '',
+                                                                e.target.checked
+                                                            )
+                                                        }
+                                                        value={item.product?.id}
+                                                    />
+                                                    {` Mã sản phẩm: ${auth ? item.product?.id : item.productId}`}
+                                                </div>
+                                            }
+                                        >
+                                            <Content>
+                                                <Row gutter={16}>
+                                                    <Col span={6}>
+                                                        <div
+                                                            style={{
+                                                                height: 150,
+                                                            }}
+                                                        >
+                                                            <Image
+                                                                alt={
+                                                                    item.id ??
+                                                                    ''
+                                                                }
+                                                                className="shadow-lg"
+                                                                layout="fill"
+                                                                objectFit="cover"
+                                                                src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.product?.thumbnail}`}
+                                                            />
+                                                        </div>
+                                                    </Col>
+                                                    <Col span={8}>
+                                                        <div className="relative flex justify-center text-xl font-semibold">
+                                                            {item.product?.name}
+                                                        </div>
+                                                        <div className="relative top-2 flex justify-center">
+                                                            <div>
+                                                                <div className="text-center">
+                                                                    Số lượng
+                                                                </div>
+                                                                <div
+                                                                    className="max-sm: relative top-1 flex border-spacing-2 justify-evenly backdrop-brightness-90"
+                                                                    style={{
+                                                                        borderRadius: 10,
+                                                                        width: 100,
+                                                                    }}
+                                                                >
+                                                                    <Button
+                                                                        block
+                                                                        icon={
+                                                                            <MinusOutlined />
+                                                                        }
+                                                                        onClick={() =>
+                                                                            updateCartQuantity(
+                                                                                item.id ??
+                                                                                    '',
+                                                                                'minus'
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <span className="mx-2 flex items-center">
+                                                                        {item.quantity ??
+                                                                            0}
+                                                                    </span>
+                                                                    <Button
+                                                                        block
+                                                                        icon={
+                                                                            <PlusOutlined />
+                                                                        }
+                                                                        onClick={() =>
+                                                                            updateCartQuantity(
+                                                                                item.id ??
+                                                                                    '',
+                                                                                'plus'
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Col>
+                                                    <Col span={8}>
+                                                        <div
+                                                            style={{
+                                                                marginTop: 38,
+                                                            }}
+                                                        >
+                                                            <div className="flex justify-evenly">
+                                                                <div>
+                                                                    <div>
+                                                                        Giá
+                                                                    </div>
+                                                                    <div className="text-lg font-semibold">
+                                                                        {currencyFormatter(
+                                                                            item
+                                                                                .product
+                                                                                ?.discount_price ??
+                                                                                item
+                                                                                    .product
+                                                                                    ?.original_price ??
+                                                                                0
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div>
+                                                                    <div>
+                                                                        Tổng
+                                                                    </div>
+                                                                    <div className="text-lg font-semibold">
+                                                                        {currencyFormatter(
+                                                                            (item.quantity ??
+                                                                                0) *
+                                                                                (item
+                                                                                    .product
+                                                                                    ?.discount_price ??
+                                                                                    item
+                                                                                        .product
+                                                                                        ?.original_price ??
+                                                                                    0)
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                            </Content>
+                                        </Card>
+                                    </Layout>
+                                ))}
+                            </Col>
+                            <Col span={8}>
+                                <Card
+                                    bordered={false}
+                                    title={
+                                        <div>
+                                            Tổng đơn hàng:
+                                            <span>
+                                                {currencyFormatter(totalPrice)}
+                                            </span>
+                                        </div>
+                                    }
+                                >
+                                    <Link href="/product">
+                                        <Button
+                                            block
+                                            size="large"
+                                            style={{ marginBottom: 20 }}
+                                            type="primary"
+                                        >
+                                            Tiêp tục mua sắm
+                                        </Button>
+                                    </Link>
+                                    <Button
+                                        block
+                                        onClick={() =>
+                                            router.push('/cart-contact')
+                                        }
+                                        size="large"
+                                        type="primary"
+                                    >
+                                        Thanh toán đơn hàng
+                                    </Button>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Content>
+                </Layout>
+            </Content>
+        </Layout>
+    );
 };
 
 export default CartDetails;
