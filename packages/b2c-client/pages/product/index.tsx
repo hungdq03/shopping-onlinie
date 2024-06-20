@@ -210,6 +210,7 @@ const Products: NextPage = () => {
                             );
                         }}
                     />
+                    <h1 className={styles.productTitle}>Danh sách sản phẩm</h1>
                     <Content className={styles.content}>
                         <ProductContent
                             currentPage={Number(routerQuery.page) || 1}

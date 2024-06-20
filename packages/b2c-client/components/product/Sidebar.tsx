@@ -20,6 +20,7 @@ type SidebarProps = {
         id: string;
         name: string;
         discount_price: number;
+        original_price: number;
         thumbnail: string;
     }[];
     setCategory: (category: string) => void;
@@ -235,6 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                         id={product.id}
                         key={product.id}
                         name={product.name}
+                        original_price={product.original_price}
                         thumbnail={product.thumbnail}
                     />
                 ))}
@@ -244,9 +246,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <span className={styles.menuTitleText}>Liên hệ</span>
                 </div>
                 <ul className={styles.contactList}>
-                    <li>Email: contact@example.com</li>
-                    <li>Phone: +123 456 789</li>
-                    <li>Address: 123 Main Street</li>
+                    <li>Email: perfumeshop1830@gmail.com</li>
+                    <li>Điện thoại: (123) 456-7890</li>
+                    <li>
+                        Địa chỉ: 123 Đường Nước Hoa, Thành phố Hương, PC 12345
+                    </li>
                     <li>
                         <button
                             className={styles.contactDetailButton}
