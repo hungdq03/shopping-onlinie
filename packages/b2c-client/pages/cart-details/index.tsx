@@ -9,7 +9,7 @@ const CartDetailsPage = () => {
                 <LatestProductList />
             </div>
             <div className="flex-1">
-                <CartDetails />;
+                <CartDetails />
             </div>
         </div>
     );
