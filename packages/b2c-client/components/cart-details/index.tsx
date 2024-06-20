@@ -1,20 +1,24 @@
-import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+/* eslint-disable max-lines */
+import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Card, Checkbox, Col, Layout, Row, Spin } from 'antd';
+import { Button, Card, Checkbox, Col, Layout, Row } from 'antd';
 import { QueryResponseType } from 'common/types';
 import { Cart } from 'common/types/cart';
 import * as request from 'common/utils/http-request';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { currencyFormatter } from 'common/utils/formatter';
 import { useRouter } from 'next/router';
 import DeleteCartProductFormModal from './delete-cart-product';
 import { useAuth } from '~/hooks/useAuth';
 import useCartStore from '~/hooks/useCartStore';
+import CartStoreItem from './cart-list';
+import TotalCartPrice from './total-cart-price';
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 
+// eslint-disable-next-line max-lines-per-function
 const CartDetails = () => {
     const auth = useAuth();
     const router = useRouter();
@@ -28,11 +32,9 @@ const CartDetails = () => {
         }[]
     >([]);
 
-    const {
-        data: cartData,
-        isLoading: isCartLoading,
-        refetch: refetchCart,
-    } = useQuery<QueryResponseType<Cart>>({
+    const { data: cartData, refetch: refetchCart } = useQuery<
+        QueryResponseType<Cart>
+    >({
         queryKey: ['cart'],
         queryFn: () => {
             if (auth) {
@@ -59,37 +61,14 @@ const CartDetails = () => {
             return request.post('/cart/add', dataAddCart);
         },
         onSuccess: () => {
-            refetch();
+            refetchCart(); // Corrected function name
         },
     });
 
-    // const { mutate: updateOrder } = useMutation({
-    //     mutationFn: async (dataOrder: {
-    //         quantity: number;
-    //         originalPrice: number;
-    //         discountPrice: number;
-    //         totalPrice: number;
-    //         thumbnail: string;
-    //         brand: string;
-    //         size: number;
-    //         category: string;
-    //         productId: string;
-    //         productName: string;
-    //     }) => {
-    //         return request.post(`/my-order/update/${query.orderId}`, dataOrder);
-    //     },
-    //     onSuccess: () => {
-    //         push('/my-page/my-order');
-    //     },
-    // });
-
     // Initialize cartItems from localStorage or default to empty array
     const [cartItems, setCartItems] = useState<Cart[]>([]);
-    const {
-        data: cartStorage,
-        deleteProduct,
-        updateProductQuantity,
-    } = useCartStore();
+
+    const { data: cartStorage } = useCartStore();
 
     useEffect(() => {
         if (auth) {
@@ -110,6 +89,10 @@ const CartDetails = () => {
                         : (item.quantity ?? 0) - 1;
                 // Ensure quantity doesn't go below 1
                 newQuantity = Math.max(newQuantity, 1);
+                newQuantity = Math.min(
+                    newQuantity,
+                    item?.product?.quantity ?? 0
+                );
                 updateCartTrigger({
                     id: id || '',
                     quantity: newQuantity,
@@ -121,7 +104,6 @@ const CartDetails = () => {
         });
 
         setCartItems(updatedCartItems); // Update state
-        // localStorage.setItem('cartItems', JSON.stringify(updatedCartItems)); // Update localStorage
     };
 
     const totalPrice = cartItems.reduce(
@@ -145,7 +127,7 @@ const CartDetails = () => {
                         productId: id,
                         quantity: Number(quantity),
                     });
-                    refetch();
+                    refetchCart();
                 }
 
                 setSelectedItems((prevSelectedItems) => [
@@ -154,7 +136,7 @@ const CartDetails = () => {
                 ]);
             });
         }
-    }, [itemKeysQuery]);
+    }, [itemKeysQuery, cartItems, addCart, refetchCart]);
 
     const handleCheckboxChange = (id: string, checked: boolean) => {
         setSelectedItems((prevSelectedItems) => {
@@ -165,68 +147,100 @@ const CartDetails = () => {
         });
     };
 
-    // const handleCheckout = () => {
-    //     selectedItems.forEach((item) => {
-    //         cartItems.map((cart) => {
-    //             if (cart.product?.id === item.id) {
-    //                 updateOrder({
-    //                     quantity: Number(cart.quantity),
-    //                     originalPrice: cart.product?.original_price ?? 0,
-    //                     discountPrice: cart.product?.discount_price ?? 0,
-    //                     totalPrice: cart.product?.discount_price ?? 0,
-    //                     thumbnail: cart.product?.thumbnail ?? '',
-    //                     brand: cart.product?.brand?.name ?? '',
-    //                     size: cart.product?.size ?? 0,
-    //                     category: cart.product?.category?.name ?? '',
-    //                     productId: cart.product?.id ?? '',
-    //                     productName: cart.product?.name ?? '',
-    //                 });
-    //             }
-    //         });
-    //     });
-    // };
-
-    return (
-        <Spin spinning={isCartLoading}>
+    const content = useMemo(() => {
+        if (!auth) {
+            return (
+                <Layout>
+                    <Content style={{ padding: '0 48px' }}>
+                        <Layout style={{ padding: '24px 0' }}>
+                            <Content>
+                                <Row gutter={16}>
+                                    <Col span={16}>
+                                        {cartItems?.map((item) => (
+                                            <CartStoreItem
+                                                key={item?.productId}
+                                                productId={item.productId ?? ''}
+                                                quantity={item.quantity ?? 0}
+                                            />
+                                        ))}
+                                    </Col>
+                                    <Col span={8}>
+                                        <Card
+                                            bordered={false}
+                                            title={
+                                                <div>
+                                                    Tổng đơn hàng:
+                                                    <span>
+                                                        {cartItems?.map(
+                                                            (item) => (
+                                                                <TotalCartPrice
+                                                                    key={
+                                                                        item.productId
+                                                                    }
+                                                                    productId={
+                                                                        item.productId ??
+                                                                        ''
+                                                                    }
+                                                                    quantity={
+                                                                        item.quantity ??
+                                                                        0
+                                                                    }
+                                                                />
+                                                            )
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            }
+                                        >
+                                            <Link href="/product">
+                                                <Button
+                                                    block
+                                                    size="large"
+                                                    style={{ marginBottom: 20 }}
+                                                    type="primary"
+                                                >
+                                                    Tiếp tục mua sắm
+                                                </Button>
+                                            </Link>
+                                            <Button
+                                                block
+                                                onClick={() =>
+                                                    router.push('/cart-contact')
+                                                }
+                                                size="large"
+                                                type="primary"
+                                            >
+                                                Thanh toán đơn hàng
+                                            </Button>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </Content>
+                        </Layout>
+                    </Content>
+                </Layout>
+            );
+        }
+        return (
             <Layout>
                 <Content style={{ padding: '0 48px' }}>
                     <Layout style={{ padding: '24px 0' }}>
-                        <Sider width={200}>
-                            <p>Sider</p>
-                        </Sider>
                         <Content>
                             <Row gutter={16}>
                                 <Col span={16}>
-                                    {cartItems.map((item) => (
+                                    {cartItems?.map((item) => (
                                         <Layout key={item.id}>
                                             <Card
                                                 bordered={false}
                                                 extra={
-                                                    auth ? (
-                                                        <DeleteCartProductFormModal
-                                                            cartId={
-                                                                item.id ?? ''
-                                                            }
-                                                            productId={
-                                                                item.product
-                                                                    ?.id ?? ''
-                                                            }
-                                                            reload={refetchCart}
-                                                        />
-                                                    ) : (
-                                                        <Button
-                                                            danger
-                                                            icon={
-                                                                <DeleteOutlined />
-                                                            }
-                                                            onClick={() =>
-                                                                deleteProduct(
-                                                                    item.productId ??
-                                                                        ''
-                                                                )
-                                                            }
-                                                        />
-                                                    )
+                                                    <DeleteCartProductFormModal
+                                                        cartId={item.id ?? ''}
+                                                        productId={
+                                                            item.product?.id ??
+                                                            ''
+                                                        }
+                                                        reload={refetchCart}
+                                                    />
                                                 }
                                                 style={{
                                                     marginBottom: 10,
@@ -288,7 +302,7 @@ const CartDetails = () => {
                                                             <div className="relative top-2 flex justify-center">
                                                                 <div>
                                                                     <div className="text-center">
-                                                                        Quantity
+                                                                        Số lượng
                                                                     </div>
                                                                     <div
                                                                         className="max-sm: relative top-1 flex border-spacing-2 justify-evenly backdrop-brightness-90"
@@ -303,23 +317,11 @@ const CartDetails = () => {
                                                                                 <MinusOutlined />
                                                                             }
                                                                             onClick={() =>
-                                                                                auth
-                                                                                    ? updateCartQuantity(
-                                                                                          item.id ??
-                                                                                              '',
-                                                                                          'plus'
-                                                                                      )
-                                                                                    : updateProductQuantity(
-                                                                                          {
-                                                                                              productId:
-                                                                                                  item.productId ??
-                                                                                                  '',
-                                                                                              quantity:
-                                                                                                  (item.quantity ??
-                                                                                                      0) -
-                                                                                                  1,
-                                                                                          }
-                                                                                      )
+                                                                                updateCartQuantity(
+                                                                                    item.id ??
+                                                                                        '',
+                                                                                    'minus'
+                                                                                )
                                                                             }
                                                                         />
                                                                         <span className="mx-2 flex items-center">
@@ -331,31 +333,12 @@ const CartDetails = () => {
                                                                             icon={
                                                                                 <PlusOutlined />
                                                                             }
-                                                                            // onClick={() =>
-                                                                            //     updateCartQuantity(
-                                                                            //         item.id ??
-                                                                            //             '',
-                                                                            //         'plus'
-                                                                            //     )
-                                                                            // }
                                                                             onClick={() =>
-                                                                                auth
-                                                                                    ? updateCartQuantity(
-                                                                                          item.id ??
-                                                                                              '',
-                                                                                          'plus'
-                                                                                      )
-                                                                                    : updateProductQuantity(
-                                                                                          {
-                                                                                              productId:
-                                                                                                  item.productId ??
-                                                                                                  '',
-                                                                                              quantity:
-                                                                                                  (item.quantity ??
-                                                                                                      0) +
-                                                                                                  1,
-                                                                                          }
-                                                                                      )
+                                                                                updateCartQuantity(
+                                                                                    item.id ??
+                                                                                        '',
+                                                                                    'plus'
+                                                                                )
                                                                             }
                                                                         />
                                                                     </div>
@@ -371,7 +354,7 @@ const CartDetails = () => {
                                                                 <div className="flex justify-evenly">
                                                                     <div>
                                                                         <div>
-                                                                            Price
+                                                                            Giá
                                                                         </div>
                                                                         <div className="text-lg font-semibold">
                                                                             {currencyFormatter(
@@ -387,7 +370,7 @@ const CartDetails = () => {
                                                                     </div>
                                                                     <div>
                                                                         <div>
-                                                                            Total
+                                                                            Tổng
                                                                         </div>
                                                                         <div className="text-lg font-semibold">
                                                                             {currencyFormatter(
@@ -417,7 +400,7 @@ const CartDetails = () => {
                                         bordered={false}
                                         title={
                                             <div>
-                                                Total Price:
+                                                Tổng đơn hàng:
                                                 <span>
                                                     {currencyFormatter(
                                                         totalPrice
@@ -433,7 +416,7 @@ const CartDetails = () => {
                                                 style={{ marginBottom: 20 }}
                                                 type="primary"
                                             >
-                                                Continue
+                                                Tiêp tục mua sắm
                                             </Button>
                                         </Link>
                                         <Button
@@ -444,7 +427,7 @@ const CartDetails = () => {
                                             size="large"
                                             type="primary"
                                         >
-                                            Checkout
+                                            Thanh toán đơn hàng
                                         </Button>
                                     </Card>
                                 </Col>
@@ -453,8 +436,10 @@ const CartDetails = () => {
                     </Layout>
                 </Content>
             </Layout>
-        </Spin>
-    );
+        );
+    }, [auth, cartItems, cartStorage]);
+
+    return <div>{content}</div>;
 };
 
 export default CartDetails;

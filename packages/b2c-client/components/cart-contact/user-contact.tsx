@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Card, Form, Input, Select } from 'antd';
+import { Card, Form, Input, Select } from 'antd';
 import { User } from 'common/types/cart';
 import { useQuery } from '@tanstack/react-query';
 import request from 'common/utils/http-request';
@@ -120,12 +120,6 @@ const UserDetailAll: React.FC<Props> = () => {
                             ]}
                         >
                             <Input.TextArea placeholder="Ghi chú" rows={5} />
-                        </Form.Item>
-
-                        <Form.Item>
-                            <Button htmlType="submit" type="primary">
-                                Lưu
-                            </Button>
                         </Form.Item>
                     </Form>
                 </div>

@@ -1,7 +1,7 @@
 import { Button, Card, Col, Layout, Radio, Row, Space, Spin } from 'antd';
 import Link from 'next/link';
 import type { RadioChangeEvent } from 'antd';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import request from 'common/utils/http-request';
 import { QueryResponseType } from 'common/types';
 import { Cart } from 'common/types/cart';
@@ -11,8 +11,9 @@ import { currencyFormatter } from 'common/utils/formatter';
 import UserDetailAll from './user-contact';
 import { useAuth } from '~/hooks/useAuth';
 import useCartStore from '~/hooks/useCartStore';
+import CartContactItem from './cart-contact-list';
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 
 const CartContact = () => {
     const auth = useAuth();
@@ -56,148 +57,261 @@ const CartContact = () => {
                     0),
         0
     );
-
-    return (
-        <Layout>
-            <Content style={{ padding: '0 48px' }}>
-                <Layout style={{ padding: '24px 0' }}>
-                    <Sider width={200}>
-                        <p>Sider</p>
-                    </Sider>
-                    <Content>
-                        <Row gutter={16}>
-                            <Col span={10}>
-                                <UserDetailAll />
-                            </Col>
-                            <Col span={6}>
-                                <Card
-                                    bordered={false}
-                                    title={
-                                        <div className="font-bold">
-                                            Hình thức thanh toán
-                                        </div>
-                                    }
-                                >
-                                    <Radio.Group
-                                        onChange={onChange}
-                                        value={value}
-                                    >
-                                        <Space direction="vertical">
-                                            <Radio className="mb-2" value={1}>
-                                                <div className="font-semibold ">
-                                                    Thanh toán khi nhận
-                                                    hàng(COD)
+    const content = useMemo(() => {
+        if (!auth) {
+            return (
+                <Layout>
+                    <Content style={{ padding: '0 48px' }}>
+                        <Layout style={{ padding: '24px 0' }}>
+                            <Content>
+                                <Row gutter={16}>
+                                    <Col span={10}>
+                                        <UserDetailAll />
+                                    </Col>
+                                    <Col span={6}>
+                                        <Card
+                                            bordered={false}
+                                            title={
+                                                <div className="font-bold">
+                                                    Hình thức thanh toán
                                                 </div>
-                                            </Radio>
-                                            <Radio value={2}>
-                                                <div className="font-semibold">
-                                                    Thanh toán qua VNPAY-QR
-                                                </div>
-                                            </Radio>
-                                        </Space>
-                                    </Radio.Group>
-                                </Card>
-                            </Col>
-                            <Col span={8}>
-                                <Card
-                                    bordered={false}
-                                    title={
-                                        <div className="font-bold">
-                                            Đơn hàng
-                                        </div>
-                                    }
-                                >
-                                    <Spin spinning={isCartLoading}>
-                                        {cartItems?.map((item) => (
-                                            <Card className="m-2">
-                                                <Content>
-                                                    <Row gutter={16}>
-                                                        <Col span={6}>
-                                                            <div
-                                                                style={{
-                                                                    height: 50,
-                                                                }}
-                                                            >
-                                                                <Image
-                                                                    alt={
-                                                                        item.id ??
-                                                                        ''
-                                                                    }
-                                                                    className="shadow-lg"
-                                                                    layout="fill"
-                                                                    objectFit="cover"
-                                                                    src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.product?.thumbnail}`}
-                                                                />
-                                                            </div>
-                                                        </Col>
-                                                        <Col span={6}>
-                                                            <div className="text-lg font-semibold">
-                                                                {
-                                                                    item.product
-                                                                        ?.name
-                                                                }
-                                                            </div>
-                                                        </Col>
-                                                        <Col span={6}>
-                                                            <div className="font-semibol text-lg">
-                                                                x{item.quantity}
-                                                            </div>
-                                                        </Col>
-                                                        <Col span={6}>
-                                                            <div className="font-semibol text-lg">
-                                                                {currencyFormatter(
-                                                                    item.product
-                                                                        ?.discount_price ??
-                                                                        item
-                                                                            .product
-                                                                            ?.original_price ??
-                                                                        0
-                                                                )}
-                                                            </div>
-                                                        </Col>
-                                                    </Row>
-                                                </Content>
-                                            </Card>
-                                        ))}
-                                    </Spin>
-
-                                    <div className="text-end text-xl font-bold">
-                                        Tổng đơn hàng:{' '}
-                                        {currencyFormatter(totalPrice)}
-                                    </div>
-                                    <div className="m-10 flex justify-evenly">
-                                        <div>
-                                            <Link href="/cart-details">
-                                                <Button
-                                                    block
-                                                    size="large"
-                                                    style={{
-                                                        marginBottom: 20,
-                                                    }}
-                                                    type="primary"
-                                                >
-                                                    Continue
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                        <div>
-                                            <Button
-                                                block
-                                                size="large"
-                                                type="primary"
+                                            }
+                                        >
+                                            <Radio.Group
+                                                onChange={onChange}
+                                                value={value}
                                             >
-                                                Checkout
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </Card>
-                            </Col>
-                        </Row>
+                                                <Space direction="vertical">
+                                                    <Radio
+                                                        className="mb-2"
+                                                        value={1}
+                                                    >
+                                                        <div className="font-semibold ">
+                                                            Thanh toán khi nhận
+                                                            hàng(COD)
+                                                        </div>
+                                                    </Radio>
+                                                    <Radio value={2}>
+                                                        <div className="font-semibold">
+                                                            Thanh toán qua
+                                                            VNPAY-QR
+                                                        </div>
+                                                    </Radio>
+                                                </Space>
+                                            </Radio.Group>
+                                        </Card>
+                                    </Col>
+                                    <Col span={8}>
+                                        <Card
+                                            bordered={false}
+                                            title={
+                                                <div className="font-bold">
+                                                    Đơn hàng
+                                                </div>
+                                            }
+                                        >
+                                            {cartItems?.map((item) => (
+                                                <CartContactItem
+                                                    key={item?.productId}
+                                                    productId={
+                                                        item.productId ?? ''
+                                                    }
+                                                    quantity={
+                                                        item.quantity ?? 0
+                                                    }
+                                                />
+                                            ))}
+
+                                            <div className="text-end text-xl font-bold">
+                                                Tổng đơn hàng:{' '}
+                                                {currencyFormatter(totalPrice)}
+                                            </div>
+                                            <div className="m-10 flex justify-evenly">
+                                                <div>
+                                                    <Link href="/cart-details">
+                                                        <Button
+                                                            block
+                                                            size="large"
+                                                            style={{
+                                                                marginBottom: 20,
+                                                            }}
+                                                            type="primary"
+                                                        >
+                                                            Quay về giỏ hàng
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                                <div>
+                                                    <Link href="/cart-completion">
+                                                        <Button
+                                                            block
+                                                            size="large"
+                                                            type="primary"
+                                                        >
+                                                            Thanh toán
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                </Row>
+                            </Content>
+                        </Layout>
                     </Content>
                 </Layout>
-            </Content>
-        </Layout>
-    );
+            );
+        }
+        return (
+            <Layout>
+                <Content style={{ padding: '0 48px' }}>
+                    <Layout style={{ padding: '24px 0' }}>
+                        <Content>
+                            <Row gutter={16}>
+                                <Col span={10}>
+                                    <UserDetailAll />
+                                </Col>
+                                <Col span={6}>
+                                    <Card
+                                        bordered={false}
+                                        title={
+                                            <div className="font-bold">
+                                                Hình thức thanh toán
+                                            </div>
+                                        }
+                                    >
+                                        <Radio.Group
+                                            onChange={onChange}
+                                            value={value}
+                                        >
+                                            <Space direction="vertical">
+                                                <Radio
+                                                    className="mb-2"
+                                                    value={1}
+                                                >
+                                                    <div className="font-semibold ">
+                                                        Thanh toán khi nhận
+                                                        hàng(COD)
+                                                    </div>
+                                                </Radio>
+                                                <Radio value={2}>
+                                                    <div className="font-semibold">
+                                                        Thanh toán qua VNPAY-QR
+                                                    </div>
+                                                </Radio>
+                                            </Space>
+                                        </Radio.Group>
+                                    </Card>
+                                </Col>
+                                <Col span={8}>
+                                    <Card
+                                        bordered={false}
+                                        title={
+                                            <div className="font-bold">
+                                                Đơn hàng
+                                            </div>
+                                        }
+                                    >
+                                        <Spin spinning={isCartLoading}>
+                                            {cartItems?.map((item) => (
+                                                <Card className="m-2">
+                                                    <Content>
+                                                        <Row gutter={16}>
+                                                            <Col span={6}>
+                                                                <div
+                                                                    style={{
+                                                                        height: 50,
+                                                                    }}
+                                                                >
+                                                                    <Image
+                                                                        alt={
+                                                                            item.id ??
+                                                                            ''
+                                                                        }
+                                                                        className="shadow-lg"
+                                                                        layout="fill"
+                                                                        objectFit="cover"
+                                                                        src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${item.product?.thumbnail}`}
+                                                                    />
+                                                                </div>
+                                                            </Col>
+                                                            <Col span={6}>
+                                                                <div className="text-lg font-semibold">
+                                                                    {
+                                                                        item
+                                                                            .product
+                                                                            ?.name
+                                                                    }
+                                                                </div>
+                                                            </Col>
+                                                            <Col span={6}>
+                                                                <div className="font-semibol mx-6 text-lg">
+                                                                    x
+                                                                    {
+                                                                        item.quantity
+                                                                    }
+                                                                </div>
+                                                            </Col>
+                                                            <Col span={6}>
+                                                                <div className="font-semibol text-lg">
+                                                                    {currencyFormatter(
+                                                                        item
+                                                                            .product
+                                                                            ?.discount_price ??
+                                                                            item
+                                                                                .product
+                                                                                ?.original_price ??
+                                                                            0
+                                                                    )}
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+                                                    </Content>
+                                                </Card>
+                                            ))}
+                                        </Spin>
+
+                                        <div className="text-end text-xl font-bold">
+                                            Tổng đơn hàng:{' '}
+                                            {currencyFormatter(totalPrice)}
+                                        </div>
+                                        <div className="m-10 flex justify-evenly">
+                                            <div>
+                                                <Link href="/cart-details">
+                                                    <Button
+                                                        block
+                                                        size="large"
+                                                        style={{
+                                                            marginBottom: 20,
+                                                        }}
+                                                        type="primary"
+                                                    >
+                                                        Quay về giỏ hàng
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                            <div>
+                                                <Link href="/cart-completion">
+                                                    <Button
+                                                        block
+                                                        size="large"
+                                                        type="primary"
+                                                    >
+                                                        Thanh toán
+                                                    </Button>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                </Col>
+                            </Row>
+                        </Content>
+                    </Layout>
+                </Content>
+            </Layout>
+        );
+    }, [auth, cartItems, cartStorage]);
+    return <div>{content}</div>;
 };
 
 export default CartContact;
