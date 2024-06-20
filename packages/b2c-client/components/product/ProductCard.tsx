@@ -118,11 +118,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     )}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
-                    <Button
-                        className={styles.buyButton}
-                        onClick={handleBuy}
-                        type="primary"
-                    >
+                    <Button onClick={handleBuy} type="primary">
                         Mua
                     </Button>
                     <Button

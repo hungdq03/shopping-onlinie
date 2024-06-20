@@ -45,7 +45,7 @@
 
 .discountPrice {
     font-size: 14px;
-    color: #f5222d;
+    @apply text-primary;
 }
 .originalPrice {
     text-decoration: line-through;
