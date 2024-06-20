@@ -27,7 +27,7 @@
 .metaDescription {
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;  
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
@@ -42,8 +42,8 @@
 
 .discountPrice {
     font-weight: bold;
-    color: red;
     margin-bottom: 8px;
+    @apply text-primary;
 }
 
 .buttonContainer {
