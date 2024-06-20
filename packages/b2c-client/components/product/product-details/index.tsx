@@ -18,6 +18,7 @@ import ProductImageSlider from './product-image-slider';
 import useCartStore from '~/hooks/useCartStore';
 import { useAuth } from '~/hooks/useAuth';
 import { useCartQuery } from '~/hooks/useCartQuery';
+import Feedback from './feedback';
 
 type Props = {
     data?: Product;
@@ -220,7 +221,7 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                     <div>
                         <Space size="large">
                             <Button
-                                className="border-primary text-primary"
+                                className="border-primary text-primary w-[200px]"
                                 disabled={disable}
                                 icon={<ShoppingCartOutlined />}
                                 onClick={handleAddToCard}
@@ -229,6 +230,7 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                                 Thêm vào giỏ hàng
                             </Button>
                             <Button
+                                className="w-[200px]"
                                 disabled={disable}
                                 onClick={handleBuyNow}
                                 size="large"
@@ -264,6 +266,12 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                     </p>
                     <div>{data?.description}</div>
                 </div>
+            </div>
+            <div className="mt-10">
+                <Feedback
+                    productId={data?.id ?? ''}
+                    productRate={data?.rating ?? 0}
+                />
             </div>
         </div>
     );

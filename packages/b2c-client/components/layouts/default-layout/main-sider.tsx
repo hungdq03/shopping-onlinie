@@ -26,7 +26,7 @@ const MainSider = () => {
                     ))}
                     <BrandPopover />
                     <SiderItem href="/blog" title="Blog" />
-                    <SiderItem href="/blog" title="Liên hệ" />
+                    <SiderItem href="/contact" title="Liên hệ" />
                 </div>
             </div>
         </div>

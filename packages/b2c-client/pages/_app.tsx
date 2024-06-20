@@ -15,6 +15,7 @@ import { Spin } from 'common/components/spin';
 import { ToastContainer } from 'react-toastify';
 import Head from 'next/head';
 import { ConfigProvider } from 'antd';
+import { getImageUrl } from 'common/utils/getImageUrl';
 import { DefaultLayout } from '~/components/layouts/default-layout';
 import LoginModal from '~/components/modals/login-modal';
 import RegisterModal from '~/components/modals/register-modal';
@@ -88,6 +89,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                         colorPrimary: '#F43F5E',
                         algorithm: true,
                     },
+                    Radio: {
+                        colorPrimary: '#F43F5E',
+                        algorithm: true,
+                    },
                 },
                 token: {
                     fontSize: 12,
@@ -100,6 +105,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                     <title>
                         {Component.title ? Component.title : 'Perfume Shop'}
                     </title>
+                    <link
+                        href={getImageUrl('/icon_web.png')}
+                        rel="icon"
+                        sizes="500x480"
+                        type="image/png"
+                    />
                 </Head>
                 <ToastContainer autoClose={1000} />
                 <LoginModal />

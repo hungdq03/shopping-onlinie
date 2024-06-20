@@ -4,6 +4,8 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import * as request from 'common/utils/http-request';
+import { getImageUrl } from '~/../common/utils/getImageUrl';
+import { currencyFormatter } from '~/../common/utils/formatter';
 import styles from '../../styles/ProductCard.module.css';
 import useLoginModal from '~/hooks/useLoginModal';
 import { useAuth } from '~/hooks/useAuth';
@@ -11,6 +13,7 @@ import { Product } from '~/types/product';
 
 import FeedbackModal from '../modals/feedback-modal';
 import { useCartQuery } from '~/hooks/useCartQuery';
+import useCartStore from '~/hooks/useCartStore';
 
 type ProductCardProps = Omit<Product, 'updatedAt'>;
 
@@ -28,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const [isFeedbackModalVisible, setFeedbackModalVisible] = useState(false);
 
     const { reload } = useCartQuery();
+    const { addProduct } = useCartStore();
 
     const addToCart = useMutation({
         mutationFn: async (data: { productId: string; quantity: number }) => {
@@ -55,28 +59,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
         // Check if user is authenticated
         if (auth && (auth as { access_token: string }).access_token) {
             addToCart.mutate(productData);
-        }
-
-        // Save to localStorage
-        const now = new Date().toISOString();
-        const localProductData = {
-            ...productData,
-            createdAt: now,
-            updatedAt: now,
-        };
-
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const existingProductIndex = cart.findIndex(
-            (item: { productId: string }) => item.productId === id
-        );
-        if (existingProductIndex > -1) {
-            cart[existingProductIndex].quantity += 1;
-            cart[existingProductIndex].updatedAt = now;
         } else {
-            cart.push(localProductData);
+            // Add to Zustand store instead of localStorage
+            addProduct(productData);
         }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        toast.success('Product added to cart!');
     };
 
     const handleFeedback = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -92,7 +78,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
         router.push(`/product/${id}`);
     };
 
-    const imageUrl = thumbnail ? `/images/${thumbnail}` : '/images/sp1.jpg';
+    const imageUrl = thumbnail ? getImageUrl(thumbnail) : '/images/sp1.jpg';
+    const showDiscountPrice =
+        discount_price !== null && discount_price !== original_price;
 
     return (
         <>
@@ -116,11 +104,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     }
                     title={<div className={styles.metaTitle}>{name}</div>}
                 />
-                <Typography.Paragraph className={styles.originalPrice}>
-                    <del>{original_price}đ</del>
+                <Typography.Paragraph
+                    className={styles.originalPrice}
+                    style={{
+                        visibility: showDiscountPrice ? 'visible' : 'hidden',
+                    }}
+                >
+                    <del>{currencyFormatter(original_price)}</del>
                 </Typography.Paragraph>
                 <Typography.Paragraph className={styles.discountPrice}>
-                    {discount_price}đ
+                    {currencyFormatter(
+                        showDiscountPrice ? discount_price : original_price
+                    )}
                 </Typography.Paragraph>
                 <div className={styles.buttonContainer}>
                     <Button
