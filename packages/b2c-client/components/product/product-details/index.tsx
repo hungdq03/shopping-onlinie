@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { Product } from 'common/types/product';
 import { Button, Rate, Space } from 'antd';
 import { currencyFormatter } from 'common/utils/formatter';
@@ -67,6 +67,10 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
     });
 
     const [buyQuantity, setByQuantity] = useState<number>(1);
+
+    useEffect(() => {
+        setByQuantity(1);
+    }, [data?.id]);
 
     useLayoutEffect(() => {
         if (buyQuantity <= 0) {
@@ -207,7 +211,9 @@ const ProductDetail: React.FC<Props> = ({ data }) => {
                                     disable && 'cursor-not-allowed'
                                 )}
                                 onClick={() =>
-                                    setByQuantity((prev) => prev + 1)
+                                    disable
+                                        ? null
+                                        : setByQuantity((prev) => prev + 1)
                                 }
                                 role="presentation"
                             >
