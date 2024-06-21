@@ -103,11 +103,11 @@ export const createSlider = async (req: Request, res: Response) => {
     try {
         const slider = await db.slider.create({
             data: {
-                title,
+                title: title ?? '',
                 image,
-                backlink,
+                backlink: backlink ?? '',
                 note,
-                isShow,
+                isShow: isShow ?? false,
                 backgroundSliderColor,
                 noteTextColor,
                 titleTextColor,
