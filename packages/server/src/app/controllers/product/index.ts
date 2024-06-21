@@ -267,3 +267,36 @@ export const getProductPublicInfoById = async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 };
+
+export const getListProductCart = async (req: Request, res: Response) => {
+    const { listProductId } = req.query;
+
+    if (!Array.isArray(listProductId) || listProductId.length === 0) {
+        return res
+            .status(400)
+            .json({ message: 'Invalid or empty product ID list' });
+    }
+
+    try {
+        const products = await db.product.findMany({
+            where: {
+                id: {
+                    in: listProductId as string[],
+                },
+            },
+            select: {
+                id: true,
+                discount_price: true,
+                original_price: true,
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: products,
+            message: 'Total price calculated successfully!',
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
