@@ -24,6 +24,32 @@ const CartContact = () => {
     };
     const [cartItems, setCartItems] = useState<Cart[]>([]);
 
+    const [totalCartPrice, setTotalCartPrice] = useState(0);
+    const { data: cartStorage } = useCartStore();
+
+    const { data: listProductCart, isLoading: isLoadingListProductCart } =
+        useQuery<
+            QueryResponseType<{
+                id: string;
+                discount_price: number;
+                original_price: number;
+            }>
+        >({
+            queryKey: ['list_product_cart'],
+            queryFn: async () => {
+                return request
+                    .get('/list-product-cart', {
+                        params: {
+                            listProductId: cartStorage.map(
+                                (cart) => cart.productId
+                            ),
+                        },
+                    })
+                    .then((res) => res.data);
+            },
+            enabled: cartStorage.length > 0,
+        });
+
     const { data: cartData, isLoading: isCartLoading } = useQuery<
         QueryResponseType<Cart>
     >({
@@ -36,7 +62,25 @@ const CartContact = () => {
         },
         enabled: !!auth, // Only fetch data when auth is true
     });
-    const { data: cartStorage } = useCartStore();
+
+    useEffect(() => {
+        if (listProductCart?.data) {
+            const total = listProductCart.data.reduce((acc, cur) => {
+                const cartItem = cartStorage.find(
+                    (item) => item.productId === cur.id
+                );
+                if (cartItem) {
+                    const price = cur.discount_price ?? cur.original_price ?? 0;
+                    // eslint-disable-next-line no-param-reassign
+                    acc += price * cartItem.quantity;
+                }
+                return acc;
+            }, 0);
+            setTotalCartPrice(total);
+        } else {
+            setTotalCartPrice(0);
+        }
+    }, [listProductCart, cartStorage, isLoadingListProductCart]);
 
     useEffect(() => {
         if (auth) {
@@ -124,7 +168,9 @@ const CartContact = () => {
 
                                             <div className="text-end text-xl font-bold">
                                                 Tổng đơn hàng:{' '}
-                                                {currencyFormatter(totalPrice)}
+                                                {currencyFormatter(
+                                                    totalCartPrice
+                                                )}
                                             </div>
                                             <div className="m-10 flex justify-evenly">
                                                 <div>
