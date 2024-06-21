@@ -29,6 +29,7 @@ const CartDetails = () => {
     const { data: cartStorage } = useCartStore();
 
     const itemKeysQuery = query.itemKeys as string;
+
     const [selectedItems, setSelectedItems] = useState<
         {
             id: string;
@@ -234,9 +235,15 @@ const CartDetails = () => {
                                         </Link>
                                         <Button
                                             block
-                                            onClick={() =>
-                                                router.push('/cart-contact')
-                                            }
+                                            onClick={() => {
+                                                const queryString =
+                                                    selectedItems
+                                                        ?.map((e) => `${e.id}`)
+                                                        .join(',');
+                                                router.push(
+                                                    `/cart-contact?itemKeys=${queryString}`
+                                                );
+                                            }}
                                             size="large"
                                             type="primary"
                                         >
@@ -440,9 +447,14 @@ const CartDetails = () => {
                                     </Link>
                                     <Button
                                         block
-                                        onClick={() =>
-                                            router.push('/cart-contact')
-                                        }
+                                        onClick={() => {
+                                            const queryString = selectedItems
+                                                ?.map((e) => `${e.id}`)
+                                                .join(',');
+                                            router.push(
+                                                `/cart-contact?itemKeys=${queryString}`
+                                            );
+                                        }}
                                         size="large"
                                         type="primary"
                                     >
