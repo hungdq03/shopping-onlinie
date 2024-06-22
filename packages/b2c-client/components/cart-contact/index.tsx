@@ -30,28 +30,27 @@ const CartContact = () => {
     const [totalCartPrice, setTotalCartPrice] = useState(0);
     const { data: cartStorage } = useCartStore();
 
-    const { data: listProductCart, isLoading: isLoadingListProductCart } =
-        useQuery<
-            QueryResponseType<{
-                id: string;
-                discount_price: number;
-                original_price: number;
-            }>
-        >({
-            queryKey: ['list_product_cart'],
-            queryFn: async () => {
-                return request
-                    .get('/list-product-cart', {
-                        params: {
-                            listProductId: cartStorage.map(
-                                (cart) => cart.productId
-                            ),
-                        },
-                    })
-                    .then((res) => res.data);
-            },
-            enabled: cartStorage.length > 0,
-        });
+    const { data: listProductCart } = useQuery<
+        QueryResponseType<{
+            id: string;
+            discount_price: number;
+            original_price: number;
+        }>
+    >({
+        queryKey: ['list_product_cart'],
+        queryFn: async () => {
+            return request
+                .get('/list-product-cart', {
+                    params: {
+                        listProductId: cartStorage.map(
+                            (cart) => cart.productId
+                        ),
+                    },
+                })
+                .then((res) => res.data);
+        },
+        enabled: cartStorage.length > 0,
+    });
 
     const { data: cartData, isLoading: isCartLoading } = useQuery<
         QueryResponseType<Cart>
@@ -67,39 +66,36 @@ const CartContact = () => {
     });
 
     useEffect(() => {
-        if (listProductCart?.data) {
-            const total = listProductCart.data.reduce((acc, cur) => {
-                const cartItem = cartStorage.find(
-                    (item) => item.productId === cur.id
-                );
-                if (cartItem) {
-                    const price = cur.discount_price ?? cur.original_price ?? 0;
-                    // eslint-disable-next-line no-param-reassign
-                    acc += price * cartItem.quantity;
+        if (itemKeysQuery) {
+            const productIds = itemKeysQuery.split(',');
+            if (auth) {
+                if (cartData?.data) {
+                    const filteredCartItems = cartData?.data.filter((item) => {
+                        return productIds.includes(item.product?.id as string);
+                    });
+
+                    setCartItems(filteredCartItems);
                 }
-                return acc;
-            }, 0);
-            setTotalCartPrice(total);
-        } else {
-            setTotalCartPrice(0);
-        }
-    }, [listProductCart, cartStorage, isLoadingListProductCart]);
+            } else {
+                const filteredCartItems = cartStorage.filter((item) =>
+                    productIds.includes(item.productId as string)
+                );
 
-    useEffect(() => {
-        const productIds = itemKeysQuery.split(',');
-        if (auth) {
-            if (cartData?.data) {
-                const filteredCartItems = cartData?.data.filter((item) => {
-                    return productIds.includes(item.product?.id as string);
-                });
-
+                const total = listProductCart?.data?.reduce((acc, cur) => {
+                    const cartItem = filteredCartItems.find(
+                        (item) => item.productId === cur.id
+                    );
+                    if (cartItem) {
+                        const price =
+                            cur.discount_price ?? cur.original_price ?? 0;
+                        // eslint-disable-next-line no-param-reassign
+                        acc += price * (cartItem?.quantity ?? 0);
+                    }
+                    return acc;
+                }, 0);
+                setTotalCartPrice(total ?? 0);
                 setCartItems(filteredCartItems);
             }
-        } else {
-            const filteredCartItems = cartStorage.filter((item) =>
-                productIds.includes(item.productId as string)
-            );
-            setCartItems(filteredCartItems);
         }
     }, [cartData, cartStorage, auth]);
 
@@ -112,6 +108,7 @@ const CartContact = () => {
                     0),
         0
     );
+
     if (!auth) {
         return (
             <Layout>
