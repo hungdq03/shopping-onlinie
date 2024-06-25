@@ -3,6 +3,7 @@ import { Button, Input, Layout, Menu, Spin } from 'antd';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { get } from 'common/utils/http-request';
+import LatestBlogCard from './LatestBlogCard';
 import styles from '../../styles/Sidebar.module.css';
 
 const { Sider } = Layout;
@@ -11,6 +12,12 @@ const { Search } = Input;
 type Category = {
     id: string;
     name: string;
+};
+
+type LatestPost = {
+    id: string;
+    title: string;
+    thumbnail: string;
 };
 
 type SidebarProps = {
@@ -36,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     isDetailPage = false,
 }) => {
     const [expandedCategories, setExpandedCategories] = useState(false);
+    const [showAllBlogs, setShowAllBlogs] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<
         string | undefined
     >(currentCategory);
@@ -45,6 +53,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     >({
         queryKey: ['category'],
         queryFn: () => get('category').then((res) => res.data.data),
+    });
+
+    const { data: latestPosts = [], isLoading: latestPostsLoading } = useQuery<
+        LatestPost[]
+    >({
+        queryKey: ['latestPosts'],
+        queryFn: () => get('post-latest').then((res) => res.data.data),
     });
 
     const router = useRouter();
@@ -88,7 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ? categories
         : categories.slice(0, 3);
 
-    if (categoryLoading) {
+    if (categoryLoading || latestPostsLoading) {
         return <Spin spinning />;
     }
 
@@ -148,6 +163,42 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <div className={styles.divider} />
                 </>
             )}
+            <div className={styles.latestBlogsSection}>
+                <div className={styles.menuTitle}>
+                    <span className={styles.menuTitleText}>Blog mới nhất</span>
+                </div>
+                {latestPosts
+                    .slice(0, showAllBlogs ? latestPosts.length : 4)
+                    .map((blog) => (
+                        <LatestBlogCard key={blog.id} {...blog} />
+                    ))}
+                <Button
+                    className={styles.toggleButton}
+                    onClick={() => setShowAllBlogs(!showAllBlogs)}
+                    type="link"
+                >
+                    {showAllBlogs ? 'Rút gọn' : 'Xem thêm'}
+                </Button>
+            </div>
+            <div className={styles.contactsSection}>
+                <div className={styles.menuTitle}>
+                    <span className={styles.menuTitleText}>Liên hệ</span>
+                </div>
+                <ul className={styles.contactList}>
+                    <li>Email: blogcontact@example.com</li>
+                    <li>Điện thoại: (123) 456-7890</li>
+                    <li>Địa chỉ: 123 Đường Blog, Thành phố Blog, PC 12345</li>
+                    <li>
+                        <button
+                            className={styles.contactDetailButton}
+                            onClick={() => router.push('/contact')}
+                            type="button"
+                        >
+                            Thông tin chi tiết
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </Sider>
     );
 };

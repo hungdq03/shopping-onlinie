@@ -1,6 +1,6 @@
 .blogCard {
     width: 300px;
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
 }
 
 .blogImage {
@@ -12,7 +12,7 @@
 .blogTitle {
     font-weight: bold;
     font-size: 16px;
-    margin-bottom: 10px;
+    margin-bottom: 10px; 
 }
 
 .blogDescription {

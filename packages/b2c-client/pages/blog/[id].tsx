@@ -80,3 +80,4 @@ const BlogDetailPage: React.FC = () => {
 };
 
 export default BlogDetailPage;
+/* eslint-enable react/no-danger */

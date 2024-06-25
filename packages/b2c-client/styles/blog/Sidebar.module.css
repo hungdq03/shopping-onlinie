@@ -39,3 +39,30 @@
     padding-left: 0;
     margin-top: 10px;
 }
+
+.latestBlogsSection {
+    margin-top: 20px;
+}
+
+.contactsSection {
+    margin-top: 20px;
+}
+
+.contactList {
+    list-style: none;
+    padding: 5px 0;
+    padding-left: 10px;
+    margin: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contactList li {
+    margin-bottom: 8px;
+}
+
+.contactDetailButton {
+    background: none;
+    border: none;
+    color: blue;
+    cursor: pointer;
+}
