@@ -267,3 +267,31 @@ export const getProductPublicInfoById = async (req: Request, res: Response) => {
         return res.sendStatus(500);
     }
 };
+
+export const getListProductCart = async (req: Request, res: Response) => {
+    const { listProductId } = req.query;
+
+    if (!Array.isArray(listProductId) || listProductId.length === 0) {
+        return res.status(200).json({
+            isOk: true,
+            data: [],
+        });
+    }
+
+    try {
+        const products = await db.product.findMany({
+            where: {
+                id: {
+                    in: listProductId as string[],
+                },
+            },
+        });
+
+        return res.status(200).json({
+            isOk: true,
+            data: products,
+        });
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+};
