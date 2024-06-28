@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Card, Checkbox, Col, Layout, Row } from 'antd';
+import { Button, Card, Checkbox, Col, Layout, Modal, Row } from 'antd';
 import { QueryResponseType } from 'common/types';
 import { Cart } from 'common/types/cart';
 import { Product } from 'common/types/product';
@@ -146,7 +146,6 @@ const CartDetails = () => {
 
             return item;
         });
-
         setCartItems(updatedCartItems); // Update state
     };
 
@@ -188,6 +187,17 @@ const CartDetails = () => {
             }
             return prevSelectedItems.filter((item) => item.id !== id);
         });
+    };
+    const handlePurchase = () => {
+        const queryString = selectedItems?.map((e) => `${e.id}`).join(',');
+        if (queryString === null || queryString === '') {
+            Modal.warn({
+                content: 'Vui lòng chọn sản phẩm để tiến hành đặt hàng.',
+                okText: 'Trở lại',
+            });
+            return;
+        }
+        router.push(`/cart-contact?itemKeys=${queryString}`);
     };
 
     if (!auth) {
@@ -457,15 +467,7 @@ const CartDetails = () => {
                                         </Link>
                                         <Button
                                             block
-                                            onClick={() => {
-                                                const queryString =
-                                                    selectedItems
-                                                        ?.map((e) => `${e.id}`)
-                                                        .join(',');
-                                                router.push(
-                                                    `/cart-contact?itemKeys=${queryString}`
-                                                );
-                                            }}
+                                            onClick={handlePurchase}
                                             size="large"
                                             type="primary"
                                         >
@@ -669,14 +671,7 @@ const CartDetails = () => {
                                     </Link>
                                     <Button
                                         block
-                                        onClick={() => {
-                                            const queryString = selectedItems
-                                                ?.map((e) => `${e.id}`)
-                                                .join(',');
-                                            router.push(
-                                                `/cart-contact?itemKeys=${queryString}`
-                                            );
-                                        }}
+                                        onClick={handlePurchase}
                                         size="large"
                                         type="primary"
                                     >
