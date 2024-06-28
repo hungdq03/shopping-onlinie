@@ -217,7 +217,7 @@ model Cart {
 model Order {
   id            String       @id @default(uuid())
 
-  userId        String
+  userId        String?
   address       String
   name          String
   gender        Gender
