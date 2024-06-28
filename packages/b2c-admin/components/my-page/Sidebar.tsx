@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { Menu } from 'antd';
 import PropTypes from 'prop-types';
-import {
-    IdcardOutlined,
-    LockOutlined,
-    ShoppingCartOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
+import { IdcardOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import ChangePasswordPopup from './ChangePasswordPopup';
 import styles from '~/styles/my-page/Sidebar.module.css';
 
 const { SubMenu } = Menu;
 
-type SidebarProps = {
+interface SidebarProps {
     onMenuClick: (key: string) => void;
-};
+}
 
 const Sidebar: React.FC<SidebarProps> = ({ onMenuClick }) => {
     const [isChangePasswordVisible, setChangePasswordVisible] = useState(false);
@@ -29,12 +24,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onMenuClick }) => {
 
     return (
         <div className={styles.sidebarContainer}>
-            <div className={styles.profileInfo}>
+            {/* <div className={styles.profileInfo}>
                 <UserOutlined className={styles.profileIcon} />
                 <div className={styles.profileText}>
                     <span className={styles.profileName}>User Profile</span>
                 </div>
-            </div>
+            </div> */}
             <Menu
                 defaultOpenKeys={['sub1']}
                 defaultSelectedKeys={['1']}
@@ -54,9 +49,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onMenuClick }) => {
                         Đổi Mật Khẩu
                     </Menu.Item>
                 </SubMenu>
-                <Menu.Item icon={<ShoppingCartOutlined />} key="3">
-                    Đơn Mua
-                </Menu.Item>
             </Menu>
             <ChangePasswordPopup
                 onClose={() => setChangePasswordVisible(false)}
