@@ -33,9 +33,11 @@ export const useUserQueryStore = () => {
     const auth = useAuth();
     const { data, setData } = useUserStore();
 
-    const { data: userResponse, refetch } = useQuery<
-        QueryResponseGetOneType<User>
-    >({
+    const {
+        data: userResponse,
+        refetch,
+        isFetching,
+    } = useQuery<QueryResponseGetOneType<User>>({
         queryKey: ['user-info'],
         queryFn: () => request.get('user').then((res) => res.data),
         enabled: !!auth,
@@ -48,5 +50,6 @@ export const useUserQueryStore = () => {
     return {
         user: data,
         reload: refetch,
+        isFetching,
     };
 };
