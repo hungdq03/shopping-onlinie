@@ -177,6 +177,7 @@ model Feedback {
   userId      String
   productId   String
   rating      Int?
+  isShow      Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
