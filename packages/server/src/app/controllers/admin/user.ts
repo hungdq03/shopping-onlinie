@@ -25,7 +25,10 @@ export const getUser = async (req: Request, res: Response) => {
             name: true,
             email: true,
             image: true,
-            role: true,
+            address: true,
+            gender: true,
+            dob: true,
+            phone: true,
         },
     });
 
@@ -35,10 +38,9 @@ export const getUser = async (req: Request, res: Response) => {
         });
     }
 
-    const successObj: SuccessResponseType = {
-        data: {
-            data: user,
-        },
+    const successObj = {
+        isOk: true,
+        data: user,
         message: 'Get user successfully!',
     };
 
