@@ -76,7 +76,7 @@ export const updateProfileUser = async (req: Request, res: Response) => {
         return res.status(200).json({
             isOk: true,
             data: user,
-            message: 'User profile updated successfully!',
+            message: 'Hồ sơ người dùng được cập nhật thành công!',
         });
     } catch (error) {
         return res
@@ -101,7 +101,7 @@ export const changePassword = async (req: Request, res: Response) => {
         if (!oldPassword || !newPassword) {
             return res
                 .status(400)
-                .json({ message: 'Old and new passwords are required' });
+                .json({ message: 'Cần có mật khẩu cũ và mới' });
         }
 
         const user = await db.user.findUnique({
@@ -109,15 +109,15 @@ export const changePassword = async (req: Request, res: Response) => {
         });
 
         if (!user || !user.hashedPassword) {
-            return res.status(404).json({ message: 'User not found' });
+            return res
+                .status(404)
+                .json({ message: 'Không tìm thấy người dùng' });
         }
 
         const isMatch = await bcrypt.compare(oldPassword, user.hashedPassword);
 
         if (!isMatch) {
-            return res
-                .status(400)
-                .json({ message: 'Old password is incorrect' });
+            return res.status(400).json({ message: 'Mật khẩu cũ không đúng' });
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -131,7 +131,7 @@ export const changePassword = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             isOk: true,
-            message: 'Password changed successfully!',
+            message: 'Đã đổi mật khẩu thành công!',
         });
     } catch (error) {
         return res
@@ -173,7 +173,7 @@ export const getUserImage = async (req: Request, res: Response) => {
             data: {
                 image: userImage,
             },
-            message: 'Get user image successfully!',
+            message: 'Nhận hình ảnh người dùng thành công!',
         });
     } catch (error) {
         return res
@@ -207,7 +207,7 @@ export const updateUserImage = async (req: Request, res: Response) => {
         return res.status(200).json({
             isOk: true,
             data: user,
-            message: 'User image updated successfully!',
+            message: 'Hình ảnh người dùng được cập nhật thành công!',
         });
     } catch (error) {
         return res

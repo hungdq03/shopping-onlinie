@@ -22,7 +22,7 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
     onClose,
 }) => {
     const [form] = Form.useForm();
-    const [confirmVisible, setConfirmVisible] = useState(false); // State for confirmation modal
+    const [confirmVisible, setConfirmVisible] = useState(false);
 
     const { mutateAsync: changePassword } = useMutation({
         mutationFn: (data: { oldPassword: string; newPassword: string }) => {
@@ -45,6 +45,13 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
+            const passwordRegex = /^.{8,}$/;
+            if (!passwordRegex.test(values.newPassword)) {
+                message.error(
+                    'Mật khẩu mới phải dài ít nhất 8 ký tự và chứa ký tự đặc biệt!'
+                );
+                return;
+            }
             if (values.newPassword !== values.confirmPassword) {
                 message.error('Mật khẩu mới không khớp!');
                 return;
@@ -93,7 +100,8 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your current password!',
+                                message:
+                                    'Vui lòng nhập mật khẩu hiện tại của bạn!',
                             },
                         ]}
                     >
@@ -105,7 +113,11 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your new password!',
+                                message: 'Vui lòng nhập mật khẩu mới của bạn!',
+                            },
+                            {
+                                min: 8,
+                                message: 'Mật khẩu có độ dài tối thiểu 8 kí tự',
                             },
                         ]}
                     >
@@ -117,7 +129,8 @@ const ChangePasswordPopup: React.FC<ChangePasswordPopupProps> = ({
                         rules={[
                             {
                                 required: true,
-                                message: 'Please confirm your new password!',
+                                message:
+                                    'Vui lòng xác nhận mật khẩu mới của bạn!',
                             },
                         ]}
                     >
