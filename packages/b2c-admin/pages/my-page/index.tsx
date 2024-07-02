@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Layout } from 'antd';
 import Sidebar from '~/components/my-page/Sidebar';
 import ProfileForm from '~/components/my-page/ProfileForm';
-import MyOrder from './my-order/index';
+import Header from '~/components/header';
 
 const { Sider, Content } = Layout;
 
@@ -13,24 +13,25 @@ const MyPage = () => {
         switch (currentPage) {
             case '1':
                 return <ProfileForm />;
-            case '3':
-                return <MyOrder />;
             default:
                 return <ProfileForm />;
         }
     };
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider className="site-layout-background" width={300}>
-                <Sidebar onMenuClick={setCurrentPage} />
-            </Sider>
-            <Layout style={{ padding: '24px' }}>
-                <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
-                    {renderContent()}
-                </Content>
+        <div>
+            <Header title="User profile" />
+            <Layout style={{ minHeight: '100vh' }}>
+                <Sider className="site-layout-background" width={300}>
+                    <Sidebar onMenuClick={setCurrentPage} />
+                </Sider>
+                <Layout>
+                    <Content style={{ margin: 0, minHeight: 280 }}>
+                        {renderContent()}
+                    </Content>
+                </Layout>
             </Layout>
-        </Layout>
+        </div>
     );
 };
 
