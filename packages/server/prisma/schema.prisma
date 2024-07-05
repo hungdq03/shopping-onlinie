@@ -54,6 +54,7 @@ enum Role {
   ADMIN
   SELLER
   MARKETER
+  SELLERMANAGER
 }
 
 enum UserStatus {
