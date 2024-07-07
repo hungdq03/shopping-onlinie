@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { jwtDecode } from 'jwt-decode';
 import { ORDER_STATUS, OrderDetail, Prisma } from '@prisma/client';
+import { sendBill } from '../../../lib/send-mail';
 import { PAGE_SIZE } from '../../../constant';
 import { db } from '../../../lib/db';
 import { getSellerToAssignOrder, getToken } from '../../../lib/utils';
@@ -290,7 +291,12 @@ export const createOrderForUser = async (req: Request, res: Response) => {
                     })),
                 },
             },
+            include: {
+                orderDetail: true,
+            },
         });
+
+        await sendBill(newOrder);
 
         // Cập nhật số lượng sản phẩm còn lại
         // eslint-disable-next-line no-restricted-syntax
@@ -375,7 +381,12 @@ export const createOrderForGuest = async (req: Request, res: Response) => {
                     })),
                 },
             },
+            include: {
+                orderDetail: true,
+            },
         });
+
+        await sendBill(newOrder);
 
         // Cập nhật số lượng sản phẩm còn lại
         // eslint-disable-next-line no-restricted-syntax
@@ -394,6 +405,31 @@ export const createOrderForGuest = async (req: Request, res: Response) => {
             isOk: true,
             data: newOrder,
             message: 'Tạo đơn hàng thành công!',
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error!' });
+    }
+};
+
+export const updateOrderStatusAfterPayment = async (
+    req: Request,
+    res: Response
+) => {
+    const { id } = req.params;
+
+    try {
+        await db.order.update({
+            where: {
+                id: String(id),
+            },
+            data: {
+                status: 'PAID',
+            },
+        });
+
+        return res.status(201).json({
+            isOk: true,
+            message: 'Cập nhật trạng thái đơn hàng thành công!',
         });
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error!' });
