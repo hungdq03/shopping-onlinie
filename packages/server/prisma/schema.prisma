@@ -217,6 +217,8 @@ model Cart {
 model Order {
   id            String       @id @default(uuid())
 
+  appTransId       String? @unique
+
   userId        String?
   address       String
   name          String
@@ -250,6 +252,7 @@ enum PAYMENT_TYPE {
 
 enum ORDER_STATUS {
   PAYMENT_PENDING
+  PAID
   PENDING
   CONFIRMED
   DELIVERING
