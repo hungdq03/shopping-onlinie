@@ -1167,7 +1167,23 @@ const htmlBill = (order: OrderResponse) => {
                 </div>
               </td>
             </tr>
-            <tr>Để tiến hành thanh toán bạn hãy ấn vào "Chi tiết đơn hàng" và thực hiện thanh toán theo hướng dẫn nhé.</tr>
+            <tr>
+              <td
+                align="left"
+                bgcolor="#ffffff"
+                style="
+                  padding: 12px 24px 0 24px;
+                  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+                  font-size: 16px;
+                  line-height: 24px;
+                "
+              >
+                <p style="margin: 0">
+					Để tiến hành thanh toán bạn hãy ấn vào "Chi tiết đơn hàng" và thực hiện thanh toán theo hướng dẫn nhé.
+                </p>
+              </td>
+            </tr>
+            <tr></tr>
 			<td align="center" bgcolor="#eaeaea" valign="top" width="100%">
 			  <table
 				align="center"
